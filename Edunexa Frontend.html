@@ -5707,128 +5707,410 @@ function refreshAll(){
 /* =========================================================
    STUDENT TESTS
 ========================================================= */
-
-function renderStudentTests(){
-
-    const element =
-        document.getElementById(
-            "studentTests"
-        );
-
-
-    if(!element){
-
+if (typeof window.db === "undefined") {
+    window.db = {
+        tests: [],
+        assignments: [],
+        submissions: []
+    };
+}
+ 
+const db = window.db;
+ 
+db.tests = Array.isArray(db.tests) ? db.tests : [];
+db.assignments = Array.isArray(db.assignments)
+    ? db.assignments
+    : [];
+db.submissions = Array.isArray(db.submissions)
+    ? db.submissions
+    : [];
+ 
+const MAX_DOCUMENT_SIZE = 4 * 1024 * 1024; // 4 MB
+ 
+ 
+// ---------- Helpers ----------
+ 
+function esc(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+ 
+function save() {
+    localStorage.setItem("schoolDatabase", JSON.stringify(db));
+}
+ 
+function getCurrentUser() {
+    return typeof currentUser !== "undefined"
+        ? currentUser
+        : null;
+}
+ 
+function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+ 
+        reader.onload = () => resolve(reader.result);
+ 
+        reader.onerror = () => {
+            reject(new Error("Unable to read the document."));
+        };
+ 
+        reader.readAsDataURL(file);
+    });
+}
+ 
+ 
+// ---------- Upload and download document ----------
+ 
+async function uploadDocument(type, itemId, input) {
+    const file = input?.files?.[0];
+ 
+    if (!file) {
+        alert("Please select a document first.");
         return;
-
     }
-
-
-    if(db.tests.length === 0){
-
+ 
+    if (file.size > MAX_DOCUMENT_SIZE) {
+        alert("The document must be smaller than 4 MB.");
+        return;
+    }
+ 
+    const collection =
+        type === "test"
+            ? db.tests
+            : db.assignments;
+ 
+    const item = collection.find(
+        record => String(record.id) === String(itemId)
+    );
+ 
+    if (!item) {
+        alert("Test or assignment not found.");
+        return;
+    }
+ 
+    try {
+        item.document = {
+            name: file.name,
+            type: file.type || "application/octet-stream",
+            size: file.size,
+            data: await readFileAsDataUrl(file),
+            uploadedAt: new Date().toLocaleString()
+        };
+ 
+        save();
+ 
+        alert("Document uploaded successfully.");
+ 
+        renderStudentTests();
+        renderStudentAssignments();
+ 
+    } catch (error) {
+        alert(error.message || "Document upload failed.");
+    }
+}
+ 
+function downloadDocument(type, itemId) {
+    const collection =
+        type === "test"
+            ? db.tests
+            : db.assignments;
+ 
+    const item = collection.find(
+        record => String(record.id) === String(itemId)
+    );
+ 
+    if (!item?.document?.data) {
+        alert("No document is available.");
+        return;
+    }
+ 
+    const link = document.createElement("a");
+ 
+    link.href = item.document.data;
+    link.download = item.document.name || "document";
+ 
+    (document.body || document.documentElement).appendChild(link);
+    link.click();
+    link.remove();
+}
+ 
+ 
+// ---------- Render tests ----------
+ 
+function renderStudentTests() {
+    const element = document.getElementById("studentTests");
+    const user = getCurrentUser();
+ 
+    if (!element || !user) {
+        return;
+    }
+ 
+    if (db.tests.length === 0) {
         element.innerHTML = `
             <div class="card empty">
                 No tests available.
             </div>
         `;
-
         return;
-
     }
-
-
-    element.innerHTML =
-        db.tests
-        .map(
-            test => {
-
-                const submission =
-                    db.submissions.find(
-                        item =>
-                            item.itemId === test.id &&
-                            item.studentId ===
-                                currentUser.studentId &&
-                            item.type === "test"
-                    );
-
-
-                return `
-
-                <div class="card">
-
+ 
+    element.innerHTML = db.tests
+        .map(test => {
+            const submission = db.submissions.find(
+                item =>
+                    String(item.itemId) === String(test.id) &&
+                    String(item.studentId) === String(user.studentId) &&
+                    item.type === "test"
+            );
+ 
+            const hasDocument = Boolean(test.document?.data);
+ 
+            return `
+                <div class="card" data-id="${esc(test.id)}">
                     <div class="item-top">
-
                         <div>
-
-                            <h3>
-                                ${esc(test.title)}
-                            </h3>
-
+                            <h3>${esc(test.title)}</h3>
+ 
                             <p>
                                 ${esc(test.subject)}
-                                • Faculty:
-                                ${esc(test.faculty)}
-                                • Due:
-                                ${esc(test.due)}
+                                • Faculty: ${esc(test.faculty)}
+                                • Due: ${esc(test.due)}
                             </p>
-
+ 
+                            ${
+                                hasDocument
+                                    ? `<p class="muted">
+                                        Attached: ${esc(test.document.name)}
+                                    </p>`
+                                    : ""
+                            }
                         </div>
-
-
-                        <span
-                            class="badge ${
-                                submission
-                                ? "green"
-                                : "yellow"
-                            }"
-                        >
+ 
+                        <span class="badge ${
+                            submission ? "green" : "yellow"
+                        }">
                             ${
                                 submission
-                                ? submission.finalMarks +
-                                  " marks"
-                                : "Not submitted"
+                                    ? `${esc(submission.finalMarks)} marks`
+                                    : "Not submitted"
                             }
                         </span>
-
                     </div>
-
-
+ 
                     <div class="actions">
-
+                        ${
+                            hasDocument
+                                ? `<button
+                                    class="btn secondary download-test"
+                                    data-id="${esc(test.id)}"
+                                >
+                                    Download Document
+                                </button>`
+                                : ""
+                        }
+ 
                         ${
                             submission
-                            ?
-                            `
-                            <button
-                                class="btn secondary"
-                                disabled
-                            >
-                                Completed
-                            </button>
-                            `
-                            :
-                            `
-                            <button
-                                class="btn primary"
-                                onclick="takeTest(${test.id})"
-                            >
-                                Start Test
-                            </button>
-                            `
+                                ? `<button class="btn secondary" disabled>
+                                    Completed
+                                </button>`
+                                : `<button
+                                    class="btn primary start-test"
+                                    data-id="${esc(test.id)}"
+                                >
+                                    Start Test
+                                </button>`
                         }
-
                     </div>
-
+ 
+                    ${
+                        user.role === "faculty"
+                            ? `<div class="actions">
+                                <input
+                                    class="test-file"
+                                    type="file"
+                                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,image/*"
+                                >
+ 
+                                <button
+                                    class="btn secondary upload-test"
+                                    data-id="${esc(test.id)}"
+                                >
+                                    Upload / Replace Document
+                                </button>
+                            </div>`
+                            : ""
+                    }
                 </div>
-
-                `;
-
-            }
-        )
+            `;
+        })
         .join("");
-
 }
-
-
+ 
+ 
+// ---------- Render assignments ----------
+ 
+function renderStudentAssignments() {
+    const element = document.getElementById("studentAssignments");
+    const user = getCurrentUser();
+ 
+    if (!element || !user) {
+        return;
+    }
+ 
+    if (db.assignments.length === 0) {
+        element.innerHTML = `
+            <div class="card empty">
+                No assignments available.
+            </div>
+        `;
+        return;
+    }
+ 
+    element.innerHTML = db.assignments
+        .map(assignment => {
+            const submission = db.submissions.find(
+                item =>
+                    String(item.itemId) === String(assignment.id) &&
+                    String(item.studentId) === String(user.studentId) &&
+                    item.type === "assignment"
+            );
+ 
+            const hasDocument =
+                Boolean(assignment.document?.data);
+ 
+            return `
+                <div class="card" data-id="${esc(assignment.id)}">
+                    <div class="item-top">
+                        <div>
+                            <h3>${esc(assignment.title)}</h3>
+ 
+                            <p>
+                                ${esc(assignment.subject)}
+                                • Faculty: ${esc(assignment.faculty)}
+                                • Due: ${esc(assignment.due)}
+                            </p>
+ 
+                            ${
+                                hasDocument
+                                    ? `<p class="muted">
+                                        Attached: ${esc(assignment.document.name)}
+                                    </p>`
+                                    : ""
+                            }
+                        </div>
+ 
+                        <span class="badge ${
+                            submission ? "green" : "yellow"
+                        }">
+                            ${submission ? "Submitted" : "Not submitted"}
+                        </span>
+                    </div>
+ 
+                    <div class="actions">
+                        ${
+                            hasDocument
+                                ? `<button
+                                    class="btn secondary download-assignment"
+                                    data-id="${esc(assignment.id)}"
+                                >
+                                    Download Document
+                                </button>`
+                                : ""
+                        }
+ 
+                        ${
+                            submission
+                                ? `<button class="btn secondary" disabled>
+                                    Completed
+                                </button>`
+                                : `<button
+                                    class="btn primary submit-assignment"
+                                    data-id="${esc(assignment.id)}"
+                                >
+                                    Submit Assignment
+                                </button>`
+                        }
+                    </div>
+ 
+                    ${
+                        user.role === "faculty"
+                            ? `<div class="actions">
+                                <input
+                                    class="assignment-file"
+                                    type="file"
+                                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,image/*"
+                                >
+ 
+                                <button
+                                    class="btn secondary upload-assignment"
+                                    data-id="${esc(assignment.id)}"
+                                >
+                                    Upload / Replace Document
+                                </button>
+                            </div>`
+                            : ""
+                    }
+                </div>
+            `;
+        })
+        .join("");
+}
+ 
+ 
+// ---------- Button actions ----------
+ 
+document.addEventListener("click", event => {
+    const button = event.target.closest("button");
+ 
+    if (!button) {
+        return;
+    }
+ 
+    const id = button.dataset.id;
+ 
+    if (button.classList.contains("download-test")) {
+        downloadDocument("test", id);
+    }
+ 
+    if (button.classList.contains("download-assignment")) {
+        downloadDocument("assignment", id);
+    }
+ 
+    if (button.classList.contains("upload-test")) {
+        const card = button.closest(".card");
+        const input = card.querySelector(".test-file");
+ 
+        uploadDocument("test", id, input);
+    }
+ 
+    if (button.classList.contains("upload-assignment")) {
+        const card = button.closest(".card");
+        const input = card.querySelector(".assignment-file");
+ 
+        uploadDocument("assignment", id, input);
+    }
+ 
+    if (
+        button.classList.contains("start-test") &&
+        typeof takeTest === "function"
+    ) {
+        takeTest(id);
+    }
+ 
+    if (
+        button.classList.contains("submit-assignment") &&
+        typeof submitAssignment === "function"
+    ) {
+        submitAssignment(id);
+    }
+});
+ 
 /* =========================================================
    TAKE TEST
 ========================================================= */
