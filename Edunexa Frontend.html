@@ -1923,6 +1923,38 @@ th{
 @media(max-width:800px){.mark-grid{grid-template-columns:1fr 1fr}.management-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.mark-grid{grid-template-columns:1fr}.management-grid{grid-template-columns:1fr}}
 
+
+/* ================= FEEDBACK MODULE ================= */
+.feedback-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:15px 0}
+.feedback-type-card{border:1px solid var(--border);border-radius:16px;padding:18px;background:#fff;cursor:pointer;transition:.2s;text-align:left;box-shadow:var(--shadow)}
+.feedback-type-card:hover{transform:translateY(-2px);border-color:var(--primary)}
+.feedback-type-card.active{border-color:var(--primary);background:linear-gradient(135deg,#f0efff,#fff);box-shadow:0 12px 28px rgba(99,91,255,.12)}
+.feedback-type-card span{font-size:28px;display:block;margin-bottom:8px}
+.feedback-type-card b{display:block;font-size:14px}
+.feedback-type-card small{display:block;color:var(--muted);margin-top:5px;line-height:1.4}
+.rating{display:flex;gap:7px;flex-direction:row-reverse;justify-content:flex-end}
+.rating input{display:none}
+.rating label{font-size:28px;color:#cfd4df;cursor:pointer;transition:.15s}
+.rating label:hover,.rating label:hover~label,.rating input:checked~label{color:#f5a623}
+.feedback-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.feedback-card{border:1px solid var(--border);border-radius:14px;padding:16px;background:#fff;margin-bottom:12px}
+.feedback-card.priority{border-left:4px solid var(--red)}
+.feedback-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.feedback-id{font-size:10px;color:var(--muted);font-family:monospace}
+.feedback-rating{font-weight:800;color:#9c6715}
+.feedback-status{padding:5px 9px;border-radius:999px;font-size:10px;font-weight:800}
+.feedback-status.submitted{background:#ebe9ff;color:#3e46aa}
+.feedback-status.reviewed{background:#fff3d2;color:#9c6715}
+.feedback-status.action{background:#ddf8eb;color:#087b44}
+.feedback-status.closed{background:#eef0f6;color:#596579}
+.feedback-response{margin-top:12px;padding:12px;border-left:4px solid var(--green);background:#f4fbf7;border-radius:8px;font-size:11px}
+.feedback-filter{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:10px;margin-bottom:15px}
+.feedback-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:center;margin-top:15px}
+.flow-step{padding:14px 10px;border:1px solid var(--border);border-radius:12px;background:#fafbfe;text-align:center;font-size:11px;font-weight:700}
+.flow-arrow{text-align:center;color:var(--primary);font-size:22px}
+.feedback-empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:12px}
+@media(max-width:900px){.feedback-type-grid,.feedback-meta,.feedback-filter{grid-template-columns:1fr}.feedback-flow{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg)}}
+
 </style>
 
 </head>
@@ -2823,6 +2855,9 @@ const DB_KEY = "edunexa_v4";
 
 let db = loadDatabase();
 
+// Backward-compatible migration for databases created before the Feedback module.
+db.feedbacks = Array.isArray(db.feedbacks) ? db.feedbacks : [];
+
 
 
 let currentUser = null;
@@ -2883,7 +2918,8 @@ function createDefaultDatabase(){
 
 
 
-        fees: []
+        fees: [],
+        feedbacks: []
 
 
 
@@ -3131,9 +3167,15 @@ function seedDatabase(){
 
 
 
+    db.feedbacks = [
+        {id:"FDB-10001",studentId:"EDU2026-1048",studentName:"Alexa",department:"Data Analytics",batch:"2025-2028",type:"infrastructure",typeLabel:"Class & College Infrastructure",area:"Internet / Wi-Fi",subject:"",faculty:"",lab:"",event:"",session:"",rating:4,priority:"Important",message:"The classroom internet is useful, but connectivity can be improved during practical sessions.",status:"Reviewed",adviserResponse:"Thank you. The connectivity issue has been noted and will be raised with the department.",createdAt:"2026-08-22 10:30 AM",updatedAt:"2026-08-22 12:10 PM"},
+        {id:"FDB-10002",studentId:"EDU2026-1048",studentName:"Alexa",department:"Data Analytics",batch:"2025-2028",type:"academic",typeLabel:"Subjects, Faculty & Labs",area:"Subject & Faculty",subject:"Python",faculty:"Dr. Priya",lab:"Python Lab",event:"",session:"",rating:5,priority:"Normal",message:"Python practical explanations are clear and the lab exercises are helpful.",status:"Action Taken",adviserResponse:"Positive feedback shared with the faculty member.",createdAt:"2026-08-20 03:00 PM",updatedAt:"2026-08-21 09:00 AM"},
+        {id:"FDB-10003",studentId:"EDU2026-1048",studentName:"Alexa",department:"Data Analytics",batch:"2025-2028",type:"event",typeLabel:"Events & Functions",area:"Overall Session",subject:"",faculty:"",lab:"",event:"Data Analytics Career Seminar",session:"Industry Session",rating:4,priority:"Normal",message:"The session was informative. More time for student questions would make it better.",status:"Submitted",adviserResponse:"",createdAt:"2026-08-23 04:15 PM",updatedAt:"2026-08-23 04:15 PM"}
+    ];
+
+
+
     db.tests = [
-
-
 
         {
 
@@ -4345,6 +4387,10 @@ function buildNav(){
 
 
 
+                ["student-feedback","💬","Feedback"],
+
+
+
                 ["notifications","🔔","Notifications"]
 
 
@@ -4481,6 +4527,11 @@ function buildNav(){
 
                         "Parent Notifications"
 
+                    ],
+                    [
+                        "adviser-feedback",
+                        "💬",
+                        "Student Feedback"
                     ]
 
 
@@ -4532,7 +4583,8 @@ function buildNav(){
                 ["management-dashboard","🏢","Dashboard"],
                 ["management-fees","💳","Department Fees"],
                 ["management-marks","🎯","Student Marks"],
-                ["management-placements","🏢","Placements"]
+                ["management-placements","🏢","Placements"],
+                ["management-feedback","💬","Feedback Analytics"]
             ]
         );
     }
@@ -4622,6 +4674,22 @@ function go(pageId){
         renderNotifications();
 
 
+
+    }
+
+
+
+    if(pageId === "student-feedback"){
+
+        renderStudentFeedback();
+
+    }
+
+
+
+    if(pageId === "adviser-feedback"){
+
+        renderAdviserFeedback();
 
     }
 
@@ -5048,6 +5116,18 @@ function studentPages(){
 
 
 
+
+        <div class="card">
+            <div class="card-head">
+                <div><h3>Feedback Center 💬</h3><p>Send class, academic/lab or event feedback to your Class Adviser.</p></div>
+                <button class="btn primary" onclick="go('student-feedback')">Give Feedback</button>
+            </div>
+            <div class="grid3">
+                <div class="item"><b>${db.feedbacks.filter(f=>f.studentId===currentUser.studentId).length}</b><p>My Feedback</p></div>
+                <div class="item"><b>${db.feedbacks.filter(f=>f.studentId===currentUser.studentId && f.status==="Submitted").length}</b><p>Awaiting Review</p></div>
+                <div class="item"><b>${feedbackAverageRating(db.feedbacks.filter(f=>f.studentId===currentUser.studentId))}/5</b><p>My Average Rating</p></div>
+            </div>
+        </div>
 
         <div class="card">
 
@@ -6326,6 +6406,136 @@ function studentPages(){
     </div>
 
 
+
+
+    <!-- STUDENT FEEDBACK -->
+    <div class="page" id="student-feedback">
+        <div class="page-title">
+            <h1>Student Feedback 💬</h1>
+            <p>Your feedback is routed to your Class Adviser for review and action.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-head">
+                <div>
+                    <h3>Choose Feedback Type</h3>
+                    <p>Submit feedback under one of the three academic categories.</p>
+                </div>
+                <span class="badge blue">3 Types</span>
+            </div>
+
+            <div class="feedback-type-grid">
+                <button type="button" class="feedback-type-card active" data-feedback-type="infrastructure" onclick="selectFeedbackType('infrastructure',this)">
+                    <span>🏫</span>
+                    <b>Class & College Infrastructure</b>
+                    <small>Classrooms, library, campus, cleanliness, internet, facilities and other infrastructure.</small>
+                </button>
+                <button type="button" class="feedback-type-card" data-feedback-type="academic" onclick="selectFeedbackType('academic',this)">
+                    <span>📚</span>
+                    <b>Subjects, Faculty & Labs</b>
+                    <small>Give separate feedback about a subject, faculty member and laboratory experience.</small>
+                </button>
+                <button type="button" class="feedback-type-card" data-feedback-type="event" onclick="selectFeedbackType('event',this)">
+                    <span>🎉</span>
+                    <b>Events & Functions</b>
+                    <small>Share feedback about college events, functions, seminars, workshops and sessions.</small>
+                </button>
+            </div>
+
+            <form onsubmit="submitFeedback(event)" id="feedbackForm">
+                <input type="hidden" id="feedbackType" value="infrastructure">
+
+                <div class="feedback-meta">
+                    <div class="form-group">
+                        <label>Feedback Area</label>
+                        <select id="feedbackArea" class="control" required>
+                            <option>Classroom</option>
+                            <option>Library</option>
+                            <option>Campus Cleanliness</option>
+                            <option>Internet / Wi-Fi</option>
+                            <option>College Facilities</option>
+                            <option>Other Infrastructure</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="feedbackSubjectWrap">
+                        <label>Subject</label>
+                        <select id="feedbackSubject" class="control">
+                            <option>Python</option><option>SQL</option><option>Power BI</option><option>Excel</option><option>Data Analytics</option><option>Communication</option><option>Other Subject</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="feedbackFacultyWrap">
+                        <label>Faculty</label>
+                        <select id="feedbackFaculty" class="control">
+                            <option>Dr. Priya</option><option>Faculty Member</option><option>Other Faculty</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="feedbackLabWrap">
+                        <label>Lab</label>
+                        <select id="feedbackLab" class="control">
+                            <option>Computer Lab</option><option>Data Analytics Lab</option><option>Python Lab</option><option>Other Lab</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="feedbackEventWrap">
+                        <label>Event / Function</label>
+                        <input id="feedbackEvent" class="control" placeholder="e.g. Seminar, Workshop, College Day">
+                    </div>
+                    <div class="form-group hidden" id="feedbackSessionWrap">
+                        <label>Session / Speaker</label>
+                        <input id="feedbackSession" class="control" placeholder="Session or speaker name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="rating" aria-label="5 star rating">
+                        <input type="radio" id="star5" name="feedbackRating" value="5" checked><label for="star5">★</label>
+                        <input type="radio" id="star4" name="feedbackRating" value="4"><label for="star4">★</label>
+                        <input type="radio" id="star3" name="feedbackRating" value="3"><label for="star3">★</label>
+                        <input type="radio" id="star2" name="feedbackRating" value="2"><label for="star2">★</label>
+                        <input type="radio" id="star1" name="feedbackRating" value="1"><label for="star1">★</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Feedback / Suggestions</label>
+                    <textarea id="feedbackMessage" class="control" rows="5" maxlength="1000" required placeholder="Write your feedback clearly..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="feedbackPriority" class="control">
+                        <option value="Normal">Normal</option>
+                        <option value="Important">Important</option>
+                        <option value="Urgent">Urgent</option>
+                    </select>
+                </div>
+
+                <div class="actions">
+                    <button class="btn primary" type="submit">📨 Send to Class Adviser</button>
+                    <button class="btn secondary" type="button" onclick="resetFeedbackForm()">Reset</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-head">
+                <div><h3>Feedback Workflow</h3><p>Track how your feedback reaches the Class Adviser.</p></div>
+            </div>
+            <div class="feedback-flow">
+                <div class="flow-step">👨‍🎓 Student submits</div><div class="flow-arrow">→</div>
+                <div class="flow-step">📨 Sent to Class Adviser</div><div class="flow-arrow">→</div>
+                <div class="flow-step">🔎 Review → Action → Response</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-head">
+                <div><h3>My Feedback History</h3><p>See submitted feedback, status and adviser responses.</p></div>
+                <span class="badge blue" id="studentFeedbackCount">0</span>
+            </div>
+            <div id="studentFeedbackList"></div>
+        </div>
+    </div>
 
     `;
 
@@ -8550,6 +8760,10 @@ function facultyPages(){
 
 
             </button>
+            <button class="card" onclick="go('adviser-feedback')">
+                <h3>💬 Feedback</h3>
+                <p class="muted">Review student feedback and respond.</p>
+            </button>
 
 
 
@@ -8561,6 +8775,44 @@ function facultyPages(){
 
 
 
+
+
+    <!-- ADVISER FEEDBACK -->
+    <div class="page" id="adviser-feedback">
+        <div class="page-title">
+            <h1>Student Feedback Console 💬</h1>
+            <p>Class Adviser review center for infrastructure, academic/lab and event/function feedback.</p>
+        </div>
+        <div class="stats">
+            ${stat("Total Feedback", db.feedbacks.length, "All submitted")}
+            ${stat("Submitted", db.feedbacks.filter(f=>f.status==="Submitted").length, "Needs review")}
+            ${stat("Action Taken", db.feedbacks.filter(f=>f.status==="Action Taken").length, "Resolved workflow")}
+            ${stat("Average Rating", feedbackAverageRating()+" / 5", "Class feedback")}
+        </div>
+        <div class="card">
+            <div class="card-head">
+                <div><h3>Feedback Inbox</h3><p>Filter, review, respond and update the feedback status.</p></div>
+                <button class="btn secondary" onclick="renderAdviserFeedback()">↻ Refresh</button>
+            </div>
+            <div class="feedback-filter">
+                <input id="adviserFeedbackSearch" class="control" oninput="renderAdviserFeedback()" placeholder="Search student / feedback / ID">
+                <select id="adviserFeedbackType" class="control" onchange="renderAdviserFeedback()">
+                    <option value="">All Types</option><option value="infrastructure">Class & College Infrastructure</option><option value="academic">Subjects, Faculty & Labs</option><option value="event">Events & Functions</option>
+                </select>
+                <select id="adviserFeedbackStatus" class="control" onchange="renderAdviserFeedback()">
+                    <option value="">All Status</option><option value="Submitted">Submitted</option><option value="Reviewed">Reviewed</option><option value="Action Taken">Action Taken</option><option value="Closed">Closed</option>
+                </select>
+                <select id="adviserFeedbackPriority" class="control" onchange="renderAdviserFeedback()">
+                    <option value="">All Priority</option><option value="Urgent">Urgent</option><option value="Important">Important</option><option value="Normal">Normal</option>
+                </select>
+            </div>
+            <div id="adviserFeedbackList"></div>
+        </div>
+        <div class="card">
+            <div class="card-head"><div><h3>Feedback Analytics</h3><p>Quick summary to identify areas that need attention.</p></div></div>
+            <div class="grid3" id="adviserFeedbackAnalytics"></div>
+        </div>
+    </div>
 
 
     <!-- ADVISER FEES -->
@@ -10730,6 +10982,156 @@ function feeCard(studentId,studentView){
 
 
 
+
+/* =========================================================
+   FEEDBACK MODULE
+========================================================= */
+
+function feedbackTypeLabel(type){
+    return {infrastructure:"Class & College Infrastructure",academic:"Subjects, Faculty & Labs",event:"Events & Functions"}[type] || type;
+}
+
+function feedbackAverageRating(list = db.feedbacks){
+    if(!list.length) return "0.0";
+    return (list.reduce((sum,f)=>sum + Number(f.rating || 0),0) / list.length).toFixed(1);
+}
+
+function selectFeedbackType(type){
+    const hidden = !type;
+    document.getElementById("feedbackType").value = type;
+    document.querySelectorAll(".feedback-type-card").forEach(card=>card.classList.toggle("active",card.dataset.feedbackType===type));
+    const academic=type==="academic", event=type==="event";
+    document.getElementById("feedbackSubjectWrap").classList.toggle("hidden",!academic);
+    document.getElementById("feedbackFacultyWrap").classList.toggle("hidden",!academic);
+    document.getElementById("feedbackLabWrap").classList.toggle("hidden",!academic);
+    document.getElementById("feedbackEventWrap").classList.toggle("hidden",!event);
+    document.getElementById("feedbackSessionWrap").classList.toggle("hidden",!event);
+    const area=document.getElementById("feedbackArea");
+    if(!area) return;
+    area.innerHTML = type==="infrastructure"
+        ? `<option>Classroom</option><option>Library</option><option>Campus Cleanliness</option><option>Internet / Wi-Fi</option><option>College Facilities</option><option>Other Infrastructure</option>`
+        : academic
+        ? `<option>Subject & Faculty</option><option>Laboratory</option><option>Teaching Method</option><option>Learning Resources</option>`
+        : `<option>Overall Session</option><option>Event Organization</option><option>Speaker / Resource Person</option><option>Learning Outcome</option><option>Facilities & Arrangements</option>`;
+}
+
+function resetFeedbackForm(){
+    const form=document.getElementById("feedbackForm");
+    if(form) form.reset();
+    selectFeedbackType("infrastructure");
+}
+
+function submitFeedback(event){
+    event.preventDefault();
+    if(!currentUser || currentUser.role!=="student"){toast("Only students can submit feedback.");return;}
+    const type=document.getElementById("feedbackType").value;
+    const message=document.getElementById("feedbackMessage").value.trim();
+    const rating=Number(document.querySelector('input[name="feedbackRating"]:checked')?.value||0);
+    const priority=document.getElementById("feedbackPriority").value;
+    const feedback={
+        id:"FDB-"+Date.now().toString().slice(-8),
+        studentId:currentUser.studentId,studentName:currentUser.name,
+        department:currentUser.department||"Data Analytics",batch:currentUser.batch||"2025-2028",
+        type,typeLabel:feedbackTypeLabel(type),area:document.getElementById("feedbackArea").value,
+        subject:type==="academic"?document.getElementById("feedbackSubject").value:"",
+        faculty:type==="academic"?document.getElementById("feedbackFaculty").value:"",
+        lab:type==="academic"?document.getElementById("feedbackLab").value:"",
+        event:type==="event"?document.getElementById("feedbackEvent").value.trim():"",
+        session:type==="event"?document.getElementById("feedbackSession").value.trim():"",
+        rating,priority,message,status:"Submitted",adviserResponse:"",
+        createdAt:new Date().toLocaleString(),updatedAt:new Date().toLocaleString()
+    };
+    if(!message||!rating){toast("Please enter feedback and rating.");return;}
+    if(type==="event"&&!feedback.event){toast("Please enter the event or function name.");return;}
+    db.feedbacks.push(feedback);
+    addNotice("New Student Feedback",`${feedback.id}: ${feedback.typeLabel} feedback from ${feedback.studentName}. Rating ${rating}/5.`,"adviser");
+    save();refreshAll();go("student-feedback");
+    document.getElementById("feedbackForm")?.reset();selectFeedbackType("infrastructure");
+    toast(`Feedback ${feedback.id} sent to the Class Adviser.`);
+}
+
+function feedbackDetailsHTML(f){
+    let details=`<b>${esc(f.area||"")}</b>`;
+    if(f.type==="academic") details+=` • Subject: ${esc(f.subject||"—")} • Faculty: ${esc(f.faculty||"—")} • Lab: ${esc(f.lab||"—")}`;
+    if(f.type==="event") details+=` • Event: ${esc(f.event||"—")} • Session: ${esc(f.session||"—")}`;
+    return details;
+}
+
+function feedbackStatusClass(status){
+    return status==="Action Taken"?"action":status==="Closed"?"closed":status==="Reviewed"?"reviewed":"submitted";
+}
+
+function studentFeedbackCard(f){
+    return `<div class="feedback-card ${f.priority==="Urgent"?"priority":""}">
+        <div class="feedback-header"><div><b>${esc(f.typeLabel)}</b><div class="feedback-id">${esc(f.id)} • ${esc(f.createdAt)}</div></div>
+        <div style="text-align:right"><div class="feedback-rating">★ ${esc(f.rating)}/5</div><span class="feedback-status ${feedbackStatusClass(f.status)}">${esc(f.status)}</span></div></div>
+        <p style="margin-top:10px">${feedbackDetailsHTML(f)}</p><p>${esc(f.message)}</p>
+        ${f.adviserResponse?`<div class="feedback-response"><b>Class Adviser Response:</b><br>${esc(f.adviserResponse)}</div>`:""}
+    </div>`;
+}
+
+function renderStudentFeedback(){
+    const list=document.getElementById("studentFeedbackList"),count=document.getElementById("studentFeedbackCount");
+    if(!list||!currentUser)return;
+    const mine=db.feedbacks.filter(f=>f.studentId===currentUser.studentId).slice().reverse();
+    if(count)count.textContent=mine.length;
+    list.innerHTML=mine.length?mine.map(studentFeedbackCard).join(""):`<div class="feedback-empty">You have not submitted any feedback yet.</div>`;
+}
+
+function adviserFeedbackCard(f){
+    return `<div class="feedback-card ${f.priority==="Urgent"?"priority":""}">
+        <div class="feedback-header"><div><b>${esc(f.studentName)} • ${esc(f.studentId)}</b><div class="feedback-id">${esc(f.id)} • ${esc(f.createdAt)}</div></div>
+        <div style="text-align:right"><div class="feedback-rating">★ ${esc(f.rating)}/5</div><span class="feedback-status ${feedbackStatusClass(f.status)}">${esc(f.status)}</span></div></div>
+        <p style="margin-top:10px"><b>${esc(f.typeLabel)}</b> • ${feedbackDetailsHTML(f)}</p><p>${esc(f.message)}</p>
+        <div class="actions">
+            <button class="btn secondary" onclick="openFeedbackResponse('${escAttr(f.id)}')">🔎 Review / Respond</button>
+            ${f.status==="Submitted"?`<button class="btn primary" onclick="updateFeedbackStatus('${escAttr(f.id)}','Reviewed')">Mark Reviewed</button>`:""}
+            ${f.status==="Reviewed"?`<button class="btn success" onclick="updateFeedbackStatus('${escAttr(f.id)}','Action Taken')">Mark Action Taken</button>`:""}
+            ${f.status==="Action Taken"?`<button class="btn secondary" onclick="updateFeedbackStatus('${escAttr(f.id)}','Closed')">Close</button>`:""}
+        </div>
+        ${f.adviserResponse?`<div class="feedback-response"><b>Adviser Response:</b><br>${esc(f.adviserResponse)}</div>`:""}
+    </div>`;
+}
+
+function renderAdviserFeedback(){
+    const list=document.getElementById("adviserFeedbackList"),analytics=document.getElementById("adviserFeedbackAnalytics");
+    if(!list||!currentUser||currentUser.role!=="faculty"||!currentUser.classAdviser)return;
+    const search=(document.getElementById("adviserFeedbackSearch")?.value||"").toLowerCase().trim();
+    const type=document.getElementById("adviserFeedbackType")?.value||"",status=document.getElementById("adviserFeedbackStatus")?.value||"",priority=document.getElementById("adviserFeedbackPriority")?.value||"";
+    const filtered=db.feedbacks.filter(f=>!search||[f.id,f.studentName,f.studentId,f.message,f.typeLabel,f.subject,f.faculty,f.event].join(" ").toLowerCase().includes(search))
+        .filter(f=>!type||f.type===type).filter(f=>!status||f.status===status).filter(f=>!priority||f.priority===priority).slice().reverse();
+    list.innerHTML=filtered.length?filtered.map(adviserFeedbackCard).join(""):`<div class="feedback-empty">No feedback matches the selected filters.</div>`;
+    if(analytics){
+        const infra=db.feedbacks.filter(f=>f.type==="infrastructure"),academic=db.feedbacks.filter(f=>f.type==="academic"),event=db.feedbacks.filter(f=>f.type==="event");
+        analytics.innerHTML=`<div class="item"><b>${infra.length}</b><p>🏫 Infrastructure Feedback<br>Average: ${feedbackAverageRating(infra)}/5</p></div>
+        <div class="item"><b>${academic.length}</b><p>📚 Subject / Faculty / Lab Feedback<br>Average: ${feedbackAverageRating(academic)}/5</p></div>
+        <div class="item"><b>${event.length}</b><p>🎉 Event / Function Feedback<br>Average: ${feedbackAverageRating(event)}/5</p></div>`;
+    }
+}
+
+function openFeedbackResponse(feedbackId){
+    const f=db.feedbacks.find(x=>x.id===feedbackId);if(!f)return;
+    openModal(`Feedback ${f.id}`,`<div class="item" style="margin-bottom:12px"><b>${esc(f.studentName)} • ${esc(f.typeLabel)}</b><p>${feedbackDetailsHTML(f)}</p><p>${esc(f.message)}</p><p><b>Rating:</b> ${esc(f.rating)}/5 &nbsp; <b>Priority:</b> ${esc(f.priority)}</p></div>
+        <div class="form-group"><label>Status</label><select id="feedbackModalStatus" class="control">${["Submitted","Reviewed","Action Taken","Closed"].map(s=>`<option ${f.status===s?"selected":""}>${s}</option>`).join("")}</select></div>
+        <div class="form-group"><label>Adviser Response / Action Note</label><textarea id="feedbackModalResponse" class="control" rows="5" placeholder="Write the response or action taken...">${esc(f.adviserResponse||"")}</textarea></div>
+        <button class="btn primary" onclick="saveFeedbackResponse('${escAttr(f.id)}')">Save Response</button>`);
+}
+
+function saveFeedbackResponse(feedbackId){
+    const f=db.feedbacks.find(x=>x.id===feedbackId);if(!f)return;
+    const status=document.getElementById("feedbackModalStatus").value,response=document.getElementById("feedbackModalResponse").value.trim();
+    f.status=status;f.adviserResponse=response;f.updatedAt=new Date().toLocaleString();
+    addNotice("Feedback Update",`Your feedback ${f.id} is now "${status}".${response?" Adviser response: "+response:""}`,f.studentId);
+    save();closeModal();refreshAll();go("adviser-feedback");toast(`Feedback ${f.id} updated.`);
+}
+
+function updateFeedbackStatus(feedbackId,status){
+    const f=db.feedbacks.find(x=>x.id===feedbackId);if(!f)return;
+    f.status=status;f.updatedAt=new Date().toLocaleString();
+    addNotice("Feedback Status Updated",`Your feedback ${f.id} is now "${status}".`,f.studentId);
+    save();refreshAll();go("adviser-feedback");toast(`Feedback marked ${status}.`);
+}
+
 /* =========================================================
 
    REFRESH
@@ -10758,6 +11160,10 @@ function refreshAll(){
 
 
     if(currentUser.role === "student"){
+
+
+
+        renderStudentFeedback();
 
 
 
@@ -10872,6 +11278,10 @@ function refreshAll(){
 
 
     if(currentUser.role === "faculty"){
+
+
+
+        renderAdviserFeedback();
 
 
 
@@ -15247,7 +15657,29 @@ function renderAdviserFees(){
 
             </div>
 
-        `;
+    
+        <!-- MANAGEMENT FEEDBACK ANALYTICS -->
+        <div class="page" id="management-feedback">
+            <div class="page-title"><h1>Feedback Analytics 💬</h1><p>Institution-level view of student feedback trends.</p></div>
+            <div class="stats">
+                ${stat("Total Feedback", db.feedbacks.length, "All categories")}
+                ${stat("Average Rating", feedbackAverageRating()+" / 5", "Overall")}
+                ${stat("Urgent", db.feedbacks.filter(f=>f.priority==="Urgent").length, "Needs attention")}
+                ${stat("Action Taken", db.feedbacks.filter(f=>f.status==="Action Taken").length, "Resolved workflow")}
+            </div>
+            <div class="card">
+                <div class="card-head"><div><h3>Category Summary</h3><p>Infrastructure, academic/lab and event/function feedback.</p></div></div>
+                <div class="grid3">
+                    ${["infrastructure","academic","event"].map(type=>{const rows=db.feedbacks.filter(f=>f.type===type);return `<div class="item"><b>${esc(feedbackTypeLabel(type))}</b><p>${rows.length} submissions • Average ${feedbackAverageRating(rows)}/5</p></div>`;}).join("")}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-head"><div><h3>Recent Feedback</h3><p>Latest student submissions across the institution.</p></div></div>
+                ${db.feedbacks.slice().reverse().slice(0,12).map(f=>`<div class="feedback-card"><div class="feedback-header"><div><b>${esc(f.id)} • ${esc(f.typeLabel)}</b><div class="feedback-id">${esc(f.studentName)} • ${esc(f.createdAt)}</div></div><span class="feedback-status ${feedbackStatusClass(f.status)}">${esc(f.status)}</span></div><p>${esc(f.message)}</p></div>`).join("") || `<div class="feedback-empty">No feedback available.</div>`}
+            </div>
+        </div>
+
+    `;
 
 
 
