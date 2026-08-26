@@ -1954,6 +1954,23 @@ th{
 .flow-arrow{text-align:center;color:var(--primary);font-size:22px}
 .feedback-empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:12px}
 @media(max-width:900px){.feedback-type-grid,.feedback-meta,.feedback-filter{grid-template-columns:1fr}.feedback-flow{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg)}}
+/* ================= MANAGEMENT FACULTY DETAILS ================= */
+.faculty-management-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.faculty-profile-card{border:1px solid var(--border);border-radius:16px;padding:18px;background:#fff;box-shadow:var(--shadow);transition:.2s}
+.faculty-profile-card:hover{transform:translateY(-2px);border-color:var(--primary)}
+.faculty-profile-top{display:flex;gap:13px;align-items:center;margin-bottom:14px}
+.faculty-avatar{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--cyan));color:#fff;font-weight:900;font-size:20px}
+.faculty-meta{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.faculty-meta .item{padding:10px}
+.faculty-label{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:800}
+.faculty-value{font-size:11px;font-weight:700;margin-top:3px}
+.faculty-filter{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px;margin-bottom:15px}
+.faculty-detail-list{display:grid;gap:8px;margin-top:12px}
+.faculty-detail-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--border);font-size:11px}
+.faculty-detail-row:last-child{border-bottom:0}
+.position-badge{background:#ebe9ff;color:#3e46aa;padding:5px 8px;border-radius:999px;font-size:9px;font-weight:800}
+@media(max-width:800px){.faculty-filter,.faculty-meta{grid-template-columns:1fr}}
+
 
 </style>
 
@@ -3102,12 +3119,20 @@ function seedDatabase(){
             role:"faculty",
 
             facultyId:"FAC-1001",
-
             mentor:true,
-
             classAdviser:true,
-
-            department:"Data Analytics"
+            department:"Data Analytics",
+            position:"Assistant Professor",
+            designation:"Faculty Coordinator",
+            classesHandled:["II B.Sc Data Analytics","I B.Sc Data Analytics"],
+            basicSubjects:["Python","Data Analytics"],
+            extraSubjects:["SQL","Power BI"],
+            qualification:"Ph.D. in Computer Science",
+            experience:"8 Years",
+            specialization:"Data Analytics & Machine Learning",
+            office:"Block A - Room 204",
+            phone:"+91 90000 10001",
+            extraInfo:"Class Adviser for II B.Sc Data Analytics; Mentor for student skill dashboard; coordinates academic activities."
 
         },
 
@@ -4581,6 +4606,7 @@ function buildNav(){
             "Management",
             [
                 ["management-dashboard","🏢","Dashboard"],
+                ["management-faculty","👨‍🏫","Faculty Details"],
                 ["management-fees","💳","Department Fees"],
                 ["management-marks","🎯","Student Marks"],
                 ["management-placements","🏢","Placements"],
@@ -9145,6 +9171,7 @@ function managementPages(){
         </div>
         <div class="stats">
             ${stat("Departments", managementDepartments().length, "Fee structure available")}
+            ${stat("Faculty", managementFaculty.length, "Faculty records")}
             ${stat("Students", managementStudents().length, "Across all departments")}
             ${stat("Companies", managementCompanies.length, "Placement records")}
             ${stat("Placed Students", managementPlacements.length, "Sorted by package")}
@@ -9164,10 +9191,37 @@ function managementPages(){
         <div class="card">
             <div class="card-head"><div><h3>Quick Access</h3><p>Management-only operations</p></div></div>
             <div class="button-row">
+                <button class="btn secondary" onclick="go('management-faculty')">👨‍🏫 Faculty Details</button>
                 <button class="btn secondary" onclick="go('management-fees')">💳 Department Fees</button>
                 <button class="btn secondary" onclick="go('management-marks')">🎯 Student Marks</button>
                 <button class="btn secondary" onclick="go('management-placements')">🏢 Placements</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MANAGEMENT FACULTY DETAILS -->
+    <div class="page" id="management-faculty">
+        <div class="page-title"><h1>Faculty Details 👨‍🏫</h1><p>View faculty profile, classes handled, class adviser responsibility, college position, basic subject and extra information.</p></div>
+        <div class="stats">
+            ${stat("Faculty", managementFaculty.length, "All faculty records")}
+            ${stat("Class Advisers", managementFaculty.filter(f=>f.classAdviser).length, "Assigned advisers")}
+            ${stat("Mentors", managementFaculty.filter(f=>f.mentor).length, "Mentor access")}
+            ${stat("Departments", [...new Set(managementFaculty.map(f=>f.department))].length, "Faculty departments")}
+        </div>
+        <div class="card">
+            <div class="card-head"><div><h3>Faculty Directory</h3><p>Search and filter faculty by department, position or class.</p></div></div>
+            <div class="faculty-filter">
+                <input class="control" id="managementFacultySearch" oninput="renderManagementFaculty()" placeholder="Search faculty / ID / subject / class">
+                <select class="control" id="managementFacultyDepartment" onchange="renderManagementFaculty()"><option value="">All Departments</option>${[...new Set(managementFaculty.map(f=>f.department))].map(d=>`<option>${esc(d)}</option>`).join('')}</select>
+                <select class="control" id="managementFacultyPosition" onchange="renderManagementFaculty()"><option value="">All Positions</option>${[...new Set(managementFaculty.map(f=>f.position))].map(d=>`<option>${esc(d)}</option>`).join('')}</select>
+            </div>
+            <div id="managementFacultyList" class="faculty-management-grid"></div>
+        </div>
+        <div class="card">
+            <div class="card-head"><div><h3>Faculty Class & Subject Overview</h3><p>Which faculty handles which class and basic subject.</p></div></div>
+            <div class="table-wrap"><table><thead><tr><th>Faculty</th><th>Department</th><th>Position</th><th>Class / Section</th><th>Basic Subject</th><th>Class Adviser</th><th>Mentor</th></tr></thead><tbody>
+            ${managementFaculty.map(f=>`<tr><td><b>${esc(f.name)}</b><br><small>${esc(f.facultyId)}</small></td><td>${esc(f.department)}</td><td><span class="position-badge">${esc(f.position)}</span></td><td>${esc((f.classesHandled||[]).join(', '))}</td><td>${esc((f.basicSubjects||[]).join(', '))}</td><td>${f.classAdviser?'<span class="badge green">Yes</span>':'<span class="badge">No</span>'}</td><td>${f.mentor?'<span class="badge blue">Yes</span>':'<span class="badge">No</span>'}</td></tr>`).join('')}
+            </tbody></table></div>
         </div>
     </div>
 
@@ -9218,6 +9272,13 @@ function managementPages(){
 }
 
 function escAttr(v){ return String(v ?? '').replaceAll('\\','\\\\').replaceAll("'","\\'"); }
+
+const managementFaculty = [
+    {facultyId:'FAC-1001',name:'Dr. Priya',email:'faculty@edunexa.com',phone:'+91 90000 10001',department:'Data Analytics',position:'Assistant Professor',designation:'Faculty Coordinator',classAdviser:true,mentor:true,classesHandled:['II B.Sc Data Analytics','I B.Sc Data Analytics'],basicSubjects:['Python','Data Analytics'],extraSubjects:['SQL','Power BI'],experience:'8 Years',qualification:'Ph.D. in Computer Science',office:'Block A - Room 204',joiningYear:2018,workload:'18 Hours / Week',specialization:'Data Analytics & Machine Learning',extraInfo:'Class Adviser for II B.Sc Data Analytics; Mentor for student skill dashboard; coordinates academic activities.'},
+    {facultyId:'FAC-1002',name:'Mr. Arun Kumar',email:'arun.faculty@edunexa.com',phone:'+91 90000 10002',department:'Computer Science',position:'Assistant Professor',designation:'Senior Faculty',classAdviser:true,mentor:false,classesHandled:['II B.Sc Computer Science','I B.Sc Computer Science'],basicSubjects:['Java','Data Structures'],extraSubjects:['Web Development','DBMS'],experience:'6 Years',qualification:'M.Phil. Computer Science',office:'Block B - Room 106',joiningYear:2020,workload:'20 Hours / Week',specialization:'Programming & Web Technologies',extraInfo:'Class Adviser for II B.Sc Computer Science; department examination coordinator.'},
+    {facultyId:'FAC-1003',name:'Ms. Kavitha R',email:'kavitha.faculty@edunexa.com',phone:'+91 90000 10003',department:'Information Technology',position:'Assistant Professor',designation:'Faculty',classAdviser:false,mentor:true,classesHandled:['II B.Sc Information Technology','I B.Sc Information Technology'],basicSubjects:['Database Management Systems','Networking'],extraSubjects:['Cloud Computing','Cyber Security'],experience:'5 Years',qualification:'M.E. Computer Science',office:'Block C - Room 112',joiningYear:2021,workload:'19 Hours / Week',specialization:'Cloud & Database Technologies',extraInfo:'Mentor faculty for IT students; supports technical clubs and project guidance.'},
+    {facultyId:'FAC-1004',name:'Dr. Meena S',email:'meena.faculty@edunexa.com',phone:'+91 90000 10004',department:'Artificial Intelligence & Data Science',position:'Associate Professor',designation:'HOD',classAdviser:true,mentor:true,classesHandled:['II B.Sc AI & Data Science','III B.Sc AI & Data Science'],basicSubjects:['Machine Learning','Artificial Intelligence'],extraSubjects:['Deep Learning','Python'],experience:'11 Years',qualification:'Ph.D. in Artificial Intelligence',office:'Block D - HOD Room',joiningYear:2015,workload:'16 Hours / Week',specialization:'AI, ML & Deep Learning',extraInfo:'HOD and Class Adviser; supervises projects, placements and department academic planning.'}
+];
 
 const managementFeeData = [
     {department:'Data Analytics', className:'II B.Sc Data Analytics', students:[
@@ -9273,6 +9334,46 @@ function managementFeeStudents(){
 }
 function managementStudents(){ return managementFeeStudents(); }
 function managementDepartments(){ return [...new Set(managementFeeData.map(d=>d.department))]; }
+function renderManagementFaculty(){
+    const el=document.getElementById('managementFacultyList');
+    if(!el) return;
+    const q=(document.getElementById('managementFacultySearch')?.value||'').toLowerCase();
+    const dept=document.getElementById('managementFacultyDepartment')?.value||'';
+    const pos=document.getElementById('managementFacultyPosition')?.value||'';
+    const list=managementFaculty.filter(f=>{
+        const text=[f.name,f.facultyId,f.email,f.department,f.position,f.designation,...(f.classesHandled||[]),...(f.basicSubjects||[]),...(f.extraSubjects||[])].join(' ').toLowerCase();
+        return (!q||text.includes(q))&&(!dept||f.department===dept)&&(!pos||f.position===pos);
+    });
+    el.innerHTML=list.length?list.map(f=>`<div class="faculty-profile-card">
+        <div class="faculty-profile-top"><div class="faculty-avatar">${esc(f.name.replace(/[^A-Za-z]/g,'').slice(0,2).toUpperCase()||'F')}</div><div><h3>${esc(f.name)}</h3><p class="muted">${esc(f.facultyId)} • ${esc(f.department)}</p></div></div>
+        <div><span class="position-badge">${esc(f.position)}</span> ${f.classAdviser?'<span class="badge green">Class Adviser</span>':''} ${f.mentor?'<span class="badge blue">Mentor</span>':''}</div>
+        <div class="faculty-meta">
+            <div class="item"><div class="faculty-label">Designation</div><div class="faculty-value">${esc(f.designation)}</div></div>
+            <div class="item"><div class="faculty-label">Experience</div><div class="faculty-value">${esc(f.experience)}</div></div>
+            <div class="item"><div class="faculty-label">Basic Subject</div><div class="faculty-value">${esc((f.basicSubjects||[]).join(', '))}</div></div>
+            <div class="item"><div class="faculty-label">Classes Faced</div><div class="faculty-value">${esc((f.classesHandled||[]).join(', '))}</div></div>
+        </div>
+        <div class="faculty-detail-list">
+            <div class="faculty-detail-row"><b>Qualification</b><span>${esc(f.qualification)}</span></div>
+            <div class="faculty-detail-row"><b>Office</b><span>${esc(f.office)}</span></div>
+            <div class="faculty-detail-row"><b>Specialization</b><span>${esc(f.specialization)}</span></div>
+            <div class="faculty-detail-row"><b>Extra Subjects</b><span>${esc((f.extraSubjects||[]).join(', '))}</span></div>
+            <div class="faculty-detail-row"><b>Extra Information</b><span>${esc(f.extraInfo)}</span></div>
+        </div>
+        <div class="actions"><button class="btn primary" onclick="showManagementFacultyDetails('${escAttr(f.facultyId)}')">View Full Details</button></div>
+    </div>`).join(''):'<div class="empty">No faculty records match the selected filters.</div>';
+}
+
+function showManagementFacultyDetails(facultyId){
+    const f=managementFaculty.find(x=>x.facultyId===facultyId); if(!f) return;
+    document.getElementById('modalTitle').textContent=`Faculty Details — ${f.name}`;
+    document.getElementById('modalBody').innerHTML=`<div class="faculty-detail-list">
+        <div class="faculty-detail-row"><b>Faculty ID</b><span>${esc(f.facultyId)}</span></div><div class="faculty-detail-row"><b>Email</b><span>${esc(f.email)}</span></div><div class="faculty-detail-row"><b>Phone</b><span>${esc(f.phone)}</span></div><div class="faculty-detail-row"><b>Department</b><span>${esc(f.department)}</span></div><div class="faculty-detail-row"><b>College Position</b><span>${esc(f.position)}</span></div><div class="faculty-detail-row"><b>Designation</b><span>${esc(f.designation)}</span></div><div class="faculty-detail-row"><b>Class Adviser</b><span>${f.classAdviser?'Yes — '+esc((f.classesHandled||[]).join(', ')):'No'}</span></div><div class="faculty-detail-row"><b>Mentor Access</b><span>${f.mentor?'Enabled':'Not assigned'}</span></div><div class="faculty-detail-row"><b>Classes Faced</b><span>${esc((f.classesHandled||[]).join(', '))}</span></div><div class="faculty-detail-row"><b>Basic Subject</b><span>${esc((f.basicSubjects||[]).join(', '))}</span></div><div class="faculty-detail-row"><b>Extra Subjects</b><span>${esc((f.extraSubjects||[]).join(', '))}</span></div><div class="faculty-detail-row"><b>Qualification</b><span>${esc(f.qualification)}</span></div><div class="faculty-detail-row"><b>Experience</b><span>${esc(f.experience)}</span></div><div class="faculty-detail-row"><b>Specialization</b><span>${esc(f.specialization)}</span></div><div class="faculty-detail-row"><b>Office</b><span>${esc(f.office)}</span></div><div class="faculty-detail-row"><b>Joining Year</b><span>${esc(f.joiningYear)}</span></div><div class="faculty-detail-row"><b>Workload</b><span>${esc(f.workload)}</span></div><div class="faculty-detail-row"><b>Extra Information</b><span>${esc(f.extraInfo)}</span></div>
+    </div>`;
+    document.getElementById('modal').classList.add('show');
+}
+
+
 function managementClasses(department){ return managementFeeData.filter(d=>d.department===department); }
 function money(n){ return '₹'+Number(n||0).toLocaleString('en-IN'); }
 function feeStatus(total,paid){ return Number(paid)>=Number(total) ? '<span class="badge green">Paid</span>' : `<span class="badge red">Pending ${money(Number(total)-Number(paid))}</span>`; }
@@ -9318,6 +9419,7 @@ function managementSaveMark(studentId){
 
 function refreshManagementPages(){
     renderManagementMarks();
+    renderManagementFaculty();
 }
 
 /* =========================================================
@@ -11142,6 +11244,7 @@ function updateFeedbackStatus(feedbackId,status){
 
 function refreshAll(){
     renderManagementMarks();
+    renderManagementFaculty();
 
 
 
