@@ -213,17 +213,24 @@ button{
     place-items:center;
 
     border-radius:14px;
+<<<<<<< Updated upstream
 
+=======
+    margin-bottom:22px;
+>>>>>>> Stashed changes
     background:linear-gradient(135deg,var(--primary),var(--cyan));
 
     color:#fff;
 
 }
 
+<<<<<<< Updated upstream
 
 
 .logo-icon{
 
+=======
+>>>>>>> Stashed changes
     width:50px;
 
     height:50px;
@@ -907,7 +914,85 @@ button{
 .stat{
 
     padding:20px;
+<<<<<<< Updated upstream
 
+=======
+    position:relative;
+    overflow:hidden;
+}
+
+.student-snapshot{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    align-items:center;
+    gap:16px;
+    padding:18px 20px;
+    margin-bottom:22px;
+    border:1px solid #c9e8ed;
+    border-radius:16px;
+    background:linear-gradient(110deg,#ecfbfc,#ffffff 58%,#fff8e8);
+    box-shadow:var(--shadow);
+}
+
+.student-avatar{
+    width:54px;
+    height:54px;
+    display:grid;
+    place-items:center;
+    border-radius:15px;
+    background:linear-gradient(135deg,var(--cyan),var(--primary));
+    color:#fff;
+    font-size:20px;
+    font-weight:850;
+}
+
+.student-snapshot h2{
+    font-size:17px;
+    margin-bottom:5px;
+}
+
+.student-snapshot p{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.student-details{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.student-detail strong{
+    display:block;
+    color:var(--text);
+    font-size:12px;
+}
+
+.student-detail span{
+    display:block;
+    color:var(--muted);
+    font-size:9px;
+    margin-top:3px;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+}
+
+.stats .stat:nth-child(1){
+    border-top:4px solid var(--cyan);
+}
+
+.stats .stat:nth-child(2){
+    border-top:4px solid var(--primary);
+}
+
+.stats .stat:nth-child(3){
+    border-top:4px solid var(--yellow);
+}
+
+.stats .stat:nth-child(4){
+    border-top:4px solid var(--red);
+>>>>>>> Stashed changes
 }
 
 
@@ -6910,6 +6995,36 @@ function facultyPages(){
                     :
 
                     `
+<<<<<<< Updated upstream
+=======
+                <div class="student-snapshot">
+
+                    <div class="student-avatar">
+                        ${esc(currentUser.name).charAt(0).toUpperCase()}
+                    </div>
+
+                    <div>
+                        <h2>${esc(currentUser.name)}</h2>
+                        <p>${esc(currentUser.studentId || "Student ID unavailable")} · ${esc(currentUser.email)}</p>
+                    </div>
+
+                    <div class="student-details">
+                        <div class="student-detail">
+                            <strong>${esc(currentUser.department || "Not assigned")}</strong>
+                            <span>Department</span>
+                        </div>
+                        <div class="student-detail">
+                            <strong>${esc(currentUser.batch || "Not assigned")}</strong>
+                            <span>Batch</span>
+                        </div>
+                        <div class="student-detail">
+                            <strong>${esc((currentUser.attendance || 0) + "%")}</strong>
+                            <span>Attendance</span>
+                        </div>
+                    </div>
+
+                </div>
+>>>>>>> Stashed changes
 
                     <div class="notice">
 
