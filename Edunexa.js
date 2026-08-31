@@ -1,3123 +1,134 @@
-<!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>EduNexa | Smart Education Portal</title>
-
-
-
-<style>
-
-:root{
-
-    --primary:#635bff;
-
-    --primary-dark:#5148e5;
-
-    --cyan:#20c7d9;
-
-    --green:#16b364;
-
-    --yellow:#f5a623;
-
-    --red:#e5484d;
-
-    --dark:#11182d;
-
-    --dark2:#1a223b;
-
-    --bg:#f5f7fb;
-
-    --card:#ffffff;
-
-    --text:#172033;
-
-    --muted:#718096;
-
-    --border:#e5e9f2;
-
-    --shadow:0 15px 35px rgba(30,40,80,.08);
-
-}
-
-
-
-*{
-
-    box-sizing:border-box;
-
-    margin:0;
-
-    padding:0;
-
-    font-family:Inter,Arial,sans-serif;
-
-}
-
-
-
-body{
-
-    background:var(--bg);
-
-    color:var(--text);
-
-}
-
-
-
-button,input,select,textarea{
-
-    font:inherit;
-
-}
-
-
-
-button{
-
-    border:0;
-
-    cursor:pointer;
-
-}
-
-
-
-.hidden{
-
-    display:none!important;
-
-}
-
-
-
-/* ================= AUTH ================= */
-
-
-
-.auth{
-
-    min-height:100vh;
-
-    display:grid;
-
-    place-items:center;
-
-    padding:20px;
-
-    background:
-
-        radial-gradient(circle at 10% 10%,#ddd9ff,transparent 35%),
-
-        radial-gradient(circle at 90% 90%,#c8f8fc,transparent 35%),
-
-        var(--bg);
-
-}
-
-
-
-.auth-box{
-
-    width:min(1100px,100%);
-
-    min-height:650px;
-
-    background:#fff;
-
-    border-radius:28px;
-
-    overflow:hidden;
-
-    box-shadow:0 30px 80px rgba(40,50,100,.15);
-
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-}
-
-
-
-.brand-panel{
-
-    background:linear-gradient(145deg,var(--dark),#242d52);
-
-    color:#fff;
-
-    padding:55px;
-
-    display:flex;
-
-    align-items:center;
-
-}
-
-
-
-.brand-panel h1{
-
-    font-size:28px;
-
-}
-
-
-
-.brand-panel h2{
-
-    font-size:40px;
-
-    line-height:1.15;
-
-    margin:30px 0 16px;
-
-}
-
-
-
-.brand-panel p{
-
-    color:#b9c1d8;
-
-    line-height:1.7;
-
-}
-
-
-
-.logo{
-
-    display:flex;
-
-    gap:12px;
-
-    align-items:center;
-
-}
-
-
-
-.logo-icon,
-
-.side-icon{
-
-    display:grid;
-
-    place-items:center;
-
-    border-radius:14px;
-
-    background:linear-gradient(135deg,var(--primary),var(--cyan));
-
-    color:#fff;
-
-}
-
-
-
-.logo-icon{
-
-    width:50px;
-
-    height:50px;
-
-    font-size:24px;
-
-}
-
-
-
-.features{
-
-    display:grid;
-
-    gap:13px;
-
-    margin-top:32px;
-
-    color:#d8dced;
-
-}
-
-
-
-.feature{
-
-    display:flex;
-
-    gap:10px;
-
-    align-items:center;
-
-}
-
-
-
-.form-panel{
-
-    padding:50px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:center;
-
-}
-
-
-
-.form-panel h2{
-
-    font-size:30px;
-
-    margin-bottom:8px;
-
-}
-
-
-
-.muted{
-
-    color:var(--muted);
-
-}
-
-
-
-.form-group{
-
-    margin:15px 0;
-
-}
-
-
-
-.form-group label{
-
-    display:block;
-
-    font-size:12px;
-
-    font-weight:700;
-
-    margin-bottom:7px;
-
-}
-
-
-
-.control{
-
-    width:100%;
-
-    padding:13px 14px;
-
-    border:1px solid var(--border);
-
-    border-radius:10px;
-
-    outline:none;
-
-    background:#fafbfe;
-
-}
-
-
-
-.control:focus{
-
-    border-color:var(--primary);
-
-    box-shadow:0 0 0 3px rgba(99,91,255,.1);
-
-}
-
-
-
-.role-grid{
-
-    display:grid;
-
-    grid-template-columns:repeat(3,1fr);
-
-    gap:9px;
-
-}
-
-
-
-.role{
-
-    padding:13px 7px;
-
-    text-align:center;
-
-    border:1px solid var(--border);
-
-    border-radius:12px;
-
-    background:#fff;
-
-}
-
-
-
-.role:hover{
-
-    border-color:var(--primary);
-
-}
-
-
-
-.role.active{
-
-    border-color:var(--primary);
-
-    background:#f0efff;
-
-    color:var(--primary-dark);
-
-}
-
-
-
-.role b{
-
-    display:block;
-
-    font-size:11px;
-
-    margin-top:5px;
-
-}
-
-
-
-.auth-btn{
-
-    width:100%;
-
-    padding:14px;
-
-    border-radius:11px;
-
-    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-
-    color:#fff;
-
-    font-weight:800;
-
-    margin-top:8px;
-
-}
-
-
-
-.switch{
-
-    text-align:center;
-
-    margin-top:16px;
-
-    font-size:13px;
-
-}
-
-
-
-.switch button{
-
-    background:none;
-
-    color:var(--primary);
-
-    font-weight:800;
-
-}
-
-
-
-/* ================= APP ================= */
-
-
-
-.app{
-
-    display:flex;
-
-    min-height:100vh;
-
-}
-
-
-
-.sidebar{
-
-    position:fixed;
-
-    left:0;
-
-    top:0;
-
-    bottom:0;
-
-    width:250px;
-
-    background:var(--dark);
-
-    color:#fff;
-
-    padding:22px 17px;
-
-    z-index:20;
-
-    overflow-y:auto;
-
-}
-
-
-
-.side-brand{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    padding:4px 7px 25px;
-
-}
-
-
-
-.side-icon{
-
-    width:40px;
-
-    height:40px;
-
-}
-
-
-
-.side-brand small{
-
-    display:block;
-
-    color:#aab2ca;
-
-    font-size:10px;
-
-}
-
-
-
-.menu-title{
-
-    color:#727c9c;
-
-    text-transform:uppercase;
-
-    font-size:10px;
-
-    font-weight:800;
-
-    letter-spacing:1px;
-
-    margin:18px 10px 8px;
-
-}
-
-
-
-.nav{
-
-    width:100%;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:12px;
-
-    padding:11px 12px;
-
-    margin:4px 0;
-
-    border-radius:10px;
-
-    color:#c5ccdf;
-
-    background:transparent;
-
-    text-align:left;
-
-}
-
-
-
-.nav:hover,
-
-.nav.active{
-
-    color:#fff;
-
-    background:linear-gradient(90deg,var(--primary),var(--primary-dark));
-
-}
-
-
-
-.nav span{
-
-    width:22px;
-
-    text-align:center;
-
-}
-
-
-
-.side-foot{
-
-    margin-top:25px;
-
-    border:1px solid #2d3653;
-
-    background:var(--dark2);
-
-    border-radius:13px;
-
-    padding:13px;
-
-    color:#9da7c2;
-
-    font-size:10px;
-
-    line-height:1.5;
-
-}
-
-
-
-.main{
-
-    width:calc(100% - 250px);
-
-    margin-left:250px;
-
-}
-
-
-
-.topbar{
-
-    height:72px;
-
-    background:#fff;
-
-    border-bottom:1px solid var(--border);
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    padding:0 30px;
-
-    position:sticky;
-
-    top:0;
-
-    z-index:10;
-
-}
-
-
-
-.search{
-
-    width:280px;
-
-    padding:10px 13px;
-
-    border:1px solid var(--border);
-
-    border-radius:10px;
-
-    background:#f6f7fb;
-
-    outline:none;
-
-}
-
-
-
-.top-actions{
-
-    display:flex;
-
-    gap:15px;
-
-    align-items:center;
-
-}
-
-
-
-.bell{
-
-    position:relative;
-
-    font-size:20px;
-
-    cursor:pointer;
-
-}
-
-
-
-.dot{
-
-    position:absolute;
-
-    width:7px;
-
-    height:7px;
-
-    background:var(--red);
-
-    border-radius:50%;
-
-    right:-2px;
-
-    top:0;
-
-}
-
-
-
-.avatar{
-
-    width:38px;
-
-    height:38px;
-
-    border-radius:50%;
-
-    display:grid;
-
-    place-items:center;
-
-    background:#ddd9ff;
-
-    color:var(--primary-dark);
-
-    font-weight:800;
-
-}
-
-
-
-.user{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:9px;
-
-}
-
-
-
-.user small{
-
-    display:block;
-
-    color:var(--muted);
-
-    font-size:10px;
-
-}
-
-
-
-.logout{
-
-    background:#ffe8e9;
-
-    color:#b4232b;
-
-    padding:8px 11px;
-
-    border-radius:8px;
-
-    font-weight:800;
-
-    font-size:11px;
-
-}
-
-
-
-/* ================= CONTENT ================= */
-
-
-
-.content{
-
-    padding:30px;
-
-    max-width:1600px;
-
-    margin:auto;
-
-}
-
-
-
-.page{
-
-    display:none;
-
-}
-
-
-
-.page.active{
-
-    display:block;
-
-    animation:fade .2s ease;
-
-}
-
-
-
-@keyframes fade{
-
-    from{
-
-        opacity:0;
-
-        transform:translateY(5px);
-
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:none;
-
-    }
-
-}
-
-
-
-.welcome,
-
-.page-title{
-
-    margin-bottom:24px;
-
-}
-
-
-
-.welcome{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-}
-
-
-
-.welcome h1,
-
-.page-title h1{
-
-    font-size:27px;
-
-}
-
-
-
-.welcome p,
-
-.page-title p{
-
-    color:var(--muted);
-
-    font-size:13px;
-
-    margin-top:6px;
-
-}
-
-
-
-.stats{
-
-    display:grid;
-
-    grid-template-columns:repeat(4,1fr);
-
-    gap:17px;
-
-    margin-bottom:22px;
-
-}
-
-
-
-.stat,
-
-.card{
-
-    background:#fff;
-
-    border:1px solid var(--border);
-
-    border-radius:16px;
-
-    box-shadow:var(--shadow);
-
-}
-
-
-
-.stat{
-
-    padding:20px;
-
-}
-
-
-
-.stat-title{
-
-    color:var(--muted);
-
-    font-size:11px;
-
-    margin-bottom:10px;
-
-}
-
-
-
-.stat-number{
-
-    font-size:26px;
-
-    font-weight:850;
-
-}
-
-
-
-.stat-change{
-
-    font-size:10px;
-
-    color:var(--green);
-
-    margin-top:7px;
-
-}
-
-
-
-.card{
-
-    padding:21px;
-
-    margin-bottom:20px;
-
-}
-
-
-
-.card-head{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    gap:15px;
-
-    align-items:center;
-
-    margin-bottom:18px;
-
-}
-
-
-
-.card-head h3{
-
-    font-size:15px;
-
-}
-
-
-
-.card-head p{
-
-    font-size:11px;
-
-    color:var(--muted);
-
-    margin-top:4px;
-
-}
-
-
-
-.grid2{
-
-    display:grid;
-
-    grid-template-columns:1.4fr 1fr;
-
-    gap:20px;
-
-}
-
-
-
-.grid3{
-
-    display:grid;
-
-    grid-template-columns:repeat(3,1fr);
-
-    gap:15px;
-
-}
-
-
-
-.table-wrap{
-
-    overflow:auto;
-
-}
-
-
-
-table{
-
-    width:100%;
-
-    border-collapse:collapse;
-
-    min-width:700px;
-
-}
-
-
-
-th,
-
-td{
-
-    padding:12px 10px;
-
-    border-bottom:1px solid var(--border);
-
-    text-align:left;
-
-    font-size:11px;
-
-}
-
-
-
-th{
-
-    color:var(--muted);
-
-    font-size:10px;
-
-}
-
-
-
-.badge{
-
-    padding:5px 8px;
-
-    border-radius:20px;
-
-    font-size:9px;
-
-    font-weight:800;
-
-}
-
-
-
-.green{
-
-    background:#ddf8eb;
-
-    color:#087b44;
-
-}
-
-
-
-.yellow{
-
-    background:#fff3d2;
-
-    color:#9c6715;
-
-}
-
-
-
-.red{
-
-    background:#ffe8e9;
-
-    color:#b4232b;
-
-}
-
-
-
-.blue{
-
-    background:#ebe9ff;
-
-    color:#3e46aa;
-
-}
-
-
-
-.progress{
-
-    height:8px;
-
-    background:#edf0f6;
-
-    border-radius:20px;
-
-    overflow:hidden;
-
-    margin:8px 0 14px;
-
-}
-
-
-
-.progress i{
-
-    display:block;
-
-    height:100%;
-
-    background:var(--primary);
-
-    border-radius:20px;
-
-}
-
-
-
-.list{
-
-    display:grid;
-
-    gap:10px;
-
-}
-
-
-
-.item{
-
-    padding:14px;
-
-    border:1px solid var(--border);
-
-    border-radius:12px;
-
-    background:#fafbfe;
-
-}
-
-
-
-.item-top{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    gap:10px;
-
-}
-
-
-
-.item p{
-
-    color:var(--muted);
-
-    font-size:11px;
-
-    line-height:1.5;
-
-    margin-top:5px;
-
-}
-
-
-
-.actions{
-
-    display:flex;
-
-    gap:7px;
-
-    flex-wrap:wrap;
-
-    margin-top:10px;
-
-}
-
-
-
-.btn{
-
-    padding:11px 16px;
-
-    border-radius:9px;
-
-    font-weight:700;
-
-}
-
-
-
-.primary{
-
-    background:var(--primary);
-
-    color:#fff;
-
-}
-
-
-
-.secondary{
-
-    background:#eef0f6;
-
-    color:var(--text);
-
-}
-
-
-
-.danger{
-
-    background:#ffe8e9;
-
-    color:#b4232b;
-
-}
-
-
-
-.success{
-
-    background:#ddf8eb;
-
-    color:#087b44;
-
-}
-
-
-
-.form-grid{
-
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:14px;
-
-}
-
-
-
-.full{
-
-    grid-column:1/-1;
-
-}
-
-
-
-.empty{
-
-    text-align:center;
-
-    padding:30px;
-
-    color:var(--muted);
-
-}
-
-
-
-.skill{
-
-    margin:14px 0;
-
-}
-
-
-
-.skill-top{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    font-size:11px;
-
-}
-
-
-
-.fee-total{
-
-    font-size:24px;
-
-    font-weight:800;
-
-}
-
-
-
-/* ================= SKILL DONUTS ================= */
-
-
-
-.donut-grid{
-
-    display:grid;
-
-    grid-template-columns:repeat(5,1fr);
-
-    gap:14px;
-
-}
-
-
-
-.donut-item{
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    gap:10px;
-
-    padding:16px 10px;
-
-    border:1px solid var(--border);
-
-    border-radius:14px;
-
-    background:#fafbfe;
-
-    text-align:center;
-
-}
-
-
-
-.donut-item svg{
-
-    transform:rotate(-90deg);
-
-}
-
-
-
-.donut-value{
-
-    font-size:16px;
-
-    font-weight:800;
-
-    fill:var(--text);
-
-    transform:rotate(90deg);
-
-    transform-origin:center;
-
-}
-
-
-
-.donut-name{
-
-    font-size:11px;
-
-    font-weight:700;
-
-}
-
-
-
-.donut-tag{
-
-    font-size:9px;
-
-    font-weight:800;
-
-    padding:3px 8px;
-
-    border-radius:20px;
-
-}
-
-
-
-.role-card{
-
-    border:1px solid var(--border);
-
-    border-radius:14px;
-
-    padding:16px;
-
-    background:#fafbfe;
-
-    margin-bottom:10px;
-
-}
-
-
-
-.role-card.top{
-
-    border-color:var(--primary);
-
-    background:linear-gradient(135deg,#f0efff,#fff);
-
-}
-
-
-
-.role-top{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    gap:10px;
-
-}
-
-
-
-.role-match{
-
-    font-size:18px;
-
-    font-weight:850;
-
-    color:var(--primary-dark);
-
-}
-
-
-
-.role-bar{
-
-    height:7px;
-
-    background:#edf0f6;
-
-    border-radius:20px;
-
-    overflow:hidden;
-
-    margin:9px 0;
-
-}
-
-
-
-.role-bar i{
-
-    display:block;
-
-    height:100%;
-
-    background:linear-gradient(90deg,var(--primary),var(--cyan));
-
-    border-radius:20px;
-
-}
-
-
-
-.gap-row{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:9px 0;
-
-    border-bottom:1px dashed var(--border);
-
-    font-size:11px;
-
-}
-
-
-
-.gap-row:last-child{
-
-    border-bottom:0;
-
-}
-
-
-
-@media(max-width:720px){
-
-
-
-    .donut-grid{
-
-        grid-template-columns:repeat(2,1fr);
-
-    }
-
-}
-
-
-
-.notice{
-
-    padding:12px;
-
-    border-left:4px solid var(--primary);
-
-    background:#f7f6ff;
-
-    border-radius:8px;
-
-    font-size:11px;
-
-    margin-bottom:9px;
-
-}
-
-
-
-.chart{
-
-    height:210px;
-
-    display:flex;
-
-    align-items:end;
-
-    gap:15px;
-
-    padding:15px 5px;
-
-    border-bottom:1px solid var(--border);
-
-    background:repeating-linear-gradient(
-
-        to top,
-
-        transparent 0,
-
-        transparent 38px,
-
-        #f0f1f6 39px
-
-    );
-
-}
-
-
-
-.bar-wrap{
-
-    height:100%;
-
-    flex:1;
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:end;
-
-    align-items:center;
-
-    gap:7px;
-
-}
-
-
-
-.bar{
-
-    width:30px;
-
-    background:linear-gradient(180deg,var(--primary),#9e99ff);
-
-    border-radius:7px 7px 0 0;
-
-}
-
-
-
-.bar-wrap label{
-
-    font-size:10px;
-
-    color:var(--muted);
-
-}
-
-
-
-/* ================= MODAL ================= */
-
-
-
-.modal{
-
-    position:fixed;
-
-    inset:0;
-
-    background:rgba(10,15,30,.55);
-
-    display:none;
-
-    align-items:center;
-
-    justify-content:center;
-
-    padding:20px;
-
-    z-index:100;
-
-}
-
-
-
-.modal.show{
-
-    display:flex;
-
-}
-
-
-
-.modal-box{
-
-    background:#fff;
-
-    width:min(650px,100%);
-
-    max-height:90vh;
-
-    overflow:auto;
-
-    border-radius:18px;
-
-    padding:22px;
-
-}
-
-
-
-.modal-head{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    margin-bottom:15px;
-
-}
-
-
-
-.close{
-
-    width:30px;
-
-    height:30px;
-
-    border-radius:8px;
-
-    background:#eef0f6;
-
-}
-
-
-
-.toast{
-
-    position:fixed;
-
-    right:20px;
-
-    bottom:20px;
-
-    background:#11182d;
-
-    color:#fff;
-
-    padding:13px 16px;
-
-    border-radius:10px;
-
-    opacity:0;
-
-    transform:translateY(80px);
-
-    transition:.25s;
-
-    z-index:200;
-
-    font-size:12px;
-
-}
-
-
-
-.toast.show{
-
-    opacity:1;
-
-    transform:none;
-
-}
-
-
-
-/* ================= MOBILE ================= */
-
-
-
-@media(max-width:1050px){
-
-
-
-    .auth-box{
-
-        grid-template-columns:1fr;
-
-    }
-
-
-
-    .brand-panel{
-
-        display:none;
-
-    }
-
-
-
-    .stats{
-
-        grid-template-columns:repeat(2,1fr);
-
-    }
-
-
-
-    .grid2,
-
-    .grid3{
-
-        grid-template-columns:1fr;
-
-    }
-
-}
-
-
-
-@media(max-width:720px){
-
-
-
-    .sidebar{
-
-        width:68px;
-
-        padding:18px 9px;
-
-    }
-
-
-
-    .side-brand{
-
-        justify-content:center;
-
-    }
-
-
-
-    .side-brand div:last-child,
-
-    .menu-title,
-
-    .nav b,
-
-    .side-foot{
-
-        display:none;
-
-    }
-
-
-
-    .nav{
-
-        justify-content:center;
-
-        padding:12px 5px;
-
-    }
-
-
-
-    .main{
-
-        width:calc(100% - 68px);
-
-        margin-left:68px;
-
-    }
-
-
-
-    .topbar{
-
-        padding:0 12px;
-
-    }
-
-
-
-    .search{
-
-        width:140px;
-
-    }
-
-
-
-    .content{
-
-        padding:18px 12px;
-
-    }
-
-
-
-    .stats,
-
-    .form-grid{
-
-        grid-template-columns:1fr;
-
-    }
-
-
-
-    .user>div{
-
-        display:none;
-
-    }
-
-
-
-    .logout{
-
-        display:none;
-
-    }
-
-
-
-    .welcome{
-
-        align-items:flex-start;
-
-        flex-direction:column;
-
-        gap:12px;
-
-    }
-
-
-
-    .role-grid{
-
-        grid-template-columns:1fr;
-
-    }
-
-}
-
-
-.management-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
-.management-tile{padding:20px;border:1px solid var(--border);border-radius:15px;background:#fff;text-align:left;display:flex;flex-direction:column;gap:8px;transition:.2s;box-shadow:var(--shadow)}
-.management-tile:hover{transform:translateY(-2px);border-color:var(--primary);box-shadow:0 18px 35px rgba(30,40,80,.12)}
-.management-tile span{font-size:25px}.management-tile b{font-size:14px}.management-tile small{color:var(--muted)}
-.button-row{display:flex;gap:12px;flex-wrap:wrap}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:12px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:12px;vertical-align:top}th{background:#f7f8fc;font-size:11px;text-transform:uppercase;letter-spacing:.4px}tr:hover td{background:#fafbff}
-.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef1f7;color:#596579;font-size:10px;font-weight:800}.badge.green{background:#e6f8ef;color:#12804a}.badge.red{background:#ffe9ea;color:#b4232b}
-.mark-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end;margin-top:15px}.mark-grid label{font-size:11px;font-weight:800}.mark-grid input{margin-top:6px}.management-mark-card{box-shadow:none;margin-bottom:12px}
-@media(max-width:800px){.mark-grid{grid-template-columns:1fr 1fr}.management-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:520px){.mark-grid{grid-template-columns:1fr}.management-grid{grid-template-columns:1fr}}
-
-
-/* ================= FEEDBACK MODULE ================= */
-.feedback-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:15px 0}
-.feedback-type-card{border:1px solid var(--border);border-radius:16px;padding:18px;background:#fff;cursor:pointer;transition:.2s;text-align:left;box-shadow:var(--shadow)}
-.feedback-type-card:hover{transform:translateY(-2px);border-color:var(--primary)}
-.feedback-type-card.active{border-color:var(--primary);background:linear-gradient(135deg,#f0efff,#fff);box-shadow:0 12px 28px rgba(99,91,255,.12)}
-.feedback-type-card span{font-size:28px;display:block;margin-bottom:8px}
-.feedback-type-card b{display:block;font-size:14px}
-.feedback-type-card small{display:block;color:var(--muted);margin-top:5px;line-height:1.4}
-.rating{display:flex;gap:7px;flex-direction:row-reverse;justify-content:flex-end}
-.rating input{display:none}
-.rating label{font-size:28px;color:#cfd4df;cursor:pointer;transition:.15s}
-.rating label:hover,.rating label:hover~label,.rating input:checked~label{color:#f5a623}
-.feedback-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.feedback-card{border:1px solid var(--border);border-radius:14px;padding:16px;background:#fff;margin-bottom:12px}
-.feedback-card.priority{border-left:4px solid var(--red)}
-.feedback-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-.feedback-id{font-size:10px;color:var(--muted);font-family:monospace}
-.feedback-rating{font-weight:800;color:#9c6715}
-.feedback-status{padding:5px 9px;border-radius:999px;font-size:10px;font-weight:800}
-.feedback-status.submitted{background:#ebe9ff;color:#3e46aa}
-.feedback-status.reviewed{background:#fff3d2;color:#9c6715}
-.feedback-status.action{background:#ddf8eb;color:#087b44}
-.feedback-status.closed{background:#eef0f6;color:#596579}
-.feedback-response{margin-top:12px;padding:12px;border-left:4px solid var(--green);background:#f4fbf7;border-radius:8px;font-size:11px}
-.feedback-filter{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:10px;margin-bottom:15px}
-.feedback-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:center;margin-top:15px}
-.flow-step{padding:14px 10px;border:1px solid var(--border);border-radius:12px;background:#fafbfe;text-align:center;font-size:11px;font-weight:700}
-.flow-arrow{text-align:center;color:var(--primary);font-size:22px}
-.feedback-empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:12px}
-@media(max-width:900px){.feedback-type-grid,.feedback-meta,.feedback-filter{grid-template-columns:1fr}.feedback-flow{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg)}}
-/* ================= MANAGEMENT FACULTY DETAILS ================= */
-.faculty-management-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-.faculty-profile-card{border:1px solid var(--border);border-radius:16px;padding:18px;background:#fff;box-shadow:var(--shadow);transition:.2s}
-.faculty-profile-card:hover{transform:translateY(-2px);border-color:var(--primary)}
-.faculty-profile-top{display:flex;gap:13px;align-items:center;margin-bottom:14px}
-.faculty-avatar{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--cyan));color:#fff;font-weight:900;font-size:20px}
-.faculty-meta{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
-.faculty-meta .item{padding:10px}
-.faculty-label{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:800}
-.faculty-value{font-size:11px;font-weight:700;margin-top:3px}
-.faculty-filter{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px;margin-bottom:15px}
-.faculty-detail-list{display:grid;gap:8px;margin-top:12px}
-.faculty-detail-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--border);font-size:11px}
-.faculty-detail-row:last-child{border-bottom:0}
-.position-badge{background:#ebe9ff;color:#3e46aa;padding:5px 8px;border-radius:999px;font-size:9px;font-weight:800}
-@media(max-width:800px){.faculty-filter,.faculty-meta{grid-template-columns:1fr}}
-
-
-</style>
-
-</head>
-
-
-
-<body>
-
-
-
-<!-- ================= LOGIN / SIGNUP ================= -->
-
-
-
-<div id="auth" class="auth">
-
-
-
-    <div class="auth-box">
-
-
-
-        <div class="brand-panel">
-
-
-
-            <div>
-
-
-
-                <div class="logo">
-
-
-
-                    <div class="logo-icon">✦</div>
-
-
-
-                    <div>
-
-                        <h1>EduNexa</h1>
-
-                        <small>Smart Education Portal</small>
-
-                    </div>
-
-
-
-                </div>
-
-
-
-                <h2>
-
-                    One platform.<br>
-
-                    Every academic journey.
-
-                </h2>
-
-
-
-                <p>
-
-                    Students, faculty, mentors, class advisers,
-
-                    management and parents connected through one
-
-                    academic workspace.
-
-                </p>
-
-
-
-                <div class="features">
-
-
-
-                    <div class="feature">
-
-                        🎓 Student academic & fee portal
-
-                    </div>
-
-
-
-                    <div class="feature">
-
-                        👨‍🏫 Faculty tests, assignments & attendance
-
-                    </div>
-
-
-
-                    <div class="feature">
-
-                        🧭 Mentor skill dashboard access
-
-                    </div>
-
-
-
-                    <div class="feature">
-
-                        🔔 Student, adviser & parent notifications
-
-                    </div>
-
-
-
-                    <div class="feature">
-
-                        📊 Management reports & analytics
-
-                    </div>
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-        </div>
-
-
-
-        <!-- LOGIN -->
-
-
-
-        <div class="form-panel" id="loginPanel">
-
-
-
-            <h2>Welcome back 👋</h2>
-
-
-
-            <p class="muted">
-
-                Sign in to continue to EduNexa.
-
-            </p>
-
-
-
-            <div class="form-group">
-
-
-
-                <label>User Type</label>
-
-
-
-                <div class="role-grid">
-
-
-
-                    <button
-
-                        class="role active"
-
-                        onclick="chooseLogin('student',this)"
-
-                    >
-
-                        🎓
-
-                        <b>Student</b>
-
-                    </button>
-
-
-
-                    <button
-
-                        class="role"
-
-                        onclick="chooseLogin('faculty',this)"
-
-                    >
-
-                        👨‍🏫
-
-                        <b>Faculty</b>
-
-                    </button>
-
-
-
-                    <button
-
-                        class="role"
-
-                        onclick="chooseLogin('management',this)"
-
-                    >
-
-                        🏢
-
-                        <b>Management</b>
-
-                    </button>
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-            <div class="form-group">
-
-
-
-                <label>Email / ID</label>
-
-
-
-                <input
-
-                    id="loginId"
-
-                    class="control"
-
-                    placeholder="Enter email or ID"
-
-                >
-
-
-
-            </div>
-
-
-
-            <div class="form-group">
-
-
-
-                <label>Password</label>
-
-
-
-                <input
-
-                    id="loginPassword"
-
-                    type="password"
-
-                    class="control"
-
-                    placeholder="Enter password"
-
-                >
-
-
-
-            </div>
-
-
-
-            <button
-
-                class="auth-btn"
-
-                onclick="login()"
-
-            >
-
-                Login
-
-            </button>
-
-
-
-            <div class="switch">
-
-                New to EduNexa?
-
-                <button onclick="showSignup()">
-
-                    Create an account
-
-                </button>
-
-            </div>
-
-
-
-            <p
-
-                class="muted"
-
-                style="font-size:10px;text-align:center;margin-top:15px"
-
-            >
-
-                Demo password: <b>123456</b>
-
-            </p>
-
-
-
-            <p
-
-                class="muted"
-
-                style="font-size:10px;text-align:center;margin-top:5px"
-
-            >
-
-                Demo accounts are shown below.
-
-            </p>
-
-
-
-        </div>
-
-
-
-        <!-- SIGNUP -->
-
-
-
-        <div
-
-            class="form-panel hidden"
-
-            id="signupPanel"
-
-        >
-
-
-
-            <h2>Create account</h2>
-
-
-
-            <p class="muted">
-
-                Register a new EduNexa user.
-
-            </p>
-
-
-
-            <div class="form-group">
-
-
-
-                <label>Account Type</label>
-
-
-
-                <div class="role-grid">
-
-
-
-                    <button
-
-                        class="role active"
-
-                        onclick="chooseSignup('student',this)"
-
-                    >
-
-                        🎓
-
-                        <b>Student</b>
-
-                    </button>
-
-
-
-                    <button
-
-                        class="role"
-
-                        onclick="chooseSignup('faculty',this)"
-
-                    >
-
-                        👨‍🏫
-
-                        <b>Faculty</b>
-
-                    </button>
-
-
-
-                    <button
-
-                        class="role"
-
-                        onclick="chooseSignup('management',this)"
-
-                    >
-
-                        🏢
-
-                        <b>Management</b>
-
-                    </button>
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-            <div class="form-group">
-
-
-
-                <label>Full Name</label>
-
-
-
-                <input
-
-                    id="suName"
-
-                    class="control"
-
-                    placeholder="Enter full name"
-
-                >
-
-
-
-            </div>
-
-
-
-            <div class="form-group">
-
-
-
-                <label>Email</label>
-
-
-
-                <input
-
-                    id="suEmail"
-
-                    class="control"
-
-                    type="email"
-
-                    placeholder="example@email.com"
-
-                >
-
-
-
-            </div>
-
-
-
-            <div class="form-group">
-
-
-
-                <label>Password</label>
-
-
-
-                <input
-
-                    id="suPass"
-
-                    class="control"
-
-                    type="password"
-
-                    placeholder="Create password"
-
-                >
-
-
-
-            </div>
-
-
-
-            <div id="studentSignup">
-
-
-
-                <div class="form-group">
-
-
-
-                    <label>Student ID</label>
-
-
-
-                    <input
-
-                        id="suStudentId"
-
-                        class="control"
-
-                        placeholder="EDU2026-1001"
-
-                    >
-
-
-
-                </div>
-
-
-
-                <div class="form-group">
-
-
-
-                    <label>Parent Name</label>
-
-
-
-                    <input
-
-                        id="suParent"
-
-                        class="control"
-
-                        placeholder="Parent / Guardian"
-
-                    >
-
-
-
-                </div>
-
-
-
-                <div class="form-group">
-
-
-
-                    <label>Parent Phone</label>
-
-
-
-                    <input
-
-                        id="suParentPhone"
-
-                        class="control"
-
-                        placeholder="+91 XXXXX XXXXX"
-
-                    >
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-            <button
-
-                class="auth-btn"
-
-                onclick="register()"
-
-            >
-
-                Create Account
-
-            </button>
-
-
-
-            <div class="switch">
-
-                Already registered?
-
-                <button onclick="showLogin()">
-
-                    Login
-
-                </button>
-
-            </div>
-
-
-
-        </div>
-
-
-
-    </div>
-
-
-
-</div>
-
-
-
-
-
-<!-- ================= MAIN APP ================= -->
-
-
-
-<div id="app" class="app hidden">
-
-
-
-    <aside class="sidebar">
-
-
-
-        <div class="side-brand">
-
-
-
-            <div class="side-icon">
-
-                ✦
-
-            </div>
-
-
-
-            <div>
-
-                <b>EduNexa</b>
-
-                <small>Smart Education</small>
-
-            </div>
-
-
-
-        </div>
-
-
-
-        <div id="nav"></div>
-
-
-
-        <div class="side-foot">
-
-            Role-based access • Academic workflow • Smart notifications
-
-        </div>
-
-
-
-    </aside>
-
-
-
-
-
-    <main class="main">
-
-
-
-        <header class="topbar">
-
-
-
-            <input
-
-                class="search"
-
-                placeholder="Search EduNexa..."
-
-                oninput="searchPages(this.value)"
-
-            >
-
-
-
-            <div class="top-actions">
-
-
-
-                <div
-
-                    class="bell"
-
-                    onclick="go('notifications')"
-
-                >
-
-                    🔔
-
-                    <span class="dot"></span>
-
-                </div>
-
-
-
-                <div class="user">
-
-
-
-                    <div
-
-                        id="avatar"
-
-                        class="avatar"
-
-                    >
-
-                        A
-
-                    </div>
-
-
-
-                    <div>
-
-
-
-                        <b id="userName">
-
-                            User
-
-                        </b>
-
-
-
-                        <small id="userRole">
-
-                            Student
-
-                        </small>
-
-
-
-                    </div>
-
-
-
-                </div>
-
-
-
-                <button
-
-                    class="logout"
-
-                    onclick="logout()"
-
-                >
-
-                    Logout
-
-                </button>
-
-
-
-            </div>
-
-
-
-        </header>
-
-
-
-        <section
-
-            class="content"
-
-            id="pages"
-
-        ></section>
-
-
-
-    </main>
-
-
-
-</div>
-
-
-
-
-
-<!-- ================= MODAL ================= -->
-
-
-
-<div
-
-    id="modal"
-
-    class="modal"
-
->
-
-
-
-    <div class="modal-box">
-
-
-
-        <div class="modal-head">
-
-
-
-            <h3 id="modalTitle">
-
-                Create
-
-            </h3>
-
-
-
-            <button
-
-                class="close"
-
-                onclick="closeModal()"
-
-            >
-
-                ✕
-
-            </button>
-
-
-
-        </div>
-
-
-
-        <div id="modalBody"></div>
-
-
-
-    </div>
-
-
-
-</div>
-
-
-
-
-
-<!-- ================= TOAST ================= -->
-
-
-
-<div
-
-    id="toast"
-
-    class="toast"
-
-></div>
-
-
-
-
-
-<script>
-
-
-
 /* =========================================================
-
    EDUNEXA DATABASE
-
 ========================================================= */
-
-
 
 const DB_KEY = "edunexa_v4";
 
-
-
 let db = loadDatabase();
-
 // Backward-compatible migration for databases created before the Feedback module.
 db.feedbacks = Array.isArray(db.feedbacks) ? db.feedbacks : [];
 
-
-
 let currentUser = null;
 
-
-
 let loginRole = "student";
-
-
 
 let signupRole = "student";
 
 
-
-
-
 /* =========================================================
-
    DATABASE
-
 ========================================================= */
-
-
 
 function createDefaultDatabase(){
 
-
-
     return {
-
-
 
         users: [],
 
-
-
         tests: [],
-
-
 
         assignments: [],
 
-
-
         submissions: [],
-
-
 
         leaves: [],
 
-
-
         notifications: [],
 
-
-
         marks: [],
-
-
 
         fees: [],
         feedbacks: []
 
-
-
     };
 
-
-
 }
-
-
-
 
 
 function loadDatabase(){
 
-
-
     try{
-
-
 
         const saved = localStorage.getItem(DB_KEY);
 
-
-
         if(saved){
-
-
 
             return JSON.parse(saved);
 
-
-
         }
-
-
 
     }catch(error){
 
-
-
         console.error("Database loading error:",error);
-
-
 
     }
 
-
-
     return createDefaultDatabase();
 
-
-
 }
-
-
-
 
 
 function save(){
 
-
-
     try{
 
-
-
         localStorage.setItem(
-
             DB_KEY,
-
             JSON.stringify(db)
-
         );
-
-
 
     }catch(error){
 
-
-
         console.error("Database save error:",error);
-
-
 
         toast("Unable to save data.");
 
-
-
     }
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    SEED DATA
-
 ========================================================= */
-
-
 
 function seedDatabase(){
 
-
-
     if(db.users.length > 0){
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     db.users = [
 
-
-
         {
-
             name:"Alexa",
-
             email:"alexa@example.com",
-
             password:"123456",
-
             role:"student",
-
             studentId:"EDU2026-1048",
-
             parentName:"Alexa Parent",
-
             parentPhone:"+91 90000 00001",
-
             department:"Data Analytics",
-
             batch:"2025-2028",
-
             attendance:86,
-
             skills:{
-
                 Python:88,
-
                 SQL:82,
-
                 "Power BI":91,
-
                 Excel:86,
-
                 Communication:76
-
             }
-
         },
 
 
-
-
-
         {
-
             name:"Dr. Priya",
-
             email:"faculty@edunexa.com",
-
             password:"123456",
-
             role:"faculty",
-
             facultyId:"FAC-1001",
             mentor:true,
             classAdviser:true,
@@ -3133,63 +144,33 @@ function seedDatabase(){
             office:"Block A - Room 204",
             phone:"+91 90000 10001",
             extraInfo:"Class Adviser for II B.Sc Data Analytics; Mentor for student skill dashboard; coordinates academic activities."
-
         },
 
 
-
-
-
         {
-
             name:"Management Admin",
-
             email:"admin@edunexa.com",
-
             password:"123456",
-
             role:"management",
-
             adminId:"ADM-1001"
-
         }
 
-
-
     ];
-
-
-
 
 
     db.fees = [
 
-
-
         {
-
             studentId:"EDU2026-1048",
-
             tuition:60000,
-
             bus:12000,
-
             hostel:0,
-
             paid:50000,
-
             paymentMethod:"UPI",
-
             pending:22000
-
         }
 
-
-
     ];
-
-
-
 
 
     db.feedbacks = [
@@ -3199,1359 +180,683 @@ function seedDatabase(){
     ];
 
 
-
     db.tests = [
 
         {
-
             id:1,
-
             title:"Python Fundamentals Test",
-
             subject:"Python",
-
             faculty:"Dr. Priya",
-
             start:"2026-08-20",
-
             due:"2026-08-25",
-
-
 
             questions:[
 
-
-
                 {
-
                     q:"Which keyword defines a function in Python?",
-
                     opts:[
-
                         "func",
-
                         "def",
-
                         "function",
-
                         "define"
-
                     ],
-
                     ans:1
-
                 },
 
-
-
                 {
-
                     q:"Which data type is immutable?",
-
                     opts:[
-
                         "List",
-
                         "Dictionary",
-
                         "Tuple",
-
                         "Set"
-
                     ],
-
                     ans:2
-
                 }
-
-
 
             ]
 
-
-
         }
 
-
-
     ];
-
-
-
 
 
     db.assignments = [
 
-
-
         {
-
             id:1,
-
             title:"SQL Query Assignment",
-
             subject:"SQL",
-
             faculty:"Dr. Priya",
-
             assigned:"2026-08-20",
-
             due:"2026-08-27",
-
             description:
-
                 "Write SQL queries for the given student database."
-
         }
-
-
 
     ];
 
 
-
-
-
     save();
 
-
-
 }
-
-
-
 
 
 /* =========================================================
-
    HELPERS
-
 ========================================================= */
-
-
 
 function esc(value){
 
-
-
     return String(value ?? "")
-
         .replaceAll("&","&amp;")
-
         .replaceAll("<","&lt;")
-
         .replaceAll(">","&gt;")
-
         .replaceAll('"',"&quot;")
-
         .replaceAll("'","&#039;");
 
-
-
 }
-
-
-
 
 
 function toast(message){
 
-
-
     const element =
-
         document.getElementById("toast");
-
-
 
     element.textContent = message;
 
-
-
     element.classList.add("show");
 
-
-
     setTimeout(
-
         () => element.classList.remove("show"),
-
         2600
-
     );
 
-
-
 }
-
-
-
 
 
 function today(){
 
-
-
     return new Date()
-
         .toISOString()
-
         .slice(0,10);
 
-
-
 }
-
-
-
 
 
 function students(){
 
-
-
     return db.users.filter(
-
         user => user.role === "student"
-
     );
 
-
-
 }
-
-
-
 
 
 function getStudent(studentId){
 
-
-
     return db.users.find(
-
         user => user.studentId === studentId
-
     );
 
-
-
 }
-
-
-
 
 
 /* =========================================================
-
    AUTH
-
 ========================================================= */
-
-
 
 function showSignup(){
 
-
-
     document
-
         .getElementById("loginPanel")
-
         .classList.add("hidden");
 
-
-
     document
-
         .getElementById("signupPanel")
-
         .classList.remove("hidden");
 
-
-
 }
-
-
-
 
 
 function showLogin(){
 
-
-
     document
-
         .getElementById("signupPanel")
-
         .classList.add("hidden");
 
-
-
     document
-
         .getElementById("loginPanel")
-
         .classList.remove("hidden");
 
-
-
 }
-
-
-
 
 
 function chooseLogin(role,element){
 
-
-
     loginRole = role;
 
-
-
     document
-
         .querySelectorAll("#loginPanel .role")
-
         .forEach(button =>
-
             button.classList.remove("active")
-
         );
-
-
 
     element.classList.add("active");
 
-
-
 }
-
-
-
 
 
 function chooseSignup(role,element){
 
-
-
     signupRole = role;
 
-
-
     document
-
         .querySelectorAll("#signupPanel .role")
-
         .forEach(button =>
-
             button.classList.remove("active")
-
         );
-
-
 
     element.classList.add("active");
 
-
-
     document
-
         .getElementById("studentSignup")
-
         .classList.toggle(
-
             "hidden",
-
             role !== "student"
-
         );
 
-
-
 }
-
-
-
 
 
 function register(){
 
-
-
     const name =
-
         document.getElementById("suName")
-
         .value.trim();
-
-
 
     const email =
-
         document.getElementById("suEmail")
-
         .value.trim()
-
         .toLowerCase();
 
-
-
     const password =
-
         document.getElementById("suPass")
-
         .value.trim();
-
-
-
 
 
     if(!name || !email || !password){
 
-
-
         toast("Please complete all required fields.");
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     if(password.length < 6){
 
-
-
         toast("Password must contain at least 6 characters.");
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     if(
-
         db.users.some(
-
             user => user.email.toLowerCase() === email
-
         )
-
     ){
-
-
 
         toast("Email already registered.");
 
-
-
         return;
 
-
-
     }
-
-
-
 
 
     const user = {
 
-
-
         name:name,
-
-
 
         email:email,
 
-
-
         password:password,
 
-
-
         role:signupRole
-
-
 
     };
 
 
-
-
-
     if(signupRole === "student"){
 
-
-
         const studentId =
-
             document
-
                 .getElementById("suStudentId")
-
                 .value.trim()
-
             || `EDU-${Date.now()}`;
 
 
-
-
-
         if(
-
             db.users.some(
-
                 user => user.studentId === studentId
-
             )
-
         ){
-
-
 
             toast("Student ID already exists.");
 
-
-
             return;
-
-
 
         }
 
 
-
-
-
         user.studentId = studentId;
 
-
-
         user.parentName =
-
             document
-
                 .getElementById("suParent")
-
                 .value.trim()
-
             || "Parent / Guardian";
 
-
-
         user.parentPhone =
-
             document
-
                 .getElementById("suParentPhone")
-
                 .value.trim();
-
-
 
         user.department = "Data Analytics";
 
-
-
         user.batch = "2025-2028";
-
-
 
         user.attendance = 0;
 
-
-
         user.skills = {
 
-
-
             Python:0,
-
             SQL:0,
-
             "Power BI":0,
-
             Excel:0,
-
             Communication:0
-
-
 
         };
 
-
-
     }
-
-
-
 
 
     if(signupRole === "faculty"){
 
-
-
         user.facultyId =
-
             "FAC-" + Date.now();
-
-
 
         user.mentor = false;
 
-
-
         user.classAdviser = false;
-
-
 
         user.department = "Data Analytics";
 
-
-
     }
-
-
-
 
 
     if(signupRole === "management"){
 
-
-
         user.adminId =
-
             "ADM-" + Date.now();
 
-
-
     }
-
-
-
 
 
     db.users.push(user);
 
-
-
     save();
-
-
 
     toast("Account created successfully.");
 
-
-
     showLogin();
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    LOGIN
-
 ========================================================= */
-
-
 
 function login(){
 
-
-
     const id =
-
         document
-
             .getElementById("loginId")
-
             .value.trim();
-
-
 
     const password =
-
         document
-
             .getElementById("loginPassword")
-
             .value.trim();
-
-
-
 
 
     if(!id || !password){
 
-
-
         toast("Enter login ID and password.");
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     const user =
-
         db.users.find(
-
             item =>
 
-
-
                 (
-
                     item.email === id ||
-
                     item.studentId === id ||
-
                     item.facultyId === id ||
-
                     item.adminId === id
-
                 )
 
-
-
                 &&
-
-
 
                 item.password === password
 
-
-
                 &&
 
-
-
                 item.role === loginRole
-
         );
-
-
-
 
 
     if(!user){
 
-
-
         toast("Invalid login details or user type.");
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     currentUser = user;
 
 
-
-
-
     localStorage.setItem(
-
         "edunexa_session",
-
         JSON.stringify(user)
-
     );
-
-
-
 
 
     openApp();
 
-
-
 }
-
-
-
 
 
 function logout(){
 
-
-
     currentUser = null;
 
-
-
     localStorage.removeItem(
-
         "edunexa_session"
-
     );
 
-
-
     document
-
         .getElementById("app")
-
         .classList.add("hidden");
 
-
-
     document
-
         .getElementById("auth")
-
         .classList.remove("hidden");
 
-
-
     document
-
         .getElementById("loginId")
-
         .value = "";
-
-
 
     document
-
         .getElementById("loginPassword")
-
         .value = "";
-
-
 
     showLogin();
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    ROLE LABEL
-
 ========================================================= */
-
-
 
 function labelRole(){
 
-
-
     if(currentUser.role === "faculty"){
 
-
-
         if(
-
             currentUser.classAdviser &&
-
             currentUser.mentor
-
         ){
-
-
 
             return "Faculty • Mentor • Class Adviser";
 
-
-
         }
-
-
 
         if(currentUser.classAdviser){
 
-
-
             return "Faculty • Class Adviser";
 
-
-
         }
-
-
 
         if(currentUser.mentor){
 
-
-
             return "Faculty • Mentor";
-
-
 
         }
 
-
-
         return "Faculty";
 
-
-
     }
-
-
-
 
 
     if(currentUser.role === "management"){
 
-
-
         return "Management";
 
-
-
     }
-
-
-
 
 
     return "Student";
 
-
-
 }
 
 
-
-
-
 /* =========================================================
-
    OPEN APPLICATION
-
 ========================================================= */
-
-
 
 function openApp(){
 
-
-
     document
-
         .getElementById("auth")
-
         .classList.add("hidden");
 
-
-
     document
-
         .getElementById("app")
-
         .classList.remove("hidden");
 
 
-
-
-
     document
-
         .getElementById("userName")
-
         .textContent = currentUser.name;
 
 
-
-
-
     document
-
         .getElementById("userRole")
-
         .textContent = labelRole();
 
 
-
-
-
     document
-
         .getElementById("avatar")
-
         .textContent =
-
             currentUser.name
-
                 .charAt(0)
-
                 .toUpperCase();
-
-
-
 
 
     buildNav();
 
-
-
     renderPages();
-
-
 
     go(defaultPage());
 
-
-
 }
 
 
-
-
-
 /* =========================================================
-
    DEFAULT PAGE
-
 ========================================================= */
-
-
 
 function defaultPage(){
 
-
-
     if(currentUser.role === "student"){
-
-
 
         return "student-dashboard";
 
-
-
     }
-
-
 
     if(currentUser.role === "faculty"){
 
-
-
         return "faculty-dashboard";
-
-
 
     }
 
-
-
     return "management-dashboard";
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    NAVIGATION
-
 ========================================================= */
 
-
-
 function buildNav(){
-
-
 
     let html = "";
 
 
-
-
-
     function addSection(title,items){
 
-
-
         html += `
-
             <div class="menu-title">
-
                 ${title}
-
             </div>
-
         `;
-
-
-
 
 
         items.forEach(item => {
 
-
-
             html += `
-
                 <button
-
                     class="nav"
-
                     data-page="${item[0]}"
-
                     onclick="go('${item[0]}')"
-
                 >
-
-
 
                     <span>${item[1]}</span>
 
-
-
                     <b>${item[2]}</b>
 
-
-
                 </button>
-
             `;
-
-
 
         });
 
-
-
     }
-
-
-
 
 
     if(currentUser.role === "student"){
 
-
-
         addSection(
-
             "Student",
-
             [
-
-
 
                 ["student-dashboard","🏠","Dashboard"],
 
-
-
                 ["student-academics","📚","Marks & Academics"],
-
-
 
                 ["student-tests","📝","Tests"],
 
-
-
                 ["student-assignments","📋","Assignments"],
-
-
 
                 ["student-attendance","📅","Attendance"],
 
-
-
                 ["student-fees","💳","Fees"],
-
-
 
                 ["student-leave","🗓️","Leave"],
 
-
-
                 ["student-skills","🧠","Skill Dashboard"],
-
-
 
                 ["student-feedback","💬","Feedback"],
 
-
-
                 ["notifications","🔔","Notifications"]
 
-
-
             ]
-
         );
-
-
 
     }
 
 
-
-
-
     if(currentUser.role === "faculty"){
 
-
-
         addSection(
-
             "Faculty",
-
             [
-
-
 
                 ["faculty-dashboard","🏠","Dashboard"],
 
-
-
                 ["faculty-tests","📝","Tests"],
-
-
 
                 ["faculty-assignments","📋","Assignments"],
 
-
-
                 ["faculty-attendance","📅","Attendance"],
-
-
 
                 ["faculty-leaves","🗓️","Leave Requests"],
 
-
-
                 ["faculty-marks","🎯","Marks & Results"]
 
-
-
             ]
-
         );
-
-
-
 
 
         if(currentUser.mentor){
 
-
-
             addSection(
-
                 "Mentor",
-
                 [
-
                     [
-
                         "mentor-skills",
-
                         "🧭",
-
                         "Student Skill Dashboard"
-
                     ]
-
                 ]
-
             );
-
-
 
         }
 
 
-
-
-
         if(currentUser.classAdviser){
 
-
-
             addSection(
-
                 "Class Adviser",
-
                 [
 
-
-
                     [
-
                         "adviser-dashboard",
-
                         "⭐",
-
                         "Full Class Access"
-
                     ],
 
-
-
                     [
-
                         "adviser-fees",
-
                         "💳",
-
                         "Student Fees"
-
                     ],
 
-
-
                     [
-
                         "adviser-notify",
-
                         "📢",
-
                         "Parent Notifications"
-
                     ],
                     [
                         "adviser-feedback",
@@ -4559,46 +864,24 @@ function buildNav(){
                         "Student Feedback"
                     ]
 
-
-
                 ]
-
             );
-
-
 
         }
 
 
-
-
-
         addSection(
-
             "Services",
-
             [
-
                 [
-
                     "notifications",
-
                     "🔔",
-
                     "Notifications"
-
                 ]
-
             ]
-
         );
 
-
-
     }
-
-
-
 
 
     if(currentUser.role === "management"){
@@ -4616,531 +899,267 @@ function buildNav(){
     }
 
     document
-
         .getElementById("nav")
-
         .innerHTML = html;
 
-
-
 }
-
-
-
 
 
 function go(pageId){
 
-
-
     document
-
         .querySelectorAll(".page")
-
         .forEach(page => {
 
-
-
             page.classList.toggle(
-
                 "active",
-
                 page.id === pageId
-
             );
 
-
-
         });
-
-
-
 
 
     document
-
         .querySelectorAll(".nav")
-
         .forEach(nav => {
 
-
-
             nav.classList.toggle(
-
                 "active",
-
                 nav.dataset.page === pageId
-
             );
 
-
-
         });
-
-
-
 
 
     window.scrollTo({
-
         top:0,
-
         behavior:"smooth"
-
     });
-
-
-
 
 
     if(pageId === "notifications"){
 
-
-
         renderNotifications();
 
-
-
     }
-
-
 
     if(pageId === "student-feedback"){
-
         renderStudentFeedback();
-
     }
-
-
 
     if(pageId === "adviser-feedback"){
-
         renderAdviserFeedback();
-
     }
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    PAGE RENDERING
-
 ========================================================= */
-
-
 
 function renderPages(){
 
-
-
     document
-
         .getElementById("pages")
-
         .innerHTML = `
-
-
 
             ${studentPages()}
 
-
-
             ${facultyPages()}
-
-
 
             ${managementPages()}
 
-
-
             <div
-
                 class="page"
-
                 id="notifications"
-
             >
-
-
 
                 <div class="page-title">
 
-
-
                     <h1>
-
                         Notifications 🔔
-
                     </h1>
 
-
-
                     <p>
-
                         Role-aware academic and fee updates.
-
                     </p>
 
-
-
                 </div>
-
-
 
                 <div class="card">
 
-
-
                     <div
-
                         id="notificationList"
-
                         class="list"
-
                     ></div>
-
-
 
                 </div>
 
-
-
             </div>
-
-
 
         `;
 
 
-
-
-
     refreshAll();
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    STAT CARD
-
 ========================================================= */
-
-
 
 function stat(title,number,change=""){
 
-
-
     return `
-
-
 
         <div class="stat">
 
-
-
             <div class="stat-title">
-
                 ${esc(title)}
-
             </div>
-
-
 
             <div class="stat-number">
-
                 ${esc(number)}
-
             </div>
-
-
 
             <div class="stat-change">
-
                 ${esc(change)}
-
             </div>
-
-
 
         </div>
 
-
-
     `;
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    STUDENT PAGES
-
 ========================================================= */
-
-
 
 function studentPages(){
 
-
-
     return `
-
-
 
     <!-- STUDENT DASHBOARD -->
 
-
-
     <div
-
         class="page"
-
         id="student-dashboard"
-
     >
-
-
 
         <div class="welcome">
 
-
-
             <div>
 
-
-
                 <h1>
-
                     Good morning,
-
                     ${esc(currentUser.name)} 👋
-
                 </h1>
 
-
-
                 <p>
-
                     Your academic, attendance,
-
                     skills and fee overview.
-
                 </p>
-
-
 
             </div>
 
-
-
             <button
-
                 class="btn primary"
-
                 onclick="go('student-tests')"
-
             >
-
                 View Tests
-
             </button>
 
-
-
         </div>
-
-
-
 
 
         <div class="stats">
 
-
-
             ${stat(
-
                 "Attendance",
-
                 (currentUser.attendance || 0) + "%",
-
                 "Current semester"
-
             )}
 
-
-
             ${stat(
-
                 "Current Average",
-
                 "82%",
-
                 "Academic performance"
-
             )}
 
-
-
             ${stat(
-
                 "Pending Tasks",
-
                 db.tests.length + db.assignments.length,
-
                 "Tests + assignments"
-
             )}
-
-
 
             ${stat(
-
                 "Pending Fees",
-
                 "₹22,000",
-
                 "Payable balance"
-
             )}
-
-
 
         </div>
-
-
-
 
 
         <div class="grid2">
 
-
-
             <div class="card">
-
-
 
                 <div class="card-head">
 
-
-
                     <div>
 
-
-
                         <h3>
-
                             Skill Dashboard
-
                         </h3>
 
-
-
                         <p>
-
                             Track employability skills
-
                         </p>
-
-
 
                     </div>
 
-
-
                     <button
-
                         class="btn secondary"
-
                         onclick="go('student-skills')"
-
                     >
-
                         Open
-
                     </button>
 
-
-
                 </div>
-
-
 
                 ${skillsHTML(currentUser)}
 
-
-
             </div>
-
-
-
 
 
             <div class="card">
 
-
-
                 <div class="card-head">
-
-
 
                     <div>
 
-
-
                         <h3>
-
                             Upcoming Work
-
                         </h3>
 
-
-
                         <p>
-
                             Complete before due dates
-
                         </p>
-
-
 
                     </div>
 
-
-
                 </div>
-
-
 
                 ${workHTML()}
 
-
-
             </div>
 
-
-
         </div>
-
-
-
 
 
         <div class="card">
@@ -5157,1281 +1176,642 @@ function studentPages(){
 
         <div class="card">
 
-
-
             <div class="card-head">
-
-
 
                 <div>
 
-
-
                     <h3>
-
                         Recent Notifications
-
                     </h3>
-
-
 
                 </div>
 
-
-
                 <button
-
                     class="btn secondary"
-
                     onclick="go('notifications')"
-
                 >
-
                     View all
-
                 </button>
-
-
 
             </div>
 
-
-
             <div id="dashNotices"></div>
-
-
 
         </div>
 
-
-
     </div>
-
-
-
 
 
     <!-- ACADEMICS -->
 
-
-
     <div
-
         class="page"
-
         id="student-academics"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Marks & Academic Records
-
             </h1>
 
-
-
             <p>
-
                 View marks, test scores and assignment marks.
-
             </p>
 
-
-
         </div>
-
-
-
 
 
         <div class="stats">
 
-
-
             ${stat(
-
                 "Current Average",
-
                 "82%",
-
                 "Overall"
-
             )}
 
-
-
             ${stat(
-
                 "Tests Completed",
-
                 db.submissions.filter(
-
                     s =>
-
                         s.studentId === currentUser.studentId &&
-
                         s.type === "test"
-
                 ).length,
-
                 "Submitted"
-
             )}
 
-
-
             ${stat(
-
                 "Assignments Completed",
-
                 db.submissions.filter(
-
                     s =>
-
                         s.studentId === currentUser.studentId &&
-
                         s.type === "assignment"
-
                 ).length,
-
                 "Submitted"
-
             )}
-
-
 
             ${stat(
-
                 "Teacher Access",
-
                 "Full",
-
                 "Marks visible"
-
             )}
-
-
 
         </div>
 
 
-
-
-
         <div class="card">
-
-
 
             <div class="card-head">
 
-
-
                 <h3>
-
                     Assessment Marks
-
                 </h3>
 
-
-
             </div>
-
-
-
 
 
             <div class="table-wrap">
 
-
-
                 <table>
-
-
 
                     <thead>
 
-
-
                         <tr>
 
-
-
                             <th>Assessment</th>
-
                             <th>Subject</th>
-
                             <th>Base Marks</th>
-
                             <th>Deadline Score</th>
-
                             <th>Final</th>
-
                             <th>Status</th>
-
-
 
                         </tr>
 
-
-
                     </thead>
-
-
 
                     <tbody>
 
-
-
                         ${
-
                             db.submissions
-
                             .filter(
-
                                 s =>
-
                                     s.studentId ===
-
                                     currentUser.studentId
-
                             )
-
                             .map(
-
                                 s => `
 
-
-
                                 <tr>
 
-
-
                                     <td>
-
                                         ${esc(s.title)}
-
                                     </td>
 
-
-
                                     <td>
-
                                         ${esc(s.subject)}
-
                                     </td>
 
-
-
                                     <td>
-
                                         ${s.baseMarks ?? "-"}
-
                                     </td>
 
-
-
                                     <td>
-
                                         ${s.deadlineMarks ?? "-"}
-
                                     </td>
 
-
-
                                     <td>
-
                                         <b>
-
                                             ${s.finalMarks ?? "-"}
-
                                         </b>
-
                                     </td>
 
-
-
                                     <td>
-
-
 
                                         <span
-
                                             class="badge ${
-
                                                 s.status === "Submitted"
-
                                                     ? "green"
-
                                                     : "yellow"
-
                                             }"
-
                                         >
-
                                             ${esc(s.status)}
-
                                         </span>
 
-
-
                                     </td>
-
-
 
                                 </tr>
 
-
-
                             `
-
                             )
-
                             .join("")
-
                             ||
-
                             `
-
                                 <tr>
-
                                     <td
-
                                         colspan="6"
-
                                         class="empty"
-
                                     >
-
                                         No submissions yet.
-
                                     </td>
-
                                 </tr>
-
                             `
-
                         }
-
-
 
                     </tbody>
 
-
-
                 </table>
-
-
 
             </div>
 
-
-
         </div>
 
-
-
     </div>
-
-
-
 
 
     <!-- TESTS -->
 
-
-
     <div
-
         class="page"
-
         id="student-tests"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Test Portal 📝
-
             </h1>
 
-
-
             <p>
-
                 Complete faculty-created tests
-
                 within the allowed date.
-
             </p>
-
-
 
         </div>
 
-
-
         <div
-
             id="studentTests"
-
             class="list"
-
         ></div>
 
-
-
     </div>
-
-
-
 
 
     <!-- ASSIGNMENTS -->
 
-
-
     <div
-
         class="page"
-
         id="student-assignments"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Assignment Portal 📋
-
             </h1>
 
-
-
             <p>
-
                 Submit assignments and receive
-
                 deadline-based marks.
-
             </p>
-
-
 
         </div>
 
-
-
         <div
-
             id="studentAssignments"
-
             class="list"
-
         ></div>
 
-
-
     </div>
-
-
-
 
 
     <!-- ATTENDANCE -->
 
-
-
     <div
-
         class="page"
-
         id="student-attendance"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Attendance Portal
-
             </h1>
 
-
-
             <p>
-
                 Monitor attendance and leave.
-
             </p>
 
-
-
         </div>
-
-
-
 
 
         <div class="stats">
 
-
-
             ${stat(
-
                 "Overall Attendance",
-
                 (currentUser.attendance || 0) + "%",
-
                 "Current semester"
-
             )}
 
-
-
             ${stat(
-
                 "Present Days",
-
                 "103",
-
                 "Out of 120"
-
             )}
 
-
-
             ${stat(
-
                 "Absent Days",
-
                 "17",
-
                 "This semester"
-
             )}
-
-
 
             ${stat(
-
                 "Leave Requests",
-
                 db.leaves.filter(
-
                     l =>
-
                         l.studentId ===
-
                         currentUser.studentId
-
                 ).length,
-
                 "Submitted"
-
             )}
-
-
 
         </div>
-
-
-
 
 
         <div class="card">
 
-
-
             <h3>
-
                 Subject Attendance
-
             </h3>
 
 
-
-
-
             <div class="skill">
 
-
-
                 <div class="skill-top">
-
-
 
                     <b>Python</b>
 
-
-
                     <span>92%</span>
 
-
-
                 </div>
-
-
 
                 <div class="progress">
 
-
-
                     <i
-
                         style="width:92%;background:var(--green)"
-
                     ></i>
 
-
-
                 </div>
-
-
 
             </div>
 
 
-
-
-
             <div class="skill">
 
-
-
                 <div class="skill-top">
-
-
 
                     <b>SQL</b>
 
-
-
                     <span>86%</span>
 
-
-
                 </div>
-
-
 
                 <div class="progress">
 
-
-
                     <i
-
                         style="width:86%"
-
                     ></i>
-
-
 
                 </div>
 
-
-
             </div>
-
-
-
 
 
             <div class="skill">
 
-
-
                 <div class="skill-top">
-
-
 
                     <b>Statistics</b>
 
-
-
                     <span>80%</span>
 
-
-
                 </div>
-
-
 
                 <div class="progress">
 
-
-
                     <i
-
                         style="width:80%;background:var(--yellow)"
-
                     ></i>
-
-
 
                 </div>
 
-
-
             </div>
-
-
 
         </div>
 
-
-
     </div>
-
-
-
 
 
     <!-- FEES -->
 
-
-
     <div
-
         class="page"
-
         id="student-fees"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Student Fees 💳
-
             </h1>
 
-
-
             <p>
-
                 Tuition, bus, hostel, payment
-
                 and pending details.
-
             </p>
-
-
 
         </div>
 
-
-
         ${feeCard(currentUser.studentId,true)}
 
-
-
     </div>
-
-
-
 
 
     <!-- LEAVE -->
 
-
-
     <div
-
         class="page"
-
         id="student-leave"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Leave Management
-
             </h1>
 
-
-
             <p>
-
                 Submit leave to your faculty/class adviser.
-
             </p>
-
-
 
         </div>
 
 
-
-
-
         <div class="card">
-
-
 
             <form onsubmit="submitLeave(event)">
 
-
-
                 <div class="form-grid">
-
-
 
                     <div class="form-group">
 
-
-
                         <label>
-
                             Leave Type
-
                         </label>
 
-
-
                         <select
-
                             id="leaveType"
-
                             class="control"
-
                             required
-
                         >
 
-
-
                             <option>
-
                                 Medical Leave
-
                             </option>
 
-
-
                             <option>
-
                                 Personal Leave
-
                             </option>
 
-
-
                             <option>
-
                                 On Duty
-
                             </option>
-
-
 
                             <option>
-
                                 Emergency Leave
-
                             </option>
-
-
 
                         </select>
 
-
-
                     </div>
-
-
-
 
 
                     <div class="form-group">
 
-
-
                         <label>
-
                             From Date
-
                         </label>
 
-
-
                         <input
-
                             id="leaveFrom"
-
                             type="date"
-
                             class="control"
-
                             required
-
                         >
 
-
-
                     </div>
-
-
-
 
 
                     <div class="form-group">
 
-
-
                         <label>
-
                             To Date
-
                         </label>
 
-
-
                         <input
-
                             id="leaveTo"
-
                             type="date"
-
                             class="control"
-
                             required
-
                         >
 
-
-
                     </div>
-
-
-
 
 
                     <div class="form-group full">
 
-
-
                         <label>
-
                             Reason
-
                         </label>
 
-
-
                         <textarea
-
                             id="leaveReason"
-
                             class="control"
-
                             rows="4"
-
                             required
-
                         ></textarea>
 
-
-
                     </div>
-
-
-
 
 
                     <div class="full">
 
-
-
                         <button
-
                             class="btn primary"
-
                             type="submit"
-
                         >
-
                             Submit Leave Request
-
                         </button>
-
-
 
                     </div>
 
-
-
                 </div>
-
-
 
             </form>
 
-
-
         </div>
-
-
-
 
 
         <div class="card">
 
-
-
             <h3>
-
                 My Leave Requests
-
             </h3>
 
-
-
             <div
-
                 id="studentLeaves"
-
                 class="list"
-
                 style="margin-top:15px"
-
             ></div>
-
-
 
         </div>
 
-
-
     </div>
-
-
-
 
 
     <!-- SKILLS -->
 
-
-
     <div
-
         class="page"
-
         id="student-skills"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 My Skill Dashboard 🧠
-
             </h1>
 
-
-
             <p>
-
                 Skill progress visible to you
-
                 and your assigned mentor.
-
             </p>
-
-
 
         </div>
 
 
-
-
-
         <div class="card">
-
-
 
             <div class="card-head">
 
-
-
                 <div>
 
-
-
                     <h3>
-
                         Skill Breakdown
-
                     </h3>
 
-
-
                     <p>
-
                         Each ring shows how close you are
-
                         to full proficiency in that skill.
-
                     </p>
-
-
 
                 </div>
 
-
-
             </div>
-
-
 
             ${skillsDonutHTML(currentUser)}
 
-
-
         </div>
-
-
-
 
 
         <div class="card">
 
-
-
             <div class="card-head">
-
-
 
                 <div>
 
-
-
                     <h3>
-
                         Recommended Role To Learn 🎯
-
                     </h3>
 
-
-
                     <p>
-
                         Based on your current skill levels,
-
                         here is the best-fit career path
-
                         and what to learn next.
-
                     </p>
-
-
 
                 </div>
 
-
-
             </div>
-
-
 
             ${roleSuggestionHTML(currentUser)}
 
-
-
         </div>
-
-
-
 
 
         <div class="card">
 
-
-
             <div class="card-head">
-
-
 
                 <div>
 
-
-
                     <h3>
-
                         Suggestions To Improve 💡
-
                     </h3>
 
-
-
                     <p>
-
                         Focus areas and quick tips,
-
                         weakest skill first.
-
                     </p>
-
-
 
                 </div>
 
-
-
             </div>
-
-
 
             ${skillSuggestionsHTML(currentUser)}
 
-
-
         </div>
 
-
-
     </div>
-
-
 
 
     <!-- STUDENT FEEDBACK -->
@@ -6565,2225 +1945,1114 @@ function studentPages(){
 
     `;
 
-
-
 }
 
 
-
-
-
 /* =========================================================
-
    FACULTY PAGES
-
 ========================================================= */
-
-
 
 function facultyPages(){
 
-
-
     return `
-
-
 
     <!-- FACULTY DASHBOARD -->
 
-
-
     <div
-
         class="page"
-
         id="faculty-dashboard"
-
     >
-
-
 
         <div class="welcome">
 
-
-
             <div>
 
-
-
                 <h1>
-
                     Faculty Dashboard 👨‍🏫
-
                 </h1>
 
-
-
                 <p>
-
                     Class, assessment, attendance
-
                     and student monitoring.
-
                 </p>
-
-
 
             </div>
 
-
-
             <button
-
                 class="btn primary"
-
                 onclick="go('faculty-tests')"
-
             >
-
                 Create Test
-
             </button>
 
-
-
         </div>
-
-
-
 
 
         <div class="stats">
 
-
-
             ${stat(
-
                 "Assigned Students",
-
                 "52",
-
                 "Class strength"
-
             )}
 
-
-
             ${stat(
-
                 "Average Attendance",
-
                 "84%",
-
                 "Department"
-
             )}
 
-
-
             ${stat(
-
                 "Pending Leaves",
-
                 db.leaves.filter(
-
                     l => l.status === "Pending"
-
                 ).length,
-
                 "Requires review"
-
             )}
-
-
 
             ${stat(
-
                 "Assessments",
-
                 db.tests.length + db.assignments.length,
-
                 "Published"
-
             )}
-
-
 
         </div>
-
-
-
 
 
         <div class="grid2">
 
-
-
             <div class="card">
-
-
 
                 <div class="card-head">
 
-
-
                     <div>
 
-
-
                         <h3>
-
                             Assessment Center
-
                         </h3>
 
-
-
                         <p>
-
                             Tests and assignments
-
                             created by faculty.
-
                         </p>
-
-
 
                     </div>
 
-
-
                 </div>
-
-
-
 
 
                 <div class="grid3">
 
-
-
                     <div class="item">
 
-
-
                         <b>
-
                             ${db.tests.length}
-
                         </b>
 
-
-
                         <p>
-
                             Tests
-
                         </p>
-
-
 
                     </div>
 
 
-
-
-
                     <div class="item">
 
-
-
                         <b>
-
                             ${db.assignments.length}
-
                         </b>
 
-
-
                         <p>
-
                             Assignments
-
                         </p>
 
-
-
                     </div>
-
-
-
 
 
                     <div class="item">
 
-
-
                         <b>
-
                             ${db.submissions.length}
-
                         </b>
 
-
-
                         <p>
-
                             Submissions
-
                         </p>
 
-
-
                     </div>
-
-
 
                 </div>
 
-
-
             </div>
-
-
-
 
 
             <div class="card">
 
-
-
                 <div class="card-head">
-
-
 
                     <div>
 
-
-
                         <h3>
-
                             Mentor Access
-
                         </h3>
 
-
-
                         <p>
-
                             View student skills and progress.
-
                         </p>
 
-
-
                     </div>
-
-
 
                 </div>
 
-
-
                 ${
-
                     currentUser.mentor
-
                     ?
-
                     `
-
                     <button
-
                         class="btn primary"
-
                         onclick="go('mentor-skills')"
-
                     >
-
                         Open Skill Dashboard
-
                     </button>
-
                     `
-
                     :
-
                     `
-
                     <div class="notice">
-
                         Mentor access is not enabled
-
                         for this account.
-
                     </div>
-
                     `
-
                 }
 
-
-
             </div>
-
-
 
         </div>
 
 
-
-
-
         ${
-
             currentUser.classAdviser
-
             ?
-
             `
-
             <div class="card">
-
-
 
                 <div class="card-head">
 
-
-
                     <div>
 
-
-
                         <h3>
-
                             Class Adviser Full Access
-
                         </h3>
 
-
-
                         <p>
-
                             Manage marks, attendance,
-
                             leaves, tests, assignments,
-
                             fees and notifications.
-
                         </p>
-
-
 
                     </div>
 
-
-
                     <button
-
                         class="btn primary"
-
                         onclick="go('adviser-dashboard')"
-
                     >
-
                         Open Adviser Console
-
                     </button>
-
-
 
                 </div>
 
-
-
             </div>
-
             `
-
             :
-
             ""
-
         }
 
-
-
     </div>
-
-
-
 
 
     <!-- FACULTY TESTS -->
 
-
-
     <div
-
         class="page"
-
         id="faculty-tests"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Test Portal — Faculty
-
             </h1>
 
-
-
             <p>
-
                 Create tests, set dates and
-
                 notify students.
-
             </p>
-
-
 
         </div>
 
 
-
-
-
         <div class="card">
-
-
 
             <form onsubmit="createTest(event)">
 
-
-
                 <div class="form-grid">
 
-
-
                     <div class="form-group">
 
-
-
                         <label>
-
                             Test Title
-
                         </label>
 
-
-
                         <input
-
                             id="testTitle"
-
                             class="control"
-
                             required
-
                         >
-
-
 
                     </div>
 
 
-
-
-
                     <div class="form-group">
 
-
-
                         <label>
-
                             Subject
-
                         </label>
 
-
-
                         <input
-
                             id="testSubject"
-
                             class="control"
-
                             required
-
                         >
-
-
 
                     </div>
 
 
-
-
-
                     <div class="form-group">
 
-
-
                         <label>
-
                             Start Date
-
                         </label>
 
-
-
                         <input
-
                             id="testStart"
-
                             type="date"
-
                             class="control"
-
                             required
-
                         >
 
-
-
                     </div>
-
-
-
 
 
                     <div class="form-group">
 
-
-
                         <label>
-
                             Due Date
-
                         </label>
 
-
-
                         <input
-
                             id="testDue"
-
                             type="date"
-
                             class="control"
-
                             required
-
                         >
-
-
 
                     </div>
 
 
-
-
-
                     <div class="form-group full">
 
-
-
                         <label>
-
                             Question 1
-
                         </label>
 
-
-
                         <input
-
                             id="q1"
-
                             class="control"
-
                             placeholder="Question | A | B | C | D | Correct number"
-
                             required
-
                         >
 
-
-
                     </div>
-
-
-
 
 
                     <div class="form-group full">
 
-
-
                         <label>
-
                             Question 2
-
                         </label>
 
-
-
                         <input
-
                             id="q2"
-
                             class="control"
-
                             placeholder="Question | A | B | C | D | Correct number"
-
                             required
-
                         >
 
-
-
                     </div>
-
-
-
 
 
                     <div class="full">
 
-
-
                         <button
-
                             class="btn primary"
-
                             type="submit"
-
                         >
-
                             Publish Test & Notify Students
-
                         </button>
-
-
 
                     </div>
 
-
-
                 </div>
-
-
 
             </form>
 
-
-
         </div>
-
-
-
 
 
         <div class="card">
 
-
-
             <h3>
-
                 Published Tests
-
             </h3>
 
-
-
             <div
-
                 id="facultyTestList"
-
                 class="list"
-
                 style="margin-top:15px"
-
             ></div>
-
-
 
         </div>
 
-
-
     </div>
-
-
-
 
 
     <!-- FACULTY ASSIGNMENTS -->
 
-
-
     <div
-
         class="page"
-
         id="faculty-assignments"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Assignment Portal — Faculty
-
             </h1>
 
-
-
             <p>
-
                 Create assignment, deadline
-
                 and notify students.
-
             </p>
-
-
 
         </div>
 
 
-
-
-
         <div class="card">
-
-
 
             <form onsubmit="createAssignment(event)">
 
-
-
                 <div class="form-grid">
 
-
-
                     <div class="form-group">
 
-
-
                         <label>
-
                             Assignment Title
-
                         </label>
 
-
-
                         <input
-
                             id="asTitle"
-
                             class="control"
-
                             required
-
                         >
-
-
 
                     </div>
 
 
-
-
-
                     <div class="form-group">
 
-
-
                         <label>
-
                             Subject
-
                         </label>
 
-
-
                         <input
-
                             id="asSubject"
-
                             class="control"
-
                             required
-
                         >
-
-
 
                     </div>
 
 
-
-
-
                     <div class="form-group">
 
-
-
                         <label>
-
                             Assigned Date
-
                         </label>
 
-
-
                         <input
-
                             id="asAssigned"
-
                             type="date"
-
                             class="control"
-
                             required
-
                         >
 
-
-
                     </div>
-
-
-
 
 
                     <div class="form-group">
 
-
-
                         <label>
-
                             Due Date
-
                         </label>
 
-
-
                         <input
-
                             id="asDue"
-
                             type="date"
-
                             class="control"
-
                             required
-
                         >
 
-
-
                     </div>
-
-
-
 
 
                     <div class="form-group full">
 
-
-
                         <label>
-
                             Description
-
                         </label>
 
-
-
                         <textarea
-
                             id="asDesc"
-
                             class="control"
-
                             rows="4"
-
                             required
-
                         ></textarea>
 
-
-
                     </div>
-
-
-
 
 
                     <div class="full">
 
-
-
                         <button
-
                             class="btn primary"
-
                             type="submit"
-
                         >
-
                             Publish Assignment & Notify
-
                         </button>
-
-
 
                     </div>
 
-
-
                 </div>
-
-
 
             </form>
 
-
-
         </div>
-
-
-
 
 
         <div class="card">
 
-
-
             <h3>
-
                 Published Assignments
-
             </h3>
 
-
-
             <div
-
                 id="facultyAssignmentList"
-
                 class="list"
-
                 style="margin-top:15px"
-
             ></div>
-
-
 
         </div>
 
-
-
     </div>
-
-
-
 
 
     <!-- ATTENDANCE -->
 
-
-
     <div
-
         class="page"
-
         id="faculty-attendance"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Attendance Management
-
             </h1>
 
-
-
             <p>
-
                 Faculty/class adviser can mark
-
                 and review attendance.
-
             </p>
 
-
-
         </div>
-
-
-
 
 
         <div class="card">
 
-
-
             <div class="card-head">
 
-
-
                 <h3>
-
                     Data Analytics — II Year
-
                 </h3>
 
-
-
                 <button
-
                     class="btn primary"
-
                     onclick="saveAttendance()"
-
                 >
-
                     Save Attendance
-
                 </button>
 
-
-
             </div>
-
-
-
 
 
             <div class="table-wrap">
 
-
-
                 <table>
-
-
 
                     <thead>
 
-
-
                         <tr>
 
-
-
                             <th>Student</th>
-
                             <th>ID</th>
-
                             <th>Attendance</th>
-
                             <th>Today</th>
-
                             <th>Action</th>
-
-
 
                         </tr>
 
-
-
                     </thead>
-
-
 
                     <tbody>
 
-
-
                         ${
-
                             students()
-
                             .map(
-
                                 student => `
-
-
 
                                 <tr>
 
-
-
                                     <td>
-
                                         ${esc(student.name)}
-
                                     </td>
 
-
-
                                     <td>
-
                                         ${esc(student.studentId)}
-
                                     </td>
 
-
-
                                     <td>
-
                                         ${student.attendance || 0}%
-
                                     </td>
 
-
-
                                     <td>
-
-
 
                                         <select
-
                                             class="control attendance-select"
-
                                             data-id="${esc(student.studentId)}"
-
                                             style="padding:6px"
-
                                         >
 
-
-
                                             <option>
-
                                                 Present
-
                                             </option>
-
-
 
                                             <option>
-
                                                 Absent
-
                                             </option>
-
-
 
                                         </select>
 
-
-
                                     </td>
-
-
 
                                     <td>
 
-
-
                                         <button
-
                                             class="btn secondary"
-
                                             onclick="updateAttendance('${esc(student.studentId)}')"
-
                                         >
-
                                             Update
-
                                         </button>
-
-
 
                                     </td>
 
-
-
                                 </tr>
 
-
-
                             `
-
                             )
-
                             .join("")
-
                         }
-
-
 
                     </tbody>
 
-
-
                 </table>
-
-
 
             </div>
 
-
-
         </div>
 
-
-
     </div>
-
-
-
 
 
     <!-- LEAVES -->
 
-
-
     <div
-
         class="page"
-
         id="faculty-leaves"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Leave Requests
-
             </h1>
 
-
-
             <p>
-
                 Approve/reject student leave.
-
                 Approval notifies student and parent.
-
             </p>
-
-
 
         </div>
 
 
-
-
-
         <div
-
             id="facultyLeaves"
-
             class="list"
-
         ></div>
 
-
-
     </div>
-
-
-
 
 
     <!-- MARKS -->
 
-
-
     <div
-
         class="page"
-
         id="faculty-marks"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Marks & Results — Full Access
-
             </h1>
 
-
-
             <p>
-
                 Faculty can view and update
-
                 student marks.
-
             </p>
 
-
-
         </div>
-
-
-
 
 
         <div class="card">
 
-
-
             <div class="table-wrap">
-
-
 
                 <table>
 
-
-
                     <thead>
-
-
 
                         <tr>
 
-
-
                             <th>Student</th>
-
                             <th>ID</th>
-
                             <th>CA 1</th>
-
                             <th>CA 2</th>
-
                             <th>Model</th>
-
                             <th>Average</th>
-
                             <th>Action</th>
 
-
-
                         </tr>
-
-
 
                     </thead>
 
 
-
-
-
                     <tbody>
 
-
-
                         ${
-
                             students()
-
                             .map(
-
                                 student => `
-
-
 
                                 <tr>
 
-
-
                                     <td>
-
                                         ${esc(student.name)}
-
                                     </td>
 
-
-
                                     <td>
-
                                         ${esc(student.studentId)}
-
                                     </td>
-
-
 
                                     <td>
 
-
-
                                         <input
-
                                             class="control"
-
                                             id="m1-${esc(student.studentId)}"
-
                                             value="82"
-
                                             style="width:70px"
-
                                         >
-
-
 
                                     </td>
 
-
-
                                     <td>
 
-
-
                                         <input
-
                                             class="control"
-
                                             id="m2-${esc(student.studentId)}"
-
                                             value="86"
-
                                             style="width:70px"
-
                                         >
-
-
 
                                     </td>
 
-
-
                                     <td>
-
-
 
                                         <input
-
                                             class="control"
-
                                             id="m3-${esc(student.studentId)}"
-
                                             value="90"
-
                                             style="width:70px"
-
                                         >
 
-
-
                                     </td>
 
-
-
                                     <td>
-
                                         86%
-
                                     </td>
 
-
-
                                     <td>
-
-
 
                                         <button
-
                                             class="btn primary"
-
                                             onclick="saveMark('${esc(student.studentId)}')"
-
                                         >
-
                                             Save
-
                                         </button>
 
-
-
                                     </td>
-
-
 
                                 </tr>
 
-
-
                             `
-
                             )
-
                             .join("")
-
                         }
-
-
 
                     </tbody>
 
-
-
                 </table>
-
-
 
             </div>
 
-
-
         </div>
 
-
-
     </div>
-
-
-
 
 
     <!-- MENTOR -->
 
-
-
     <div
-
         class="page"
-
         id="mentor-skills"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Mentor — Student Skill Dashboard 🧭
-
             </h1>
 
-
-
             <p>
-
                 Mentor access: view student skill
-
                 progress and identify support areas.
-
             </p>
-
-
 
         </div>
 
-
-
         ${mentorOverviewHTML()}
-
-
 
         <div class="card">
 
-
-
             <div class="card-head">
-
-
 
                 <div>
 
-
-
                     <h3>
-
                         Student Skill Table
-
                     </h3>
 
-
-
                     <p>
-
                         Ranked by overall skill average,
-
                         highest first.
-
                     </p>
-
-
 
                 </div>
 
-
-
             </div>
-
-
 
             <div class="table-wrap">
 
-
-
                 <table>
-
-
 
                     <thead>
 
-
-
                         <tr>
 
-
-
                             <th>Student</th>
-
                             <th>Attendance</th>
-
                             <th>Python</th>
-
                             <th>SQL</th>
-
                             <th>Power BI</th>
-
                             <th>Excel</th>
-
                             <th>Communication</th>
-
                             <th>Avg</th>
-
                             <th>Performance</th>
-
                             <th>Action</th>
 
-
-
                         </tr>
-
-
 
                     </thead>
 
 
-
-
-
                     <tbody>
 
-
-
                         ${
-
                             mentorRankedStudents()
-
                             .map(
-
                                 ({student,avg}) => `
 
-
-
                                 <tr>
 
-
-
                                     <td>
-
                                         <b>
-
                                             ${esc(student.name)}
-
                                         </b>
-
                                     </td>
-
-
 
                                     <td>
-
                                         ${student.attendance || 0}%
-
                                     </td>
-
-
 
                                     ${
-
                                         [
-
                                             "Python",
-
                                             "SQL",
-
                                             "Power BI",
-
                                             "Excel",
-
                                             "Communication"
-
                                         ]
-
                                         .map(
-
                                             skill => `
-
                                                 <td>
-
                                                     ${
-
                                                         student.skills?.[skill] ?? 0
-
                                                     }%
-
                                                 </td>
-
                                             `
-
                                         )
-
                                         .join("")
-
                                     }
 
-
-
                                     <td>
-
                                         <b>${avg}%</b>
-
                                     </td>
 
-
-
                                     <td>
-
-
 
                                         <span
-
                                             class="badge ${mentorSkillLevelTag(avg)[1]}"
-
                                         >
-
                                             ${mentorSkillLevelTag(avg)[0]}
-
                                         </span>
 
-
-
                                     </td>
-
-
 
                                     <td>
 
-
-
                                         <button
-
                                             class="btn secondary"
-
                                             onclick="mentorView('${esc(student.studentId)}')"
-
                                         >
-
                                             View
-
                                         </button>
 
-
-
                                     </td>
-
-
 
                                 </tr>
 
-
-
                             `
-
                             )
-
                             .join("")
-
                             ||
-
                             `
-
                                 <tr>
-
                                     <td
-
                                         colspan="9"
-
                                         class="empty"
-
                                     >
-
                                         No assigned students yet.
-
                                     </td>
-
                                 </tr>
-
                             `
-
                         }
-
-
 
                     </tbody>
 
-
-
                 </table>
-
-
 
             </div>
 
-
-
         </div>
-
-
 
     </div>
 
 
-
-
-
     <!-- ADVISER DASHBOARD -->
 
-
-
     <div
-
         class="page"
-
         id="adviser-dashboard"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Class Adviser Console ⭐
-
             </h1>
 
-
-
             <p>
-
                 Full access to assigned class:
-
                 marks, attendance, leave, tests,
-
                 assignments, fees and notifications.
-
             </p>
 
-
-
         </div>
-
-
-
 
 
         <div class="stats">
 
-
-
             ${stat(
-
                 "Students",
-
                 students().length,
-
                 "Assigned class"
-
             )}
 
-
-
             ${stat(
-
                 "Pending Leaves",
-
                 db.leaves.filter(
-
                     l => l.status === "Pending"
-
                 ).length,
-
                 "Review now"
-
             )}
 
-
-
             ${stat(
-
                 "Pending Fees",
-
                 "₹22,000",
-
                 "Class fee alerts"
-
             )}
-
-
 
             ${stat(
-
                 "Assessments",
-
                 db.tests.length + db.assignments.length,
-
                 "Published"
-
             )}
-
-
 
         </div>
 
 
-
-
-
         <div class="grid3">
 
-
-
             <button
-
                 class="card"
-
                 onclick="go('faculty-marks')"
-
             >
 
-
-
                 <h3>
-
                     🎯 Marks
-
                 </h3>
 
-
-
                 <p class="muted">
-
                     View and update full student marks.
-
                 </p>
-
-
 
             </button>
 
 
-
-
-
             <button
-
                 class="card"
-
                 onclick="go('faculty-attendance')"
-
             >
 
-
-
                 <h3>
-
                     📅 Attendance
-
                 </h3>
 
-
-
                 <p class="muted">
-
                     Monitor class attendance.
-
                 </p>
-
-
 
             </button>
 
 
-
-
-
             <button
-
                 class="card"
-
                 onclick="go('faculty-leaves')"
-
             >
 
-
-
                 <h3>
-
                     🗓️ Leave
-
                 </h3>
 
-
-
                 <p class="muted">
-
                     Approve/reject requests.
-
                 </p>
-
-
 
             </button>
 
 
-
-
-
             <button
-
                 class="card"
-
                 onclick="go('faculty-tests')"
-
             >
 
-
-
                 <h3>
-
                     📝 Tests
-
                 </h3>
 
-
-
                 <p class="muted">
-
                     Create and publish tests.
-
                 </p>
-
-
 
             </button>
 
 
-
-
-
             <button
-
                 class="card"
-
                 onclick="go('faculty-assignments')"
-
             >
 
-
-
                 <h3>
-
                     📋 Assignments
-
                 </h3>
 
-
-
                 <p class="muted">
-
                     Create and track assignments.
-
                 </p>
-
-
 
             </button>
 
 
-
-
-
             <button
-
                 class="card"
-
                 onclick="go('adviser-fees')"
-
             >
 
-
-
                 <h3>
-
                     💳 Fees
-
                 </h3>
 
-
-
                 <p class="muted">
-
                     View student fee details.
-
                 </p>
-
-
 
             </button>
             <button class="card" onclick="go('adviser-feedback')">
@@ -8791,16 +3060,9 @@ function facultyPages(){
                 <p class="muted">Review student feedback and respond.</p>
             </button>
 
-
-
         </div>
 
-
-
     </div>
-
-
-
 
 
     <!-- ADVISER FEEDBACK -->
@@ -8843,323 +3105,163 @@ function facultyPages(){
 
     <!-- ADVISER FEES -->
 
-
-
     <div
-
         class="page"
-
         id="adviser-fees"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Student Fees — Class Adviser
-
             </h1>
 
-
-
             <p>
-
                 Full fee visibility for assigned students.
-
             </p>
 
-
-
         </div>
-
-
-
 
 
         <div id="adviserFees"></div>
 
-
-
     </div>
-
-
-
 
 
     <!-- PARENT NOTIFICATION -->
 
-
-
     <div
-
         class="page"
-
         id="adviser-notify"
-
     >
-
-
 
         <div class="page-title">
 
-
-
             <h1>
-
                 Parent Notifications
-
             </h1>
 
-
-
             <p>
-
                 Send academic, attendance and fee
-
                 notifications to students and parents.
-
             </p>
 
-
-
         </div>
-
-
-
 
 
         <div class="card">
 
-
-
             <form onsubmit="sendParentNotice(event)">
-
-
 
                 <div class="form-grid">
 
-
-
                     <div class="form-group">
 
-
-
                         <label>
-
                             Student
-
                         </label>
 
-
-
                         <select
-
                             id="noticeStudent"
-
                             class="control"
-
                         >
-
-
 
                             ${
-
                                 students()
-
                                 .map(
-
                                     student => `
-
                                     <option
-
                                         value="${esc(student.studentId)}"
-
                                     >
-
                                         ${esc(student.name)}
-
                                         —
-
                                         ${esc(student.studentId)}
-
                                     </option>
-
                                     `
-
                                 )
-
                                 .join("")
-
                             }
-
-
 
                         </select>
 
-
-
                     </div>
-
-
-
 
 
                     <div class="form-group">
 
-
-
                         <label>
-
                             Type
-
                         </label>
 
-
-
                         <select
-
                             id="noticeType"
-
                             class="control"
-
                         >
 
-
-
                             <option>
-
                                 Fee Reminder
-
                             </option>
 
-
-
                             <option>
-
                                 Attendance Alert
-
                             </option>
 
-
-
                             <option>
-
                                 Academic Update
-
                             </option>
-
-
 
                             <option>
-
                                 General
-
                             </option>
-
-
 
                         </select>
 
-
-
                     </div>
-
-
-
 
 
                     <div class="form-group full">
 
-
-
                         <label>
-
                             Message
-
                         </label>
 
-
-
                         <textarea
-
                             id="noticeMessage"
-
                             class="control"
-
                             rows="4"
-
                             required
-
                         ></textarea>
 
-
-
                     </div>
-
-
-
 
 
                     <div class="full">
 
-
-
                         <button
-
                             class="btn primary"
-
                             type="submit"
-
                         >
-
                             Notify Student + Parent + Adviser
-
                         </button>
-
-
 
                     </div>
 
-
-
                 </div>
-
-
 
             </form>
 
-
-
         </div>
-
-
 
     </div>
 
-
-
     `;
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    MANAGEMENT PAGES
-
 ========================================================= */
-
-
 
 function managementPages(){
     return `
@@ -9422,1667 +3524,836 @@ function refreshManagementPages(){
     renderManagementFaculty();
 }
 
+
 /* =========================================================
-
    SKILLS
-
 ========================================================= */
-
-
 
 function skillsHTML(student){
 
-
-
     const skillNames = [
-
         "Python",
-
         "SQL",
-
         "Power BI",
-
         "Excel",
-
         "Communication"
-
     ];
 
 
-
-
-
     return skillNames
-
         .map(
-
             skill => {
 
-
-
                 const value =
-
                     student.skills?.[skill] ?? 0;
-
-
-
 
 
                 return `
 
-
-
                 <div class="skill">
-
-
 
                     <div class="skill-top">
 
-
-
                         <b>
-
                             ${skill}
-
                         </b>
 
-
-
                         <span>
-
                             ${value}%
-
                         </span>
 
-
-
                     </div>
-
-
 
                     <div class="progress">
 
-
-
                         <i
-
                             style="width:${Math.max(
-
                                 0,
-
                                 Math.min(100,value)
-
                             )}%"
-
                         ></i>
-
-
 
                     </div>
 
-
-
                 </div>
-
-
 
                 `;
 
-
-
             }
-
         )
-
         .join("");
 
-
-
 }
-
-
-
 
 
 /* =========================================================
-
    SKILL DONUT CHART
-
 ========================================================= */
-
-
 
 function skillLevelColor(value){
 
-
-
     if(value >= 85){
-
-
 
         return "var(--green)";
 
-
-
     }
-
-
 
     if(value >= 70){
 
-
-
         return "var(--primary)";
 
-
-
     }
-
-
 
     if(value >= 50){
 
-
-
         return "var(--yellow)";
-
-
 
     }
 
-
-
     return "var(--red)";
 
-
-
 }
-
-
-
 
 
 function skillLevelTag(value){
 
-
-
     if(value >= 85){
-
-
 
         return ["Strong","green"];
 
-
-
     }
-
-
 
     if(value >= 70){
 
-
-
         return ["Good","blue"];
 
-
-
     }
-
-
 
     if(value >= 50){
 
-
-
         return ["Growing","yellow"];
-
-
 
     }
 
-
-
     return ["Needs Work","red"];
 
-
-
 }
-
-
-
 
 
 function donutSVG(value,color){
 
-
-
     const size = 96;
-
-
 
     const stroke = 10;
 
-
-
     const radius = (size - stroke) / 2;
-
-
 
     const circumference = 2 * Math.PI * radius;
 
-
-
     const clamped = Math.max(0,Math.min(100,value));
 
-
-
     const offset =
-
         circumference -
-
         (clamped / 100) * circumference;
-
-
-
 
 
     return `
 
-
-
         <svg
-
             width="${size}"
-
             height="${size}"
-
             viewBox="0 0 ${size} ${size}"
-
         >
 
-
-
             <circle
-
                 cx="${size / 2}"
-
                 cy="${size / 2}"
-
                 r="${radius}"
-
                 fill="none"
-
                 stroke="#edf0f6"
-
                 stroke-width="${stroke}"
-
             ></circle>
-
-
 
             <circle
-
                 cx="${size / 2}"
-
                 cy="${size / 2}"
-
                 r="${radius}"
-
                 fill="none"
-
                 stroke="${color}"
-
                 stroke-width="${stroke}"
-
                 stroke-linecap="round"
-
                 stroke-dasharray="${circumference}"
-
                 stroke-dashoffset="${offset}"
-
             ></circle>
-
-
 
             <text
-
                 x="${size / 2}"
-
                 y="${size / 2}"
-
                 text-anchor="middle"
-
                 dominant-baseline="middle"
-
                 class="donut-value"
-
             >
-
                 ${clamped}%
-
             </text>
-
-
 
         </svg>
 
-
-
     `;
 
-
-
 }
-
-
-
 
 
 function skillsDonutHTML(student){
 
-
-
     const skillNames = [
-
         "Python",
-
         "SQL",
-
         "Power BI",
-
         "Excel",
-
         "Communication"
-
     ];
-
-
-
 
 
     return `
 
-
-
         <div class="donut-grid">
 
-
-
             ${
-
                 skillNames
-
                 .map(
-
                     skill => {
 
-
-
                         const value =
-
                             student.skills?.[skill] ?? 0;
 
-
-
                         const color =
-
                             skillLevelColor(value);
 
-
-
                         const [tagLabel,tagClass] =
-
                             skillLevelTag(value);
-
-
-
 
 
                         return `
 
-
-
                         <div class="donut-item">
-
-
 
                             ${donutSVG(value,color)}
 
-
-
                             <div class="donut-name">
-
                                 ${esc(skill)}
-
                             </div>
 
-
-
                             <span
-
                                 class="donut-tag badge ${tagClass}"
-
                             >
-
                                 ${tagLabel}
-
                             </span>
-
-
 
                         </div>
 
-
-
                         `;
 
-
-
                     }
-
                 )
-
                 .join("")
-
             }
-
-
 
         </div>
 
-
-
     `;
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    ROLE MATCHING
-
 ========================================================= */
-
-
 
 const ROLE_PROFILES = {
 
-
-
     "Data Analyst":{
-
         Python:15,
-
         SQL:30,
-
         "Power BI":25,
-
         Excel:20,
-
         Communication:10
-
     },
-
-
 
     "Business Intelligence (BI) Developer":{
-
         Python:10,
-
         SQL:30,
-
         "Power BI":35,
-
         Excel:15,
-
         Communication:10
-
     },
-
-
 
     "Data Scientist":{
-
         Python:35,
-
         SQL:25,
-
         "Power BI":10,
-
         Excel:10,
-
         Communication:20
-
     },
-
-
 
     "Database / SQL Developer":{
-
         Python:15,
-
         SQL:45,
-
         "Power BI":10,
-
         Excel:10,
-
         Communication:20
-
     },
 
-
-
     "Business Analyst":{
-
         Python:5,
-
         SQL:20,
-
         "Power BI":20,
-
         Excel:30,
-
         Communication:25
-
     }
 
-
-
 };
-
-
-
 
 
 const ROLE_TIPS = {
 
-
-
     "Data Analyst":
-
         "Strong all-round fit: cleaning data, building dashboards and reporting insights to teams.",
 
-
-
     "Business Intelligence (BI) Developer":
-
         "Focused on building interactive Power BI reports and reliable data models for decision-makers.",
 
-
-
     "Data Scientist":
-
         "Uses Python and statistics to build predictive models — needs the deepest programming skill.",
 
-
-
     "Database / SQL Developer":
-
         "Designs, queries and optimizes databases that power every other application.",
 
-
-
     "Business Analyst":
-
         "Bridges business needs and data using Excel, communication and light SQL/reporting skill."
 
-
-
 };
-
-
-
 
 
 function computeRoleMatches(student){
 
-
-
     const skills =
-
         student.skills || {};
 
 
-
-
-
     return Object.entries(ROLE_PROFILES)
-
         .map(
-
             ([role,weights]) => {
 
-
-
                 let weightedTotal = 0;
-
-
 
                 let weightSum = 0;
 
 
-
-
-
                 Object.entries(weights).forEach(
-
                     ([skill,weight]) => {
 
-
-
                         const value =
-
                             skills[skill] ?? 0;
 
-
-
                         weightedTotal +=
-
                             value * weight;
-
-
 
                         weightSum += weight;
 
-
-
                     }
-
                 );
 
 
-
-
-
                 const score =
-
                     weightSum > 0
-
                     ?
-
                     Math.round(
-
                         weightedTotal / weightSum
-
                     )
-
                     :
-
                     0;
 
 
-
-
-
                 return {
-
                     role,
-
                     score,
-
                     weights
-
                 };
 
-
-
             }
-
         )
-
         .sort(
-
             (a,b) => b.score - a.score
-
         );
 
-
-
 }
-
-
-
 
 
 function roleSuggestionHTML(student){
 
-
-
     const matches =
-
         computeRoleMatches(student);
 
-
-
     const top =
-
         matches[0];
 
-
-
     const others =
-
         matches.slice(1,3);
-
-
-
 
 
     function weakestSkillsFor(weights,skills){
 
-
-
         return Object.keys(weights)
-
             .sort(
-
                 (a,b) =>
-
                     weights[b] - weights[a]
-
             )
-
             .filter(
-
                 skill => (skills[skill] ?? 0) < 75
-
             )
-
             .slice(0,3);
-
-
 
     }
 
 
-
-
-
     const gapSkills =
-
         weakestSkillsFor(
-
             top.weights,
-
             student.skills || {}
-
         );
-
-
-
 
 
     return `
 
-
-
         <div class="role-card top">
-
-
 
             <div class="role-top">
 
-
-
                 <div>
 
-
-
                     <b style="font-size:15px">
-
                         🏆 ${esc(top.role)}
-
                     </b>
 
-
-
                     <p class="muted" style="margin-top:5px">
-
                         ${esc(ROLE_TIPS[top.role])}
-
                     </p>
 
-
-
                 </div>
-
-
 
                 <div class="role-match">
-
                     ${top.score}%
-
                     match
-
                 </div>
 
-
-
             </div>
-
-
 
             <div class="role-bar">
 
-
-
                 <i style="width:${top.score}%"></i>
-
-
 
             </div>
 
-
-
             ${
-
                 gapSkills.length
-
                 ?
-
                 `
-
                 <p style="font-size:11px;margin-top:8px">
-
                     <b>Learn next:</b>
-
                     ${
-
                         gapSkills
-
                             .map(esc)
-
                             .join(", ")
-
                     }
-
                     — these skills matter most for this role
-
                     and currently need improvement.
-
                 </p>
-
                 `
-
                 :
-
                 `
-
                 <p style="font-size:11px;margin-top:8px">
-
                     You already meet the key skill bar for
-
                     this role. Keep practicing real projects
-
                     to build a portfolio.
-
                 </p>
-
                 `
-
             }
-
-
 
         </div>
 
 
-
-
-
         <p class="muted" style="font-size:11px;margin:14px 0 8px">
-
             Other close-fit roles
-
         </p>
 
-
-
         ${
-
             others
-
             .map(
-
                 item => `
-
-
 
                 <div class="role-card">
 
-
-
                     <div class="role-top">
-
-
 
                         <b>${esc(item.role)}</b>
 
-
-
                         <span class="muted">
-
                             ${item.score}% match
-
                         </span>
 
-
-
                     </div>
-
-
 
                     <div class="role-bar">
 
-
-
                         <i style="width:${item.score}%;background:linear-gradient(90deg,#c7c4ff,var(--primary))"></i>
-
-
 
                     </div>
 
-
-
                 </div>
 
-
-
                 `
-
             )
-
             .join("")
-
         }
 
-
-
     `;
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    SKILL IMPROVEMENT SUGGESTIONS
-
 ========================================================= */
-
-
 
 const SKILL_ADVICE = {
 
-
-
     Python:
-
         "Practice small daily coding problems and build one end-to-end mini-project (data cleaning + analysis script).",
 
-
-
     SQL:
-
         "Rewrite your assignment queries using JOINs, GROUP BY and window functions on a sample database.",
 
-
-
     "Power BI":
-
         "Recreate one real dashboard (attendance, fees, or sales sample data) using DAX measures and slicers.",
 
-
-
     Excel:
-
         "Practice pivot tables, VLOOKUP/XLOOKUP and basic formulas on a real dataset each week.",
 
-
-
     Communication:
-
         "Present your project findings out loud to a friend or record a 2-minute summary video weekly."
-
-
 
 };
 
 
-
-
-
 function skillSuggestionsHTML(student){
 
-
-
     const skills =
-
         student.skills || {};
 
 
-
-
-
     const ranked =
-
         Object.entries(skills)
-
             .sort(
-
                 (a,b) => a[1] - b[1]
-
             );
-
-
-
 
 
     if(ranked.length === 0){
 
-
-
         return `
-
             <div class="empty">
-
                 No skill data yet.
-
             </div>
-
         `;
-
-
 
     }
 
 
-
-
-
     return ranked
-
         .map(
-
             ([skill,value]) => {
 
-
-
                 const [tagLabel,tagClass] =
-
                     skillLevelTag(value);
-
-
-
 
 
                 return `
 
-
-
                 <div class="gap-row">
-
-
 
                     <div>
 
-
-
                         <b>${esc(skill)}</b>
-
                         <span class="muted">(${value}%)</span>
 
-
-
                         <div class="muted" style="margin-top:3px">
-
                             ${esc(SKILL_ADVICE[skill] || "")}
-
                         </div>
-
-
 
                     </div>
 
-
-
                     <span class="badge ${tagClass}">
-
                         ${tagLabel}
-
                     </span>
-
-
 
                 </div>
 
-
-
                 `;
 
-
-
             }
-
         )
-
         .join("");
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    WORK
-
 ========================================================= */
-
-
 
 function workHTML(){
 
-
-
     const work = [
 
-
-
         ...db.tests.map(
-
             item => ({
-
                 title:item.title,
-
                 due:item.due,
-
                 type:"Test"
-
             })
-
         ),
 
-
-
         ...db.assignments.map(
-
             item => ({
-
                 title:item.title,
-
                 due:item.due,
-
                 type:"Assignment"
-
             })
-
         )
-
-
 
     ];
 
 
-
-
-
     if(work.length === 0){
 
-
-
         return `
-
             <div class="empty">
-
                 No work published.
-
             </div>
-
         `;
-
-
 
     }
 
 
-
-
-
     return work
-
         .slice(0,5)
-
         .map(
-
             item => `
-
-
 
             <div class="item">
 
-
-
                 <b>
-
                     ${esc(item.title)}
-
                 </b>
 
-
-
                 <p>
-
                     ${esc(item.type)}
-
                     • Due ${esc(item.due)}
-
                 </p>
-
-
 
             </div>
 
-
-
             `
-
         )
-
         .join("");
 
-
-
 }
-
-
-
 
 
 /* =========================================================
-
    FEES
-
 ========================================================= */
-
-
 
 function fee(studentId){
 
-
-
     return (
-
         db.fees.find(
-
             item =>
-
                 item.studentId === studentId
-
         )
-
         ||
-
         {
-
             studentId,
-
             tuition:0,
-
             bus:0,
-
             hostel:0,
-
             paid:0,
-
             paymentMethod:"-",
-
             pending:0
-
         }
-
     );
 
-
-
 }
-
-
-
 
 
 function feeCard(studentId,studentView){
 
-
-
     const student =
-
         getStudent(studentId)
-
         ||
-
         {
-
             name:studentId
-
         };
 
 
-
-
-
     const f =
-
         fee(studentId);
-
-
-
 
 
     return `
 
-
-
         <div class="card">
-
-
 
             <div class="card-head">
 
-
-
                 <div>
 
-
-
                     <h3>
-
                         ${esc(student.name)}
-
                         —
-
                         ${esc(studentId)}
-
                     </h3>
 
-
-
                     <p>
-
                         Fee account
-
                     </p>
-
-
 
                 </div>
 
 
-
-
-
                 <span
-
                     class="badge ${
-
                         f.pending
-
                         ? "yellow"
-
                         : "green"
-
                     }"
-
                 >
-
                     ${
-
                         f.pending
-
                         ? "Pending"
-
                         : "Paid"
-
                     }
-
                 </span>
 
-
-
             </div>
-
-
-
 
 
             <div class="grid3">
 
-
-
                 <div class="item">
 
-
-
                     <p>
-
                         Tuition Fees
-
                     </p>
 
-
-
                     <b>
-
                         ₹${f.tuition.toLocaleString()}
-
                     </b>
-
-
 
                 </div>
 
 
-
-
-
                 <div class="item">
 
-
-
                     <p>
-
                         Bus Fees
-
                     </p>
 
-
-
                     <b>
-
                         ₹${f.bus.toLocaleString()}
-
                     </b>
-
-
 
                 </div>
 
 
-
-
-
                 <div class="item">
 
-
-
                     <p>
-
                         Hostel Fees
-
                     </p>
 
-
-
                     <b>
-
                         ₹${f.hostel.toLocaleString()}
-
                     </b>
-
-
 
                 </div>
 
 
-
-
-
                 <div class="item">
 
-
-
                     <p>
-
                         Total Paid
-
                     </p>
 
-
-
                     <b>
-
                         ₹${f.paid.toLocaleString()}
-
                     </b>
-
-
 
                 </div>
 
 
-
-
-
                 <div class="item">
 
-
-
                     <p>
-
                         Payment Method
-
                     </p>
-
-
 
                     <b>
-
                         ${esc(f.paymentMethod)}
-
                     </b>
-
-
 
                 </div>
 
 
-
-
-
                 <div class="item">
 
-
-
                     <p>
-
                         Pending Fees
-
                     </p>
-
-
 
                     <b style="color:var(--red)">
-
                         ₹${f.pending.toLocaleString()}
-
                     </b>
 
-
-
                 </div>
-
-
 
             </div>
 
 
-
-
-
             ${
-
                 studentView && f.pending
-
                 ?
-
                 `
-
                 <div
-
                     class="notice"
-
                     style="margin-top:15px"
-
                 >
-
                     🔔 Fee reminder:
-
                     pending amount
-
                     ₹${f.pending.toLocaleString()}.
-
                     Your class adviser and parent
-
                     can also receive this notification.
-
                 </div>
-
                 `
-
                 :
-
                 ""
-
             }
-
-
 
         </div>
 
-
-
     `;
 
-
-
 }
-
-
-
-
 
 
 /* =========================================================
@@ -11235,571 +4506,288 @@ function updateFeedbackStatus(feedbackId,status){
 }
 
 /* =========================================================
-
    REFRESH
-
 ========================================================= */
-
-
 
 function refreshAll(){
     renderManagementMarks();
     renderManagementFaculty();
 
-
-
     if(!currentUser){
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     if(currentUser.role === "student"){
 
-
-
         renderStudentFeedback();
-
-
 
         renderStudentTests();
 
-
-
         renderStudentAssignments();
-
-
 
         renderStudentLeaves();
 
 
-
-
-
         const dash =
-
             document.getElementById(
-
                 "dashNotices"
-
             );
-
-
-
 
 
         if(dash){
 
-
-
             const notices =
-
                 getVisibleNotifications()
-
                     .slice(-3)
-
                     .reverse();
 
 
-
-
-
             dash.innerHTML =
-
                 notices.length
-
                 ?
-
                 notices
-
                     .map(
-
                         notice => `
-
-
 
                         <div class="notice">
 
-
-
                             <b>
-
                                 ${esc(notice.title)}
-
                             </b>
-
-
 
                             <br>
 
-
-
                             ${esc(notice.message)}
-
-
 
                         </div>
 
-
-
                         `
-
                     )
-
                     .join("")
-
                 :
-
                 `
-
                     <div class="empty">
-
                         No notifications.
-
                     </div>
-
                 `;
-
-
 
         }
 
-
-
     }
-
-
-
 
 
     if(currentUser.role === "faculty"){
 
-
-
         renderAdviserFeedback();
-
-
 
         renderFacultyTests();
 
-
-
         renderFacultyAssignments();
-
-
 
         renderFacultyLeaves();
 
-
-
         renderAdviserFees();
 
-
-
     }
-
-
-
 
 
     renderNotifications();
 
-
-
 }
 
 
-
-
-
 /* =========================================================
-
    STUDENT TESTS
-
 ========================================================= */
-
-
 
 function renderStudentTests(){
 
-
-
     const element =
-
         document.getElementById(
-
             "studentTests"
-
         );
-
-
-
 
 
     if(!element){
 
-
-
         return;
 
-
-
     }
-
-
-
 
 
     if(db.tests.length === 0){
 
-
-
         element.innerHTML = `
-
             <div class="card empty">
-
                 No tests available.
-
             </div>
-
         `;
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     element.innerHTML =
-
         db.tests
-
         .map(
-
             test => {
 
-
-
                 const submission =
-
                     db.submissions.find(
-
                         item =>
-
                             item.itemId === test.id &&
-
                             item.studentId ===
-
                                 currentUser.studentId &&
-
                             item.type === "test"
-
                     );
-
-
-
 
 
                 return `
 
-
-
                 <div class="card">
-
-
 
                     <div class="item-top">
 
-
-
                         <div>
 
-
-
                             <h3>
-
                                 ${esc(test.title)}
-
                             </h3>
 
-
-
                             <p>
-
                                 ${esc(test.subject)}
-
                                 • Faculty:
-
                                 ${esc(test.faculty)}
-
                                 • Due:
-
                                 ${esc(test.due)}
-
                             </p>
-
-
 
                         </div>
 
 
-
-
-
                         <span
-
                             class="badge ${
-
                                 submission
-
                                 ? "green"
-
                                 : "yellow"
-
                             }"
-
                         >
-
                             ${
-
                                 submission
-
                                 ? submission.finalMarks +
-
                                   " marks"
-
                                 : "Not submitted"
-
                             }
-
                         </span>
 
-
-
                     </div>
-
-
-
 
 
                     <div class="actions">
 
-
-
                         ${
-
                             submission
-
                             ?
-
                             `
-
                             <button
-
                                 class="btn secondary"
-
                                 disabled
-
                             >
-
                                 Completed
-
                             </button>
-
                             `
-
                             :
-
                             `
-
                             <button
-
                                 class="btn primary"
-
                                 onclick="takeTest(${test.id})"
-
                             >
-
                                 Start Test
-
                             </button>
-
                             `
-
                         }
-
-
 
                     </div>
 
-
-
                 </div>
-
-
 
                 `;
 
-
-
             }
-
         )
-
         .join("");
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    TAKE TEST
-
 ========================================================= */
-
-
 
 function takeTest(id){
 
-
-
     const test =
-
         db.tests.find(
-
             item => item.id === id
-
         );
-
-
-
 
 
     if(!test){
 
-
-
         toast("Test not found.");
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     const body =
-
         test.questions
-
         .map(
-
             (question,index) => `
-
-
 
             <div class="form-group">
 
-
-
                 <label>
-
                     ${index + 1}.
-
                     ${esc(question.q)}
-
                 </label>
 
 
-
-
-
                 ${
-
                     question.opts
-
                     .map(
-
                         (option,optionIndex) => `
 
-
-
                         <label
-
                             style="display:block;margin:6px 0"
-
                         >
 
-
-
                             <input
-
                                 type="radio"
-
                                 name="testQuestion${index}"
-
                                 value="${optionIndex}"
-
                                 required
-
                             >
-
-
 
                             ${esc(option)}
 
-
-
                         </label>
 
-
-
                         `
-
                     )
-
                     .join("")
-
                 }
-
-
 
             </div>
 
-
-
             `
-
         )
-
         .join("");
-
-
-
 
 
     openModal(
@@ -11807,663 +4795,334 @@ function takeTest(id){
         test.title,
 
 
-
         `
-
         <form
-
             onsubmit="submitTest(event,${id})"
-
         >
-
-
 
             ${body}
 
-
-
             <button
-
                 class="btn primary"
-
                 type="submit"
-
             >
-
                 Submit Test
-
             </button>
 
-
-
         </form>
-
         `
 
     );
 
-
-
 }
 
 
-
-
-
 /* =========================================================
-
    DEADLINE MARKS
-
 ========================================================= */
-
-
 
 function deadlineMarks(due,submitted){
 
-
-
     const difference =
-
         Math.floor(
-
             (
-
                 new Date(submitted) -
-
                 new Date(due)
-
             )
-
             /
-
             (1000 * 60 * 60 * 24)
-
         );
-
-
-
 
 
     if(difference <= 0){
 
-
-
         return 5;
 
-
-
     }
-
-
 
     if(difference <= 2){
 
-
-
         return 4;
 
-
-
     }
-
-
 
     if(difference <= 5){
 
-
-
         return 3;
-
-
 
     }
 
-
-
     return 2;
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    SUBMIT TEST
-
 ========================================================= */
 
-
-
 function submitTest(event,id){
-
-
 
     event.preventDefault();
 
 
-
-
-
     const test =
-
         db.tests.find(
-
             item => item.id === id
-
         );
-
-
-
 
 
     if(!test){
 
-
-
         toast("Test not found.");
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     let correct = 0;
 
 
-
-
-
     test.questions.forEach(
-
         (question,index) => {
 
-
-
             const selected =
-
                 document.querySelector(
-
                     `input[name="testQuestion${index}"]:checked`
-
                 );
 
 
-
-
-
             if(
-
                 selected &&
-
                 Number(selected.value) === question.ans
-
             ){
-
-
 
                 correct++;
 
-
-
             }
 
-
-
         }
-
     );
 
 
-
-
-
     const maximum =
-
         test.questions.length;
 
 
-
-
-
     const score =
-
         maximum > 0
-
         ?
-
         Math.round(
-
             correct / maximum * 100
-
         )
-
         :
-
         0;
 
 
-
-
-
     const submissionDate =
-
         today();
 
 
-
-
-
     const deadline =
-
         deadlineMarks(
-
             test.due,
-
             submissionDate
-
         );
-
-
-
 
 
     const finalMarks =
-
         Math.round(
-
             score * deadline / 5
-
         );
-
-
-
 
 
     db.submissions.push({
 
-
-
         type:"test",
-
-
 
         itemId:test.id,
 
-
-
         studentId:currentUser.studentId,
-
-
 
         title:test.title,
 
-
-
         subject:test.subject,
-
-
 
         baseMarks:score,
 
-
-
         deadlineMarks:deadline,
-
-
 
         finalMarks:finalMarks,
 
-
-
         status:"Submitted",
 
-
-
         submittedAt:submissionDate
-
-
 
     });
 
 
-
-
-
     addNotice(
-
         "Test submitted",
-
         `${test.title}: ${score}% base score; deadline mark ${deadline}/5.`,
-
         currentUser.studentId
-
     );
-
-
-
 
 
     save();
 
-
-
     closeModal();
-
-
 
     refreshAll();
 
-
-
     toast("Test submitted successfully.");
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    ASSIGNMENTS
-
 ========================================================= */
-
-
 
 function renderStudentAssignments(){
 
-
-
     const element =
-
         document.getElementById(
-
             "studentAssignments"
-
         );
-
-
-
 
 
     if(!element){
 
-
-
         return;
 
-
-
     }
-
-
-
 
 
     if(db.assignments.length === 0){
 
-
-
         element.innerHTML = `
-
             <div class="card empty">
-
                 No assignments available.
-
             </div>
-
         `;
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     element.innerHTML =
-
         db.assignments
-
         .map(
-
             assignment => {
 
-
-
                 const submission =
-
                     db.submissions.find(
-
                         item =>
-
                             item.itemId === assignment.id &&
-
                             item.studentId ===
-
                                 currentUser.studentId &&
-
                             item.type === "assignment"
-
                     );
-
-
-
 
 
                 return `
 
-
-
                 <div class="card">
-
-
 
                     <div class="item-top">
 
-
-
                         <div>
 
-
-
                             <h3>
-
                                 ${esc(assignment.title)}
-
                             </h3>
 
-
-
                             <p>
-
                                 ${esc(assignment.subject)}
-
                                 • Due:
-
                                 ${esc(assignment.due)}
-
                             </p>
-
-
 
                         </div>
 
 
-
-
-
                         <span
-
                             class="badge ${
-
                                 submission
-
                                 ? "green"
-
                                 : "yellow"
-
                             }"
-
                         >
-
                             ${
-
                                 submission
-
                                 ? submission.finalMarks +
-
                                   " marks"
-
                                 : "Not submitted"
-
                             }
-
                         </span>
-
-
 
                     </div>
 
 
-
-
-
                     <p style="margin-top:10px">
-
                         ${esc(assignment.description)}
-
                     </p>
-
-
-
 
 
                     <div class="actions">
 
-
-
                         ${
-
                             submission
-
                             ?
-
                             `
-
                             <button
-
                                 class="btn secondary"
-
                                 disabled
-
                             >
-
                                 Submitted
-
                             </button>
-
                             `
-
                             :
-
                             `
-
                             <button
-
                                 class="btn primary"
-
                                 onclick="submitAssignment(${assignment.id})"
-
                             >
-
                                 Submit Assignment
-
                             </button>
-
                             `
-
                         }
-
-
 
                     </div>
 
-
-
                 </div>
-
-
 
                 `;
 
-
-
             }
-
         )
-
         .join("");
-
-
 
 }
 
 
-
-
-
 function submitAssignment(id){
 
-
-
     const assignment =
-
         db.assignments.find(
-
             item => item.id === id
-
         );
-
-
-
 
 
     if(!assignment){
 
-
-
         toast("Assignment not found.");
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     openModal(
@@ -12471,2723 +5130,1364 @@ function submitAssignment(id){
         "Submit Assignment",
 
 
-
         `
 
-
-
         <form
-
             onsubmit="finishAssignment(event,${id})"
-
         >
 
-
-
             <p class="muted">
-
                 ${esc(assignment.description)}
-
             </p>
 
 
-
-
-
             <div class="form-group">
 
-
-
                 <label>
-
                     Your Answer / Work
-
                 </label>
-
-
 
                 <textarea
-
                     id="assignmentAnswer"
-
                     class="control"
-
                     rows="6"
-
                     required
-
                 ></textarea>
 
-
-
             </div>
-
-
-
 
 
             <div class="form-group">
 
-
-
                 <label>
-
                     Submission Date
-
                 </label>
 
-
-
                 <input
-
                     id="assignmentDate"
-
                     type="date"
-
                     class="control"
-
                     value="${today()}"
-
                     required
-
                 >
 
-
-
             </div>
-
-
-
 
 
             <button
-
                 class="btn primary"
-
                 type="submit"
-
             >
-
                 Submit Assignment
-
             </button>
 
-
-
         </form>
-
-
 
         `
 
     );
 
-
-
 }
-
-
-
 
 
 function finishAssignment(event,id){
 
-
-
     event.preventDefault();
 
 
-
-
-
     const assignment =
-
         db.assignments.find(
-
             item => item.id === id
-
         );
 
 
-
-
-
     const date =
-
         document
-
             .getElementById("assignmentDate")
-
             .value;
 
 
-
-
-
     const answer =
-
         document
-
             .getElementById("assignmentAnswer")
-
             .value.trim();
-
-
-
 
 
     if(!answer){
 
-
-
         toast("Enter your assignment answer.");
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     const deadline =
-
         deadlineMarks(
-
             assignment.due,
-
             date
-
         );
-
-
-
 
 
     db.submissions.push({
 
-
-
         type:"assignment",
-
-
 
         itemId:assignment.id,
 
-
-
         studentId:currentUser.studentId,
-
-
 
         title:assignment.title,
 
-
-
         subject:assignment.subject,
-
-
 
         baseMarks:100,
 
-
-
         deadlineMarks:deadline,
-
-
 
         finalMarks:deadline,
 
-
-
         status:"Submitted",
-
-
 
         submittedAt:date,
 
-
-
         answer:answer
-
-
 
     });
 
 
-
-
-
     addNotice(
-
         "Assignment submitted",
-
         `${assignment.title}: ${deadline}/5 deadline marks.`,
-
         currentUser.studentId
-
     );
-
-
-
 
 
     save();
 
-
-
     closeModal();
-
-
 
     refreshAll();
 
-
-
     toast("Assignment submitted successfully.");
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    FACULTY TESTS
-
 ========================================================= */
 
-
-
 function createTest(event){
-
-
 
     event.preventDefault();
 
 
-
-
-
     const title =
-
         document
-
             .getElementById("testTitle")
-
             .value.trim();
-
-
 
     const subject =
-
         document
-
             .getElementById("testSubject")
-
             .value.trim();
 
-
-
     const start =
-
         document
-
             .getElementById("testStart")
-
             .value;
-
-
 
     const due =
-
         document
-
             .getElementById("testDue")
-
             .value;
-
-
-
 
 
     if(new Date(due) < new Date(start)){
 
-
-
         toast("Due date cannot be before start date.");
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     function parseQuestion(value){
 
-
-
         const parts =
-
             value
-
                 .split("|")
-
                 .map(item => item.trim());
-
-
-
 
 
         if(parts.length < 6){
 
-
-
             throw new Error(
-
                 "Question format is invalid."
-
             );
 
-
-
         }
-
-
-
 
 
         const answer =
-
             Number(parts[5]);
 
 
-
-
-
         if(
-
             !Number.isInteger(answer) ||
-
             answer < 1 ||
-
             answer > 4
-
         ){
 
-
-
             throw new Error(
-
                 "Correct option must be 1 to 4."
-
             );
 
-
-
         }
-
-
-
 
 
         return {
 
-
-
             q:parts[0],
 
-
-
             opts:[
-
                 parts[1],
-
                 parts[2],
-
                 parts[3],
-
                 parts[4]
-
             ],
-
-
 
             ans:answer - 1
 
-
-
         };
 
-
-
     }
-
-
-
 
 
     let questions;
 
 
-
-
-
     try{
-
-
 
         questions = [
 
-
-
             parseQuestion(
-
                 document
-
                     .getElementById("q1")
-
                     .value
-
             ),
 
-
-
             parseQuestion(
-
                 document
-
                     .getElementById("q2")
-
                     .value
-
             )
-
-
 
         ];
 
-
-
     }catch(error){
-
-
 
         toast(error.message);
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     const test = {
-
-
 
         id:Date.now(),
 
-
-
         title,
-
-
 
         subject,
 
-
-
         faculty:currentUser.name,
-
-
 
         start,
 
-
-
         due,
-
-
 
         questions
 
-
-
     };
-
-
-
 
 
     db.tests.push(test);
 
 
-
-
-
     addNotice(
-
         "New test published",
-
         `${title} is available from ${start} to ${due}.`,
-
         "all"
-
     );
-
-
-
 
 
     save();
 
-
-
     refreshAll();
-
-
 
     event.target.reset();
 
-
-
     toast("Test published and students notified.");
 
-
-
 }
-
-
-
 
 
 function renderFacultyTests(){
 
-
-
     const element =
-
         document.getElementById(
-
             "facultyTestList"
-
         );
-
-
-
 
 
     if(!element){
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     element.innerHTML =
-
         db.tests
-
         .map(
-
             test => `
-
-
 
             <div class="item">
 
-
-
                 <b>
-
                     ${esc(test.title)}
-
                 </b>
 
-
-
                 <p>
-
                     ${esc(test.subject)}
-
                     • ${esc(test.start)}
-
                     →
-
                     ${esc(test.due)}
-
                     • ${test.questions.length}
-
                     questions
-
                 </p>
 
-
-
             </div>
-
-
 
             `
-
         )
-
         .join("")
-
         ||
-
         `
-
             <div class="empty">
-
                 No tests published.
-
             </div>
-
         `;
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    FACULTY ASSIGNMENTS
-
 ========================================================= */
 
-
-
 function createAssignment(event){
-
-
 
     event.preventDefault();
 
 
-
-
-
     const title =
-
         document
-
             .getElementById("asTitle")
-
             .value.trim();
-
-
 
     const subject =
-
         document
-
             .getElementById("asSubject")
-
             .value.trim();
-
-
 
     const assigned =
-
         document
-
             .getElementById("asAssigned")
-
             .value;
-
-
 
     const due =
-
         document
-
             .getElementById("asDue")
-
             .value;
 
-
-
     const description =
-
         document
-
             .getElementById("asDesc")
-
             .value.trim();
-
-
-
 
 
     if(new Date(due) < new Date(assigned)){
 
-
-
         toast("Due date cannot be before assigned date.");
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     const assignment = {
 
-
-
         id:Date.now(),
-
-
 
         title,
 
-
-
         subject,
-
-
 
         faculty:currentUser.name,
 
-
-
         assigned,
-
-
 
         due,
 
-
-
         description
-
-
 
     };
 
 
-
-
-
     db.assignments.push(
-
         assignment
-
     );
-
-
-
 
 
     addNotice(
-
         "New assignment published",
-
         `${title} is due on ${due}.`,
-
         "all"
-
     );
-
-
-
 
 
     save();
 
-
-
     refreshAll();
-
-
 
     event.target.reset();
 
-
-
     toast(
-
         "Assignment published and students notified."
-
     );
 
-
-
 }
-
-
-
 
 
 function renderFacultyAssignments(){
 
-
-
     const element =
-
         document.getElementById(
-
             "facultyAssignmentList"
-
         );
-
-
-
 
 
     if(!element){
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     element.innerHTML =
-
         db.assignments
-
         .map(
-
             assignment => `
-
-
 
             <div class="item">
 
-
-
                 <b>
-
                     ${esc(assignment.title)}
-
                 </b>
 
-
-
                 <p>
-
                     ${esc(assignment.subject)}
-
                     •
-
                     ${esc(assignment.assigned)}
-
                     →
-
                     ${esc(assignment.due)}
-
                 </p>
-
-
 
                 <p>
-
                     ${esc(assignment.description)}
-
                 </p>
-
-
 
             </div>
-
-
 
             `
-
         )
-
         .join("")
-
         ||
-
         `
-
             <div class="empty">
-
                 No assignments published.
-
             </div>
-
         `;
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    ATTENDANCE
-
 ========================================================= */
-
-
 
 function updateAttendance(studentId){
 
-
-
     const select =
-
         document.querySelector(
-
             `.attendance-select[data-id="${CSS.escape(studentId)}"]`
-
         );
 
 
-
-
-
     const student =
-
         getStudent(studentId);
-
-
-
 
 
     if(!student || !select){
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     const status =
-
         select.value;
 
 
-
-
-
     let current =
-
         Number(student.attendance || 0);
-
-
-
 
 
     if(status === "Present"){
 
-
-
         current =
-
             Math.min(
-
                 100,
-
                 current + 1
-
             );
-
-
 
     }else{
 
-
-
         current =
-
             Math.max(
-
                 0,
-
                 current - 1
-
             );
 
-
-
     }
-
-
-
 
 
     student.attendance = current;
 
 
-
-
-
     addNotice(
-
         "Attendance updated",
-
         `${student.name}'s attendance is now ${current}%.`,
-
         student.studentId
-
     );
-
-
-
 
 
     save();
 
-
-
     toast(
-
         `Attendance updated for ${student.name}.`
-
     );
 
-
-
 }
-
-
-
 
 
 function saveAttendance(){
 
-
-
     save();
-
-
 
     refreshAll();
 
-
-
     toast(
-
         "Attendance saved successfully."
-
     );
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    LEAVE
-
 ========================================================= */
 
-
-
 function submitLeave(event){
-
-
 
     event.preventDefault();
 
 
-
-
-
     const from =
-
         document
-
             .getElementById("leaveFrom")
-
             .value;
-
-
 
     const to =
-
         document
-
             .getElementById("leaveTo")
-
             .value;
 
-
-
     const reason =
-
         document
-
             .getElementById("leaveReason")
-
             .value.trim();
-
-
-
 
 
     if(new Date(to) < new Date(from)){
 
-
-
         toast("To date cannot be before from date.");
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     const leave = {
-
-
 
         id:Date.now(),
 
-
-
         studentId:currentUser.studentId,
-
-
 
         studentName:currentUser.name,
 
-
-
         parentName:currentUser.parentName,
-
-
 
         parentPhone:currentUser.parentPhone,
 
-
-
         type:
-
             document
-
                 .getElementById("leaveType")
-
                 .value,
-
-
 
         from,
 
-
-
         to,
-
-
 
         reason,
 
-
-
         status:"Pending"
 
-
-
     };
-
-
-
 
 
     db.leaves.push(leave);
 
 
-
-
-
     addNotice(
-
         "Leave request submitted",
-
         `${currentUser.name} submitted a ${leave.type}.`,
-
         "faculty"
-
     );
-
-
-
 
 
     addNotice(
-
         "Leave request submitted",
-
         `${currentUser.name} submitted a ${leave.type}.`,
-
         "adviser"
-
     );
-
-
-
 
 
     save();
 
-
-
     refreshAll();
-
-
 
     event.target.reset();
 
-
-
     toast(
-
         "Leave request sent to faculty/class adviser."
-
     );
 
-
-
 }
-
-
-
 
 
 function renderFacultyLeaves(){
 
-
-
     const element =
-
         document.getElementById(
-
             "facultyLeaves"
-
         );
-
-
-
 
 
     if(!element){
 
-
-
         return;
 
-
-
     }
-
-
-
 
 
     if(db.leaves.length === 0){
 
-
-
         element.innerHTML = `
-
             <div class="card empty">
-
                 No leave requests.
-
             </div>
-
         `;
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     element.innerHTML =
-
         db.leaves
-
         .map(
-
             leave => `
-
-
 
             <div class="card">
 
-
-
                 <div class="item-top">
-
-
 
                     <div>
 
-
-
                         <h3>
-
                             ${esc(leave.studentName)}
-
                         </h3>
 
-
-
                         <p>
-
                             ${esc(leave.type)}
-
                             •
-
                             ${esc(leave.from)}
-
                             →
-
                             ${esc(leave.to)}
-
                         </p>
-
-
 
                     </div>
 
 
-
-
-
                     <span
-
                         class="badge ${
-
                             leave.status === "Approved"
-
                             ? "green"
-
                             :
-
                             leave.status === "Rejected"
-
                             ? "red"
-
                             :
-
                             "yellow"
-
                         }"
-
                     >
-
                         ${esc(leave.status)}
-
                     </span>
-
-
 
                 </div>
 
 
-
-
-
                 <p>
-
                     ${esc(leave.reason)}
-
                 </p>
 
 
-
-
-
                 ${
-
                     leave.status === "Pending"
-
                     ?
-
                     `
-
                     <div class="actions">
 
-
-
                         <button
-
                             class="btn success"
-
                             onclick="reviewLeave(${leave.id},'Approved')"
-
                         >
-
                             Approve
-
                         </button>
-
-
 
                         <button
-
                             class="btn danger"
-
                             onclick="reviewLeave(${leave.id},'Rejected')"
-
                         >
-
                             Reject
-
                         </button>
-
-
 
                     </div>
-
                     `
-
                     :
-
                     `
-
                     <p style="margin-top:8px">
-
                         Reviewed by:
-
                         ${esc(leave.reviewedBy || "-")}
-
                     </p>
-
                     `
-
                 }
-
-
 
             </div>
 
-
-
             `
-
         )
-
         .join("");
 
-
-
 }
-
-
-
 
 
 function reviewLeave(id,status){
 
-
-
     const leave =
-
         db.leaves.find(
-
             item => item.id === id
-
         );
-
-
-
 
 
     if(!leave){
 
-
-
         toast("Leave request not found.");
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     leave.status = status;
 
-
-
     leave.reviewedBy =
-
         currentUser.name;
 
-
-
     leave.reviewedAt =
-
         new Date().toLocaleString();
 
 
-
-
-
     addNotice(
-
         status === "Approved"
-
             ? "Leave approved"
-
             : "Leave rejected",
-
-
 
         `${leave.type} from ${leave.from} to ${leave.to} has been ${status.toLowerCase()} by ${currentUser.name}.`,
 
-
-
         leave.studentId
-
     );
-
-
-
 
 
     if(status === "Approved"){
 
-
-
         addNotice(
-
             "Parent notification",
-
             `Leave approved for ${leave.studentName}. Parent notification prepared for ${leave.parentName} (${leave.parentPhone || "phone not provided"}).`,
-
             leave.parentPhone || "parent"
-
         );
-
-
 
     }
 
 
-
-
-
     addNotice(
-
         "Adviser update",
-
         `Leave status for ${leave.studentName}: ${status}.`,
-
         "adviser"
-
     );
-
-
-
 
 
     save();
 
-
-
     refreshAll();
 
-
-
     toast(
-
         status === "Approved"
-
         ? "Student and parent notified."
-
         : "Student notified."
-
     );
 
-
-
 }
-
-
-
 
 
 function renderStudentLeaves(){
 
-
-
     const element =
-
         document.getElementById(
-
             "studentLeaves"
-
         );
-
-
-
 
 
     if(!element){
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     const leaves =
-
         db.leaves.filter(
-
             leave =>
-
                 leave.studentId ===
-
                 currentUser.studentId
-
         );
 
 
-
-
-
     element.innerHTML =
-
         leaves
-
         .map(
-
             leave => `
-
-
 
             <div class="item">
 
-
-
                 <div class="item-top">
 
-
-
                     <b>
-
                         ${esc(leave.type)}
-
                     </b>
 
-
-
                     <span
-
                         class="badge ${
-
                             leave.status === "Approved"
-
                             ? "green"
-
                             :
-
                             leave.status === "Rejected"
-
                             ? "red"
-
                             :
-
                             "yellow"
-
                         }"
-
                     >
-
                         ${esc(leave.status)}
-
                     </span>
-
-
 
                 </div>
 
-
-
                 <p>
-
                     ${esc(leave.from)}
-
                     →
-
                     ${esc(leave.to)}
-
                     •
-
                     ${esc(leave.reason)}
-
                 </p>
 
-
-
             </div>
-
-
 
             `
-
         )
-
         .join("")
-
         ||
-
         `
-
             <div class="empty">
-
                 No leave requests.
-
             </div>
-
         `;
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    MARKS
-
 ========================================================= */
-
-
 
 function saveMark(studentId){
 
-
-
     const mark1 =
-
         Number(
-
             document
-
                 .getElementById(`m1-${studentId}`)
-
                 .value
-
         );
-
-
 
     const mark2 =
-
         Number(
-
             document
-
                 .getElementById(`m2-${studentId}`)
-
                 .value
-
         );
-
-
 
     const mark3 =
-
         Number(
-
             document
-
                 .getElementById(`m3-${studentId}`)
-
                 .value
-
         );
-
-
-
 
 
     if(
-
         [mark1,mark2,mark3]
-
             .some(
-
                 value =>
-
                     Number.isNaN(value) ||
-
                     value < 0 ||
-
                     value > 100
-
             )
-
     ){
-
-
 
         toast("Marks must be between 0 and 100.");
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     const average =
-
         Math.round(
-
             (mark1 + mark2 + mark3) / 3
-
         );
-
-
-
 
 
     const existing =
-
         db.marks.find(
-
             mark =>
-
                 mark.studentId === studentId
-
         );
-
-
-
 
 
     if(existing){
 
-
-
         existing.ca1 = mark1;
-
-
 
         existing.ca2 = mark2;
 
-
-
         existing.model = mark3;
-
-
 
         existing.average = average;
 
-
-
     }else{
-
-
 
         db.marks.push({
 
-
-
             studentId,
-
-
 
             ca1:mark1,
 
-
-
             ca2:mark2,
-
-
 
             model:mark3,
 
-
-
             average
 
-
-
         });
-
-
 
     }
 
 
-
-
-
     addNotice(
-
         "Marks updated",
-
         `Marks for ${studentId} were updated by ${currentUser.name}.`,
-
         studentId
-
     );
-
-
-
 
 
     save();
 
-
-
     toast(
-
         "Student marks saved successfully."
-
     );
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    MENTOR — CLASS PERFORMANCE ANALYTICS
-
 ========================================================= */
 
-
-
 const MENTOR_SKILL_NAMES = [
-
     "Python",
-
     "SQL",
-
     "Power BI",
-
     "Excel",
-
     "Communication"
-
 ];
-
-
-
 
 
 function mentorSkillLevelColor(value){
 
-
-
     if(value >= 85){
-
-
 
         return "var(--green)";
 
-
-
     }
-
-
 
     if(value >= 70){
 
-
-
         return "var(--primary)";
 
-
-
     }
-
-
 
     if(value >= 50){
 
-
-
         return "var(--yellow)";
-
-
 
     }
 
-
-
     return "var(--red)";
 
-
-
 }
-
-
-
 
 
 function mentorSkillLevelTag(value){
 
-
-
     if(value >= 85){
-
-
 
         return ["Strong","green"];
 
-
-
     }
-
-
 
     if(value >= 70){
 
-
-
         return ["Good","blue"];
 
-
-
     }
-
-
 
     if(value >= 50){
 
-
-
         return ["Growing","yellow"];
-
-
 
     }
 
-
-
     return ["Needs Work","red"];
 
-
-
 }
-
-
-
 
 
 function mentorRankedStudents(){
 
-
-
     return students()
-
         .map(
-
             student => {
 
-
-
                 const skills =
-
                     student.skills || {};
 
-
-
                 const sum =
-
                     MENTOR_SKILL_NAMES.reduce(
-
                         (total,skill) =>
-
                             total + (skills[skill] ?? 0),
-
                         0
-
                     );
-
-
 
                 const avg =
-
                     Math.round(
-
                         sum / MENTOR_SKILL_NAMES.length
-
                     );
 
-
-
                 return {
-
                     student,
-
                     avg
-
                 };
 
-
-
             }
-
         )
-
         .sort(
-
             (a,b) => b.avg - a.avg
-
         );
-
-
 
 }
 
 
-
-
-
 function mentorOverviewHTML(){
 
-
-
     const ranked =
-
         mentorRankedStudents();
-
-
-
 
 
     if(ranked.length === 0){
 
-
-
         return `
-
             <div class="card empty">
-
                 No assigned students yet.
-
             </div>
-
         `;
-
-
 
     }
 
 
-
-
-
     const classAvg =
-
         Math.round(
-
             ranked.reduce(
-
                 (total,item) => total + item.avg,
-
                 0
-
             )
-
             / ranked.length
-
         );
-
-
-
 
 
     const top =
-
         ranked[0];
 
 
-
-
-
     const weak =
-
         ranked.filter(
-
             item => item.avg < 60
-
         );
-
-
-
 
 
     const perSkillAvg = {};
 
 
-
-
-
     MENTOR_SKILL_NAMES.forEach(
-
         skill => {
 
-
-
             const total =
-
                 students().reduce(
-
                     (sum,student) =>
-
                         sum + (student.skills?.[skill] ?? 0),
-
                     0
-
                 );
-
-
 
             perSkillAvg[skill] =
-
                 Math.round(
-
                     total / ranked.length
-
                 );
 
-
-
         }
-
     );
-
-
-
 
 
     return `
 
-
-
         <div class="stats">
 
-
-
             ${stat(
-
                 "Assigned Students",
-
                 ranked.length,
-
                 "Under mentorship"
-
             )}
 
-
-
             ${stat(
-
                 "Class Skill Average",
-
                 classAvg + "%",
-
                 "Across 5 tracked skills"
-
             )}
 
-
-
             ${stat(
-
                 "Top Performer",
-
                 top.student.name,
-
                 top.avg + "% average"
-
             )}
-
-
 
             ${stat(
-
                 "Needs Attention",
-
                 weak.length,
-
                 "Below 60% average"
-
             )}
-
-
 
         </div>
-
-
-
 
 
         <div class="card">
 
-
-
             <div class="card-head">
-
-
 
                 <div>
 
-
-
                     <h3>
-
                         Class Skill Averages
-
                     </h3>
 
-
-
                     <p>
-
                         Where the whole class is strong
-
                         vs where to focus mentoring.
-
                     </p>
-
-
 
                 </div>
 
-
-
             </div>
-
-
 
             <div class="chart">
 
-
-
                 ${
-
                     MENTOR_SKILL_NAMES
-
                     .map(
-
                         skill => `
-
-
 
                         <div class="bar-wrap">
 
-
-
                             <div
-
                                 class="bar"
-
                                 style="height:${perSkillAvg[skill]}%;background:linear-gradient(180deg,${mentorSkillLevelColor(perSkillAvg[skill])},#9e99ff)"
-
                             ></div>
 
-
-
                             <label>
-
                                 ${esc(skill)}
-
                                 <br>
-
                                 ${perSkillAvg[skill]}%
-
                             </label>
-
-
 
                         </div>
 
-
-
                         `
-
                     )
-
                     .join("")
-
                 }
 
-
-
             </div>
-
-
 
         </div>
 
 
-
-
-
         ${
-
             weak.length
-
             ?
-
             `
-
             <div class="card">
-
-
 
                 <div class="card-head">
 
-
-
                     <div>
 
-
-
                         <h3>
-
                             🔎 Students Needing Attention
-
                         </h3>
 
-
-
                         <p>
-
                             Overall skill average below 60% —
-
                             prioritize mentoring here.
-
                         </p>
-
-
 
                     </div>
 
-
-
                 </div>
-
-
 
                 <div class="list">
 
-
-
                     ${
-
                         weak
-
                         .map(
-
                             item => `
-
-
 
                             <div class="item">
 
-
-
                                 <div class="item-top">
 
-
-
                                     <b>
-
                                         ${esc(item.student.name)}
-
                                     </b>
 
-
-
                                     <span class="badge red">
-
                                         ${item.avg}% avg
-
                                     </span>
-
-
 
                                 </div>
 
-
-
                                 <p>
-
                                     ${esc(item.student.studentId)}
-
                                     • Attendance
-
                                     ${item.student.attendance || 0}%
-
                                 </p>
-
-
 
                             </div>
 
-
-
                             `
-
                         )
-
                         .join("")
-
                     }
-
-
 
                 </div>
 
-
-
             </div>
-
             `
-
             :
-
             ""
-
         }
 
-
-
     `;
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    MENTOR
-
 ========================================================= */
-
-
 
 function mentorView(studentId){
 
-
-
     const student =
-
         getStudent(studentId);
-
-
-
 
 
     if(!student){
 
-
-
         toast("Student not found.");
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     openModal(
@@ -15195,940 +6495,457 @@ function mentorView(studentId){
         "Mentor Skill View",
 
 
-
         `
 
-
-
         <h3>
-
             ${esc(student.name)}
-
         </h3>
 
-
-
         <p class="muted">
-
             ${esc(student.studentId)}
-
             • Attendance
-
             ${student.attendance || 0}%
-
         </p>
-
-
 
         <div style="margin-top:15px">
 
-
-
             ${skillsHTML(student)}
 
-
-
         </div>
-
-
 
         `
 
     );
 
-
-
 }
 
 
-
-
-
 /* =========================================================
-
    NOTIFICATIONS
-
 ========================================================= */
 
-
-
 function addNotice(
-
     title,
-
     message,
-
     target="all"
-
 ){
-
-
 
     db.notifications.push({
 
-
-
         id:
-
             Date.now() +
-
             Math.random(),
-
-
 
         title,
 
-
-
         message,
-
-
 
         target,
 
-
-
         createdAt:
-
             new Date().toLocaleString()
-
-
 
     });
 
 
-
-
-
     save();
 
-
-
 }
-
-
-
 
 
 function getVisibleNotifications(){
 
-
-
     if(!currentUser){
-
-
 
         return [];
 
-
-
     }
-
-
-
 
 
     let targets = [
 
-
-
         "all",
-
-
 
         currentUser.email,
 
-
-
         currentUser.studentId,
-
-
 
         currentUser.parentPhone,
 
-
-
         currentUser.role
-
-
 
     ];
 
 
-
-
-
     if(currentUser.classAdviser){
-
-
 
         targets.push("adviser");
 
-
-
     }
-
-
-
 
 
     if(currentUser.role === "faculty"){
 
-
-
         targets.push("faculty");
-
-
 
     }
 
 
-
-
-
     return db.notifications.filter(
-
         notification =>
-
             targets.includes(
-
                 notification.target
-
             )
-
     );
 
-
-
 }
-
-
-
 
 
 function renderNotifications(){
 
-
-
     const element =
-
         document.getElementById(
-
             "notificationList"
-
         );
-
-
-
 
 
     if(!element || !currentUser){
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     const notifications =
-
         getVisibleNotifications()
-
             .slice(-30)
-
             .reverse();
 
 
-
-
-
     element.innerHTML =
-
         notifications
-
         .map(
-
             notification => `
-
-
 
             <div class="item">
 
-
-
                 <div class="item-top">
 
-
-
                     <b>
-
                         🔔
-
                         ${esc(notification.title)}
-
                     </b>
 
-
-
                     <small class="muted">
-
                         ${esc(notification.createdAt)}
-
                     </small>
-
-
 
                 </div>
 
-
-
                 <p>
-
                     ${esc(notification.message)}
-
                 </p>
 
-
-
             </div>
-
-
 
             `
-
         )
-
         .join("")
-
         ||
-
         `
-
             <div class="empty">
-
                 No notifications.
-
             </div>
-
         `;
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    PARENT NOTIFICATION
-
 ========================================================= */
 
-
-
 function sendParentNotice(event){
-
-
 
     event.preventDefault();
 
 
-
-
-
     const studentId =
-
         document
-
             .getElementById("noticeStudent")
-
             .value;
-
-
-
 
 
     const type =
-
         document
-
             .getElementById("noticeType")
-
             .value;
 
 
-
-
-
     const message =
-
         document
-
             .getElementById("noticeMessage")
-
             .value.trim();
 
 
-
-
-
     const student =
-
         getStudent(studentId);
-
-
-
 
 
     if(!student){
 
-
-
         toast("Student not found.");
-
-
 
         return;
 
-
-
     }
-
-
-
 
 
     if(!message){
 
-
-
         toast("Enter a notification message.");
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     addNotice(
-
         type,
-
         message,
-
         student.studentId
-
     );
 
 
-
-
-
     addNotice(
-
         type,
-
         message,
-
         student.parentPhone || "parent"
-
     );
-
-
-
 
 
     addNotice(
-
         type,
-
         message,
-
         "adviser"
-
     );
-
-
-
 
 
     save();
 
-
-
     event.target.reset();
-
-
 
     refreshAll();
 
-
-
     toast(
-
         `Notification sent to ${student.name}, parent and adviser.`
-
     );
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    ADVISER FEES
-
 ========================================================= */
-
-
 
 function renderAdviserFees(){
 
-
-
     const element =
-
         document.getElementById(
-
             "adviserFees"
-
         );
-
-
-
 
 
     if(!element){
 
-
-
         return;
-
-
 
     }
 
 
-
-
-
     element.innerHTML =
-
         students()
-
         .map(
-
             student =>
-
                 feeCard(
-
                     student.studentId,
-
                     false
-
                 )
-
         )
-
         .join("")
-
         ||
-
         `
-
             <div class="card empty">
-
                 No student fee records.
-
             </div>
-
-    
-        <!-- MANAGEMENT FEEDBACK ANALYTICS -->
-        <div class="page" id="management-feedback">
-            <div class="page-title"><h1>Feedback Analytics 💬</h1><p>Institution-level view of student feedback trends.</p></div>
-            <div class="stats">
-                ${stat("Total Feedback", db.feedbacks.length, "All categories")}
-                ${stat("Average Rating", feedbackAverageRating()+" / 5", "Overall")}
-                ${stat("Urgent", db.feedbacks.filter(f=>f.priority==="Urgent").length, "Needs attention")}
-                ${stat("Action Taken", db.feedbacks.filter(f=>f.status==="Action Taken").length, "Resolved workflow")}
-            </div>
-            <div class="card">
-                <div class="card-head"><div><h3>Category Summary</h3><p>Infrastructure, academic/lab and event/function feedback.</p></div></div>
-                <div class="grid3">
-                    ${["infrastructure","academic","event"].map(type=>{const rows=db.feedbacks.filter(f=>f.type===type);return `<div class="item"><b>${esc(feedbackTypeLabel(type))}</b><p>${rows.length} submissions • Average ${feedbackAverageRating(rows)}/5</p></div>`;}).join("")}
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-head"><div><h3>Recent Feedback</h3><p>Latest student submissions across the institution.</p></div></div>
-                ${db.feedbacks.slice().reverse().slice(0,12).map(f=>`<div class="feedback-card"><div class="feedback-header"><div><b>${esc(f.id)} • ${esc(f.typeLabel)}</b><div class="feedback-id">${esc(f.studentName)} • ${esc(f.createdAt)}</div></div><span class="feedback-status ${feedbackStatusClass(f.status)}">${esc(f.status)}</span></div><p>${esc(f.message)}</p></div>`).join("") || `<div class="feedback-empty">No feedback available.</div>`}
-            </div>
-        </div>
-
-    `;
-
-
+        `;
 
 }
-
-
-
 
 
 /* =========================================================
-
    MODAL
-
 ========================================================= */
-
-
 
 function openModal(title,body){
 
-
-
     document
-
         .getElementById("modalTitle")
-
         .textContent = title;
 
 
-
-
-
     document
-
         .getElementById("modalBody")
-
         .innerHTML = body;
 
 
-
-
-
     document
-
         .getElementById("modal")
-
         .classList.add("show");
 
-
-
 }
-
-
-
 
 
 function closeModal(){
 
-
-
     document
-
         .getElementById("modal")
-
         .classList.remove("show");
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    SEARCH
-
 ========================================================= */
-
-
 
 function searchPages(query){
 
-
-
     query =
-
         query
-
             .toLowerCase()
-
             .trim();
 
 
-
-
-
     document
-
         .querySelectorAll(".nav")
-
         .forEach(nav => {
 
-
-
             const matches =
-
                 !query ||
-
                 nav.textContent
-
                     .toLowerCase()
-
                     .includes(query);
 
 
-
-
-
             nav.style.display =
-
                 matches
-
                 ? "flex"
-
                 : "none";
 
-
-
         });
-
-
 
 }
 
 
-
-
-
 /* =========================================================
-
    MODAL OUTSIDE CLICK
-
 ========================================================= */
 
-
-
 window.addEventListener(
-
     "click",
-
     event => {
 
-
-
         const modal =
-
             document.getElementById("modal");
-
-
-
 
 
         if(event.target === modal){
 
-
-
             closeModal();
 
-
-
         }
-
-
 
     }
 
 );
 
 
-
-
-
 /* =========================================================
-
    ESC KEY
-
 ========================================================= */
 
-
-
 document.addEventListener(
-
     "keydown",
-
     event => {
-
-
 
         if(event.key === "Escape"){
 
-
-
             closeModal();
 
-
-
         }
-
-
 
     }
 
 );
 
 
-
-
-
 /* =========================================================
-
    INITIALIZE
-
 ========================================================= */
-
-
 
 seedDatabase();
 
 
-
-
-
 const savedSession =
-
     localStorage.getItem(
-
         "edunexa_session"
-
     );
-
-
-
 
 
 if(savedSession){
 
-
-
     try{
 
-
-
         const session =
-
             JSON.parse(
-
                 savedSession
-
             );
 
 
-
-
-
-         
-
-            const existingUser =
-
+        const existingUser =
             db.users.find(
-
                 user =>
-
                     user.email ===
-
                     session.email
-
             );
-
-
-
 
 
         if(existingUser){
 
-
-
             currentUser = existingUser;
-
-
 
             openApp();
 
-
-
         }else{
 
-
-
             localStorage.removeItem(
-
                 "edunexa_session"
-
             );
-
-
 
         }
 
-
-
     }catch(error){
 
-
-
         console.error(
-
             "Session error:",
-
             error
-
         );
-
-
 
         localStorage.removeItem(
-
             "edunexa_session"
-
         );
-
-
 
     }
 
-
-
 }
-
-
-
-</script>
-
-
-
-</body>
-
-</html>
-
