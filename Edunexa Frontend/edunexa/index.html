@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduNexa | Smart Education Portal</title>
+
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/skills.css">
+<link rel="stylesheet" href="css/modal.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/feedback.css">
+<link rel="stylesheet" href="css/management.css">
+
+</head>
+
+<body>
+
+<!-- ================= LOGIN / SIGNUP ================= -->
+
+<div id="auth" class="auth">
+
+    <div class="auth-box">
+
+        <div class="brand-panel">
+
+            <div>
+
+                <div class="logo">
+
+                    <div class="logo-icon">✦</div>
+
+                    <div>
+                        <h1>EduNexa</h1>
+                        <small>Smart Education Portal</small>
+                    </div>
+
+                </div>
+
+                <h2>
+                    One platform.<br>
+                    Every academic journey.
+                </h2>
+
+                <p>
+                    Students, faculty, mentors, class advisers,
+                    HODs, management and parents connected
+                    through one academic workspace.
+                </p>
+
+                <div class="features">
+
+                    <div class="feature">
+                        🎓 Student academic & fee portal
+                    </div>
+
+                    <div class="feature">
+                        👨‍🏫 Faculty tests, assignments & attendance
+                    </div>
+
+                    <div class="feature">
+                        🧭 Mentor skill dashboard access
+                    </div>
+
+                    <div class="feature">
+                        ✅ HOD approval for mark corrections
+                    </div>
+
+                    <div class="feature">
+                        🔔 Student, adviser & parent notifications
+                    </div>
+
+                    <div class="feature">
+                        📊 Management reports & analytics
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- LOGIN -->
+
+        <div class="form-panel" id="loginPanel">
+
+            <h2>Welcome back 👋</h2>
+
+            <p class="muted">
+                Sign in to continue to EduNexa.
+            </p>
+
+            <div class="form-group">
+
+                <label>User Type</label>
+
+                <div class="role-grid">
+
+                    <button class="role active" onclick="chooseLogin('student',this)">
+                        🎓
+                        <b>Student</b>
+                    </button>
+
+                    <button class="role" onclick="chooseLogin('faculty',this)">
+                        👨‍🏫
+                        <b>Faculty</b>
+                    </button>
+
+                    <button class="role" onclick="chooseLogin('hod',this)">
+                        🧑‍💼
+                        <b>HOD</b>
+                    </button>
+
+                    <button class="role" onclick="chooseLogin('management',this)">
+                        🏢
+                        <b>Management</b>
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label>Email / ID</label>
+                <input id="loginId" class="control" placeholder="Enter email or ID">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input id="loginPassword" type="password" class="control" placeholder="Enter password">
+            </div>
+
+            <button class="auth-btn" onclick="login()">
+                Login
+            </button>
+
+            <div class="switch">
+                New to EduNexa?
+                <button onclick="showSignup()">
+                    Create an account
+                </button>
+            </div>
+
+            <p class="muted" style="font-size:10px;text-align:center;margin-top:15px">
+                Demo password: <b>123456</b>
+            </p>
+
+            <p class="muted" style="font-size:10px;text-align:center;margin-top:5px">
+                Demo accounts: alexa@example.com (Student) • faculty@edunexa.com (Faculty)
+                • hod@edunexa.com (HOD) • admin@edunexa.com (Management)
+            </p>
+
+        </div>
+
+        <!-- SIGNUP -->
+
+        <div class="form-panel hidden" id="signupPanel">
+
+            <h2>Create account</h2>
+
+            <p class="muted">
+                Register a new EduNexa user.
+            </p>
+
+            <div class="form-group">
+
+                <label>Account Type</label>
+
+                <div class="role-grid">
+
+                    <button class="role active" onclick="chooseSignup('student',this)">
+                        🎓
+                        <b>Student</b>
+                    </button>
+
+                    <button class="role" onclick="chooseSignup('faculty',this)">
+                        👨‍🏫
+                        <b>Faculty</b>
+                    </button>
+
+                    <button class="role" onclick="chooseSignup('hod',this)">
+                        🧑‍💼
+                        <b>HOD</b>
+                    </button>
+
+                    <button class="role" onclick="chooseSignup('management',this)">
+                        🏢
+                        <b>Management</b>
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <input id="suName" class="control" placeholder="Enter full name">
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input id="suEmail" class="control" type="email" placeholder="example@email.com">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input id="suPass" class="control" type="password" placeholder="Create password">
+            </div>
+
+            <div id="studentSignup">
+
+                <div class="form-group">
+                    <label>Student ID</label>
+                    <input id="suStudentId" class="control" placeholder="EDU2026-1001">
+                </div>
+
+                <div class="form-group">
+                    <label>Parent Name</label>
+                    <input id="suParent" class="control" placeholder="Parent / Guardian">
+                </div>
+
+                <div class="form-group">
+                    <label>Parent Phone</label>
+                    <input id="suParentPhone" class="control" placeholder="+91 XXXXX XXXXX">
+                </div>
+
+            </div>
+
+            <button class="auth-btn" onclick="register()">
+                Create Account
+            </button>
+
+            <div class="switch">
+                Already registered?
+                <button onclick="showLogin()">
+                    Login
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= MAIN APP ================= -->
+
+<div id="app" class="app hidden">
+
+    <aside class="sidebar">
+
+        <div class="side-brand">
+
+            <div class="side-icon">
+                ✦
+            </div>
+
+            <div>
+                <b>EduNexa</b>
+                <small>Smart Education</small>
+            </div>
+
+        </div>
+
+        <div id="nav"></div>
+
+        <div class="side-foot">
+            Role-based access • Academic workflow • Smart notifications
+        </div>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <input class="search" placeholder="Search EduNexa..." oninput="searchPages(this.value)">
+
+            <div class="top-actions">
+
+                <div class="bell" onclick="go('notifications')">
+                    🔔
+                    <span class="dot"></span>
+                </div>
+
+                <div class="user">
+
+                    <div id="avatar" class="avatar">
+                        A
+                    </div>
+
+                    <div>
+                        <b id="userName">User</b>
+                        <small id="userRole">Student</small>
+                    </div>
+
+                </div>
+
+                <button class="logout" onclick="logout()">
+                    Logout
+                </button>
+
+            </div>
+
+        </header>
+
+        <section class="content" id="pages"></section>
+
+    </main>
+
+</div>
+
+<!-- ================= MODAL ================= -->
+
+<div id="modal" class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+            <h3 id="modalTitle">Create</h3>
+            <button class="close" onclick="closeModal()">✕</button>
+        </div>
+
+        <div id="modalBody"></div>
+
+    </div>
+
+</div>
+
+<!-- ================= TOAST ================= -->
+
+<div id="toast" class="toast"></div>
+
+<script src="js/core/database.js"></script>
+<script src="js/core/helpers.js"></script>
+<script src="js/core/auth.js"></script>
+<script src="js/core/navigation.js"></script>
+<script src="js/student/pages.js"></script>
+<script src="js/faculty/pages.js"></script>
+<script src="js/faculty/mark-requests.js"></script>
+<script src="js/hod/pages.js"></script>
+<script src="js/hod/approvals.js"></script>
+<script src="js/management/pages.js"></script>
+<script src="js/shared/skills.js"></script>
+<script src="js/shared/work.js"></script>
+<script src="js/shared/fees.js"></script>
+<script src="js/shared/feedback.js"></script>
+<script src="js/core/refresh.js"></script>
+<script src="js/student/tests.js"></script>
+<script src="js/student/assignments.js"></script>
+<script src="js/faculty/tests.js"></script>
+<script src="js/faculty/assignments.js"></script>
+<script src="js/faculty/attendance.js"></script>
+<script src="js/faculty/leave.js"></script>
+<script src="js/faculty/marks.js"></script>
+<script src="js/faculty/mentor.js"></script>
+<script src="js/shared/notifications.js"></script>
+<script src="js/faculty/adviser-fees.js"></script>
+<script src="js/core/ui.js"></script>
+<script src="js/core/init.js"></script>
+
+</body>
+</html>

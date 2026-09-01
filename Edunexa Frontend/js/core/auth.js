@@ -193,6 +193,18 @@ function register(){
     }
 
 
+    if(signupRole === "hod"){
+
+        user.hodId =
+            "HOD-" + Date.now();
+
+        user.department = "Data Analytics";
+
+        user.designation = "Head of Department";
+
+    }
+
+
     if(signupRole === "management"){
 
         user.adminId =
@@ -247,6 +259,7 @@ function login(){
                     item.email === id ||
                     item.studentId === id ||
                     item.facultyId === id ||
+                    item.hodId === id ||
                     item.adminId === id
                 )
 
@@ -347,6 +360,13 @@ function labelRole(){
     }
 
 
+    if(currentUser.role === "hod"){
+
+        return "Head of Department";
+
+    }
+
+
     if(currentUser.role === "management"){
 
         return "Management";
@@ -400,5 +420,3 @@ function openApp(){
     go(defaultPage());
 
 }
-
-
