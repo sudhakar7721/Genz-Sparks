@@ -1,3 +1,2866 @@
+<<<<<<< Updated upstream:Edunexa.js
+=======
+﻿<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>EduNexa | Smart Education Portal</title>
+
+
+
+<style>
+
+:root{
+
+    --primary:#635bff;
+
+    --primary-dark:#5148e5;
+
+    --cyan:#20c7d9;
+
+    --green:#16b364;
+
+    --yellow:#f5a623;
+
+    --red:#e5484d;
+
+    --dark:#11182d;
+
+    --dark2:#1a223b;
+
+    --bg:#f5f7fb;
+
+    --card:#ffffff;
+
+    --text:#172033;
+
+    --muted:#718096;
+
+    --border:#e5e9f2;
+
+    --shadow:0 15px 35px rgba(30,40,80,.08);
+
+}
+
+
+
+*{
+
+    box-sizing:border-box;
+
+    margin:0;
+
+    padding:0;
+
+    font-family:Inter,Arial,sans-serif;
+
+}
+
+
+
+body{
+
+    background:var(--bg);
+
+    color:var(--text);
+
+}
+
+
+
+button,input,select,textarea{
+
+    font:inherit;
+
+}
+
+
+
+button{
+
+    border:0;
+
+    cursor:pointer;
+
+}
+
+
+
+.hidden{
+
+    display:none!important;
+
+}
+
+
+
+/* ================= AUTH ================= */
+
+
+
+.auth{
+
+    min-height:100vh;
+
+    display:grid;
+
+    place-items:center;
+
+    padding:20px;
+
+    background:
+
+        radial-gradient(circle at 10% 10%,#ddd9ff,transparent 35%),
+
+        radial-gradient(circle at 90% 90%,#c8f8fc,transparent 35%),
+
+        var(--bg);
+
+}
+
+
+
+.auth-box{
+
+    width:min(1100px,100%);
+
+    min-height:650px;
+
+    background:#fff;
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    box-shadow:0 30px 80px rgba(40,50,100,.15);
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+}
+
+
+
+.brand-panel{
+
+    background:linear-gradient(145deg,var(--dark),#242d52);
+
+    color:#fff;
+
+    padding:55px;
+
+    display:flex;
+
+    align-items:center;
+
+}
+
+
+
+.brand-panel h1{
+
+    font-size:28px;
+
+}
+
+
+
+.brand-panel h2{
+
+    font-size:40px;
+
+    line-height:1.15;
+
+    margin:30px 0 16px;
+
+}
+
+
+
+.brand-panel p{
+
+    color:#b9c1d8;
+
+    line-height:1.7;
+
+}
+
+
+
+.logo{
+
+    display:flex;
+
+    gap:12px;
+
+    align-items:center;
+
+}
+
+
+
+.logo-icon,
+
+.side-icon{
+
+    display:grid;
+
+    place-items:center;
+
+    border-radius:14px;
+
+    background:linear-gradient(135deg,var(--primary),var(--cyan));
+
+    color:#fff;
+
+}
+
+
+
+.logo-icon{
+
+    width:50px;
+
+    height:50px;
+
+    font-size:24px;
+
+}
+
+
+
+.features{
+
+    display:grid;
+
+    gap:13px;
+
+    margin-top:32px;
+
+    color:#d8dced;
+
+}
+
+
+
+.feature{
+
+    display:flex;
+
+    gap:10px;
+
+    align-items:center;
+
+}
+
+
+
+.form-panel{
+
+    padding:50px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+}
+
+
+
+.form-panel h2{
+
+    font-size:30px;
+
+    margin-bottom:8px;
+
+}
+
+
+
+.muted{
+
+    color:var(--muted);
+
+}
+
+
+
+.form-group{
+
+    margin:15px 0;
+
+}
+
+
+
+.form-group label{
+
+    display:block;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    margin-bottom:7px;
+
+}
+
+
+
+.control{
+
+    width:100%;
+
+    padding:13px 14px;
+
+    border:1px solid var(--border);
+
+    border-radius:10px;
+
+    outline:none;
+
+    background:#fafbfe;
+
+}
+
+
+
+.control:focus{
+
+    border-color:var(--primary);
+
+    box-shadow:0 0 0 3px rgba(99,91,255,.1);
+
+}
+
+
+
+.role-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:9px;
+
+}
+
+
+
+.role{
+
+    padding:13px 7px;
+
+    text-align:center;
+
+    border:1px solid var(--border);
+
+    border-radius:12px;
+
+    background:#fff;
+
+}
+
+
+
+.role:hover{
+
+    border-color:var(--primary);
+
+}
+
+
+
+.role.active{
+
+    border-color:var(--primary);
+
+    background:#f0efff;
+
+    color:var(--primary-dark);
+
+}
+
+
+
+.role b{
+
+    display:block;
+
+    font-size:11px;
+
+    margin-top:5px;
+
+}
+
+
+
+.auth-btn{
+
+    width:100%;
+
+    padding:14px;
+
+    border-radius:11px;
+
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+
+    color:#fff;
+
+    font-weight:800;
+
+    margin-top:8px;
+
+}
+
+
+
+.switch{
+
+    text-align:center;
+
+    margin-top:16px;
+
+    font-size:13px;
+
+}
+
+
+
+.switch button{
+
+    background:none;
+
+    color:var(--primary);
+
+    font-weight:800;
+
+}
+
+
+
+/* ================= APP ================= */
+
+
+
+.app{
+
+    display:flex;
+
+    min-height:100vh;
+
+}
+
+
+
+.sidebar{
+
+    position:fixed;
+
+    left:0;
+
+    top:0;
+
+    bottom:0;
+
+    width:250px;
+
+    background:var(--dark);
+
+    color:#fff;
+
+    padding:22px 17px;
+
+    z-index:20;
+
+    overflow-y:auto;
+
+}
+
+
+
+.side-brand{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:4px 7px 25px;
+
+}
+
+
+
+.side-icon{
+
+    width:40px;
+
+    height:40px;
+
+}
+
+
+
+.side-brand small{
+
+    display:block;
+
+    color:#aab2ca;
+
+    font-size:10px;
+
+}
+
+
+
+.menu-title{
+
+    color:#727c9c;
+
+    text-transform:uppercase;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+
+    margin:18px 10px 8px;
+
+}
+
+
+
+.nav{
+
+    width:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:11px 12px;
+
+    margin:4px 0;
+
+    border-radius:10px;
+
+    color:#c5ccdf;
+
+    background:transparent;
+
+    text-align:left;
+
+}
+
+
+
+.nav:hover,
+
+.nav.active{
+
+    color:#fff;
+
+    background:linear-gradient(90deg,var(--primary),var(--primary-dark));
+
+}
+
+
+
+.nav span{
+
+    width:22px;
+
+    text-align:center;
+
+}
+
+
+
+.side-foot{
+
+    margin-top:25px;
+
+    border:1px solid #2d3653;
+
+    background:var(--dark2);
+
+    border-radius:13px;
+
+    padding:13px;
+
+    color:#9da7c2;
+
+    font-size:10px;
+
+    line-height:1.5;
+
+}
+
+
+
+.main{
+
+    width:calc(100% - 250px);
+
+    margin-left:250px;
+
+}
+
+
+
+.topbar{
+
+    height:72px;
+
+    background:#fff;
+
+    border-bottom:1px solid var(--border);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 30px;
+
+    position:sticky;
+
+    top:0;
+
+    z-index:10;
+
+}
+
+
+
+.search{
+
+    width:280px;
+
+    padding:10px 13px;
+
+    border:1px solid var(--border);
+
+    border-radius:10px;
+
+    background:#f6f7fb;
+
+    outline:none;
+
+}
+
+
+
+.top-actions{
+
+    display:flex;
+
+    gap:15px;
+
+    align-items:center;
+
+}
+
+
+
+.bell{
+
+    position:relative;
+
+    font-size:20px;
+
+    cursor:pointer;
+
+}
+
+
+
+.dot{
+
+    position:absolute;
+
+    width:7px;
+
+    height:7px;
+
+    background:var(--red);
+
+    border-radius:50%;
+
+    right:-2px;
+
+    top:0;
+
+}
+
+
+
+.avatar{
+
+    width:38px;
+
+    height:38px;
+
+    border-radius:50%;
+
+    display:grid;
+
+    place-items:center;
+
+    background:#ddd9ff;
+
+    color:var(--primary-dark);
+
+    font-weight:800;
+
+}
+
+
+
+.user{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:9px;
+
+}
+
+
+
+.user small{
+
+    display:block;
+
+    color:var(--muted);
+
+    font-size:10px;
+
+}
+
+
+
+.logout{
+
+    background:#ffe8e9;
+
+    color:#b4232b;
+
+    padding:8px 11px;
+
+    border-radius:8px;
+
+    font-weight:800;
+
+    font-size:11px;
+
+}
+
+
+
+/* ================= CONTENT ================= */
+
+
+
+.content{
+
+    padding:30px;
+
+    max-width:1600px;
+
+    margin:auto;
+
+}
+
+
+
+.page{
+
+    display:none;
+
+}
+
+
+
+.page.active{
+
+    display:block;
+
+    animation:fade .2s ease;
+
+}
+
+
+
+@keyframes fade{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(5px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:none;
+
+    }
+
+}
+
+
+
+.welcome,
+
+.page-title{
+
+    margin-bottom:24px;
+
+}
+
+
+
+.welcome{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+
+
+.welcome h1,
+
+.page-title h1{
+
+    font-size:27px;
+
+}
+
+
+
+.welcome p,
+
+.page-title p{
+
+    color:var(--muted);
+
+    font-size:13px;
+
+    margin-top:6px;
+
+}
+
+
+
+.stats{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:17px;
+
+    margin-bottom:22px;
+
+}
+
+
+
+.stat,
+
+.card{
+
+    background:#fff;
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    box-shadow:var(--shadow);
+
+}
+
+
+
+.stat{
+
+    padding:20px;
+
+}
+
+
+
+.stat-title{
+
+    color:var(--muted);
+
+    font-size:11px;
+
+    margin-bottom:10px;
+
+}
+
+
+
+.stat-number{
+
+    font-size:26px;
+
+    font-weight:850;
+
+}
+
+
+
+.stat-change{
+
+    font-size:10px;
+
+    color:var(--green);
+
+    margin-top:7px;
+
+}
+
+
+
+.card{
+
+    padding:21px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.card-head{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:15px;
+
+    align-items:center;
+
+    margin-bottom:18px;
+
+}
+
+
+
+.card-head h3{
+
+    font-size:15px;
+
+}
+
+
+
+.card-head p{
+
+    font-size:11px;
+
+    color:var(--muted);
+
+    margin-top:4px;
+
+}
+
+
+
+.grid2{
+
+    display:grid;
+
+    grid-template-columns:1.4fr 1fr;
+
+    gap:20px;
+
+}
+
+
+
+.grid3{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:15px;
+
+}
+
+
+
+.table-wrap{
+
+    overflow:auto;
+
+}
+
+
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    min-width:700px;
+
+}
+
+
+
+th,
+
+td{
+
+    padding:12px 10px;
+
+    border-bottom:1px solid var(--border);
+
+    text-align:left;
+
+    font-size:11px;
+
+}
+
+
+
+th{
+
+    color:var(--muted);
+
+    font-size:10px;
+
+}
+
+
+
+.badge{
+
+    padding:5px 8px;
+
+    border-radius:20px;
+
+    font-size:9px;
+
+    font-weight:800;
+
+}
+
+
+
+.green{
+
+    background:#ddf8eb;
+
+    color:#087b44;
+
+}
+
+
+
+.yellow{
+
+    background:#fff3d2;
+
+    color:#9c6715;
+
+}
+
+
+
+.red{
+
+    background:#ffe8e9;
+
+    color:#b4232b;
+
+}
+
+
+
+.blue{
+
+    background:#ebe9ff;
+
+    color:#3e46aa;
+
+}
+
+
+
+.progress{
+
+    height:8px;
+
+    background:#edf0f6;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    margin:8px 0 14px;
+
+}
+
+
+
+.progress i{
+
+    display:block;
+
+    height:100%;
+
+    background:var(--primary);
+
+    border-radius:20px;
+
+}
+
+
+
+.list{
+
+    display:grid;
+
+    gap:10px;
+
+}
+
+
+
+.item{
+
+    padding:14px;
+
+    border:1px solid var(--border);
+
+    border-radius:12px;
+
+    background:#fafbfe;
+
+}
+
+
+
+.item-top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+}
+
+
+
+.item p{
+
+    color:var(--muted);
+
+    font-size:11px;
+
+    line-height:1.5;
+
+    margin-top:5px;
+
+}
+
+
+
+.actions{
+
+    display:flex;
+
+    gap:7px;
+
+    flex-wrap:wrap;
+
+    margin-top:10px;
+
+}
+
+
+
+.btn{
+
+    padding:11px 16px;
+
+    border-radius:9px;
+
+    font-weight:700;
+
+}
+
+
+
+.primary{
+
+    background:var(--primary);
+
+    color:#fff;
+
+}
+
+
+
+.secondary{
+
+    background:#eef0f6;
+
+    color:var(--text);
+
+}
+
+
+
+.danger{
+
+    background:#ffe8e9;
+
+    color:#b4232b;
+
+}
+
+
+
+.success{
+
+    background:#ddf8eb;
+
+    color:#087b44;
+
+}
+
+
+
+.form-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:14px;
+
+}
+
+
+
+.full{
+
+    grid-column:1/-1;
+
+}
+
+
+
+.empty{
+
+    text-align:center;
+
+    padding:30px;
+
+    color:var(--muted);
+
+}
+
+
+
+.skill{
+
+    margin:14px 0;
+
+}
+
+
+
+.skill-top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    font-size:11px;
+
+}
+
+
+
+.fee-total{
+
+    font-size:24px;
+
+    font-weight:800;
+
+}
+
+
+
+/* ================= SKILL DONUTS ================= */
+
+
+
+.donut-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(5,1fr);
+
+    gap:14px;
+
+}
+
+
+
+.donut-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:16px 10px;
+
+    border:1px solid var(--border);
+
+    border-radius:14px;
+
+    background:#fafbfe;
+
+    text-align:center;
+
+}
+
+
+
+.donut-item svg{
+
+    transform:rotate(-90deg);
+
+}
+
+
+
+.donut-value{
+
+    font-size:16px;
+
+    font-weight:800;
+
+    fill:var(--text);
+
+    transform:rotate(90deg);
+
+    transform-origin:center;
+
+}
+
+
+
+.donut-name{
+
+    font-size:11px;
+
+    font-weight:700;
+
+}
+
+
+
+.donut-tag{
+
+    font-size:9px;
+
+    font-weight:800;
+
+    padding:3px 8px;
+
+    border-radius:20px;
+
+}
+
+
+
+.role-card{
+
+    border:1px solid var(--border);
+
+    border-radius:14px;
+
+    padding:16px;
+
+    background:#fafbfe;
+
+    margin-bottom:10px;
+
+}
+
+
+
+.role-card.top{
+
+    border-color:var(--primary);
+
+    background:linear-gradient(135deg,#f0efff,#fff);
+
+}
+
+
+
+.role-top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+
+
+.role-match{
+
+    font-size:18px;
+
+    font-weight:850;
+
+    color:var(--primary-dark);
+
+}
+
+
+
+.role-bar{
+
+    height:7px;
+
+    background:#edf0f6;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    margin:9px 0;
+
+}
+
+
+
+.role-bar i{
+
+    display:block;
+
+    height:100%;
+
+    background:linear-gradient(90deg,var(--primary),var(--cyan));
+
+    border-radius:20px;
+
+}
+
+
+
+.gap-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:9px 0;
+
+    border-bottom:1px dashed var(--border);
+
+    font-size:11px;
+
+}
+
+
+
+.gap-row:last-child{
+
+    border-bottom:0;
+
+}
+
+
+
+@media(max-width:720px){
+
+
+
+    .donut-grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+
+
+.notice{
+
+    padding:12px;
+
+    border-left:4px solid var(--primary);
+
+    background:#f7f6ff;
+
+    border-radius:8px;
+
+    font-size:11px;
+
+    margin-bottom:9px;
+
+}
+
+
+
+.chart{
+
+    height:210px;
+
+    display:flex;
+
+    align-items:end;
+
+    gap:15px;
+
+    padding:15px 5px;
+
+    border-bottom:1px solid var(--border);
+
+    background:repeating-linear-gradient(
+
+        to top,
+
+        transparent 0,
+
+        transparent 38px,
+
+        #f0f1f6 39px
+
+    );
+
+}
+
+
+
+.bar-wrap{
+
+    height:100%;
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:end;
+
+    align-items:center;
+
+    gap:7px;
+
+}
+
+
+
+.bar{
+
+    width:30px;
+
+    background:linear-gradient(180deg,var(--primary),#9e99ff);
+
+    border-radius:7px 7px 0 0;
+
+}
+
+
+
+.bar-wrap label{
+
+    font-size:10px;
+
+    color:var(--muted);
+
+}
+
+
+
+/* ================= MODAL ================= */
+
+
+
+.modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(10,15,30,.55);
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:20px;
+
+    z-index:100;
+
+}
+
+
+
+.modal.show{
+
+    display:flex;
+
+}
+
+
+
+.modal-box{
+
+    background:#fff;
+
+    width:min(650px,100%);
+
+    max-height:90vh;
+
+    overflow:auto;
+
+    border-radius:18px;
+
+    padding:22px;
+
+}
+
+
+
+.modal-head{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-bottom:15px;
+
+}
+
+
+
+.close{
+
+    width:30px;
+
+    height:30px;
+
+    border-radius:8px;
+
+    background:#eef0f6;
+
+}
+
+
+
+.toast{
+
+    position:fixed;
+
+    right:20px;
+
+    bottom:20px;
+
+    background:#11182d;
+
+    color:#fff;
+
+    padding:13px 16px;
+
+    border-radius:10px;
+
+    opacity:0;
+
+    transform:translateY(80px);
+
+    transition:.25s;
+
+    z-index:200;
+
+    font-size:12px;
+
+}
+
+
+
+.toast.show{
+
+    opacity:1;
+
+    transform:none;
+
+}
+
+
+
+/* ================= MOBILE ================= */
+
+
+
+@media(max-width:1050px){
+
+
+
+    .auth-box{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+
+    .brand-panel{
+
+        display:none;
+
+    }
+
+
+
+    .stats{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+
+
+    .grid2,
+
+    .grid3{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+
+
+@media(max-width:720px){
+
+
+
+    .sidebar{
+
+        width:68px;
+
+        padding:18px 9px;
+
+    }
+
+
+
+    .side-brand{
+
+        justify-content:center;
+
+    }
+
+
+
+    .side-brand div:last-child,
+
+    .menu-title,
+
+    .nav b,
+
+    .side-foot{
+
+        display:none;
+
+    }
+
+
+
+    .nav{
+
+        justify-content:center;
+
+        padding:12px 5px;
+
+    }
+
+
+
+    .main{
+
+        width:calc(100% - 68px);
+
+        margin-left:68px;
+
+    }
+
+
+
+    .topbar{
+
+        padding:0 12px;
+
+    }
+
+
+
+    .search{
+
+        width:140px;
+
+    }
+
+
+
+    .content{
+
+        padding:18px 12px;
+
+    }
+
+
+
+    .stats,
+
+    .form-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+
+    .user>div{
+
+        display:none;
+
+    }
+
+
+
+    .logout{
+
+        display:none;
+
+    }
+
+
+
+    .welcome{
+
+        align-items:flex-start;
+
+        flex-direction:column;
+
+        gap:12px;
+
+    }
+
+
+
+    .role-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+
+.management-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.management-tile{padding:20px;border:1px solid var(--border);border-radius:15px;background:#fff;text-align:left;display:flex;flex-direction:column;gap:8px;transition:.2s;box-shadow:var(--shadow)}
+.management-tile:hover{transform:translateY(-2px);border-color:var(--primary);box-shadow:0 18px 35px rgba(30,40,80,.12)}
+.management-tile span{font-size:25px}.management-tile b{font-size:14px}.management-tile small{color:var(--muted)}
+.button-row{display:flex;gap:12px;flex-wrap:wrap}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:12px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:12px;vertical-align:top}th{background:#f7f8fc;font-size:11px;text-transform:uppercase;letter-spacing:.4px}tr:hover td{background:#fafbff}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef1f7;color:#596579;font-size:10px;font-weight:800}.badge.green{background:#e6f8ef;color:#12804a}.badge.red{background:#ffe9ea;color:#b4232b}
+.mark-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end;margin-top:15px}.mark-grid label{font-size:11px;font-weight:800}.mark-grid input{margin-top:6px}.management-mark-card{box-shadow:none;margin-bottom:12px}
+@media(max-width:800px){.mark-grid{grid-template-columns:1fr 1fr}.management-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.mark-grid{grid-template-columns:1fr}.management-grid{grid-template-columns:1fr}}
+
+
+/* ================= FEEDBACK MODULE ================= */
+.feedback-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:15px 0}
+.feedback-type-card{border:1px solid var(--border);border-radius:16px;padding:18px;background:#fff;cursor:pointer;transition:.2s;text-align:left;box-shadow:var(--shadow)}
+.feedback-type-card:hover{transform:translateY(-2px);border-color:var(--primary)}
+.feedback-type-card.active{border-color:var(--primary);background:linear-gradient(135deg,#f0efff,#fff);box-shadow:0 12px 28px rgba(99,91,255,.12)}
+.feedback-type-card span{font-size:28px;display:block;margin-bottom:8px}
+.feedback-type-card b{display:block;font-size:14px}
+.feedback-type-card small{display:block;color:var(--muted);margin-top:5px;line-height:1.4}
+.rating{display:flex;gap:7px;flex-direction:row-reverse;justify-content:flex-end}
+.rating input{display:none}
+.rating label{font-size:28px;color:#cfd4df;cursor:pointer;transition:.15s}
+.rating label:hover,.rating label:hover~label,.rating input:checked~label{color:#f5a623}
+.feedback-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.feedback-card{border:1px solid var(--border);border-radius:14px;padding:16px;background:#fff;margin-bottom:12px}
+.feedback-card.priority{border-left:4px solid var(--red)}
+.feedback-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.feedback-id{font-size:10px;color:var(--muted);font-family:monospace}
+.feedback-rating{font-weight:800;color:#9c6715}
+.feedback-status{padding:5px 9px;border-radius:999px;font-size:10px;font-weight:800}
+.feedback-status.submitted{background:#ebe9ff;color:#3e46aa}
+.feedback-status.reviewed{background:#fff3d2;color:#9c6715}
+.feedback-status.action{background:#ddf8eb;color:#087b44}
+.feedback-status.closed{background:#eef0f6;color:#596579}
+.feedback-response{margin-top:12px;padding:12px;border-left:4px solid var(--green);background:#f4fbf7;border-radius:8px;font-size:11px}
+.feedback-filter{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:10px;margin-bottom:15px}
+.feedback-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:center;margin-top:15px}
+.flow-step{padding:14px 10px;border:1px solid var(--border);border-radius:12px;background:#fafbfe;text-align:center;font-size:11px;font-weight:700}
+.flow-arrow{text-align:center;color:var(--primary);font-size:22px}
+.feedback-empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:12px}
+@media(max-width:900px){.feedback-type-grid,.feedback-meta,.feedback-filter{grid-template-columns:1fr}.feedback-flow{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg)}}
+/* ================= MANAGEMENT FACULTY DETAILS ================= */
+.faculty-management-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.faculty-profile-card{border:1px solid var(--border);border-radius:16px;padding:18px;background:#fff;box-shadow:var(--shadow);transition:.2s}
+.faculty-profile-card:hover{transform:translateY(-2px);border-color:var(--primary)}
+.faculty-profile-top{display:flex;gap:13px;align-items:center;margin-bottom:14px}
+.faculty-avatar{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--cyan));color:#fff;font-weight:900;font-size:20px}
+.faculty-meta{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.faculty-meta .item{padding:10px}
+.faculty-label{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:800}
+.faculty-value{font-size:11px;font-weight:700;margin-top:3px}
+.faculty-filter{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px;margin-bottom:15px}
+.faculty-detail-list{display:grid;gap:8px;margin-top:12px}
+.faculty-detail-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--border);font-size:11px}
+.faculty-detail-row:last-child{border-bottom:0}
+.position-badge{background:#ebe9ff;color:#3e46aa;padding:5px 8px;border-radius:999px;font-size:9px;font-weight:800}
+@media(max-width:800px){.faculty-filter,.faculty-meta{grid-template-columns:1fr}}
+
+
+</style>
+
+</head>
+
+
+
+<body>
+
+
+
+<!-- ================= LOGIN / SIGNUP ================= -->
+
+
+
+<div id="auth" class="auth">
+
+
+
+    <div class="auth-box">
+
+
+
+        <div class="brand-panel">
+
+
+
+            <div>
+
+
+
+                <div class="logo">
+
+
+
+                    <div class="logo-icon">✦</div>
+
+
+
+                    <div>
+
+                        <h1>EduNexa</h1>
+
+                        <small>Smart Education Portal</small>
+
+                    </div>
+
+
+
+                </div>
+
+
+
+                <h2>
+
+                    One platform.<br>
+
+                    Every academic journey.
+
+                </h2>
+
+
+
+                <p>
+
+                    Students, faculty, mentors, class advisers,
+
+                    management and parents connected through one
+
+                    academic workspace.
+
+                </p>
+
+
+
+                <div class="features">
+
+
+
+                    <div class="feature">
+
+                        🎓 Student academic & fee portal
+
+                    </div>
+
+
+
+                    <div class="feature">
+
+                        👨‍🏫 Faculty tests, assignments & attendance
+
+                    </div>
+
+
+
+                    <div class="feature">
+
+                        🧭 Mentor skill dashboard access
+
+                    </div>
+
+
+
+                    <div class="feature">
+
+                        🔔 Student, adviser & parent notifications
+
+                    </div>
+
+
+
+                    <div class="feature">
+
+                        📊 Management reports & analytics
+
+                    </div>
+
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+        <!-- LOGIN -->
+
+
+
+        <div class="form-panel" id="loginPanel">
+
+
+
+            <h2>Welcome back 👋</h2>
+
+
+
+            <p class="muted">
+
+                Sign in to continue to EduNexa.
+
+            </p>
+
+
+
+            <div class="form-group">
+
+
+
+                <label>User Type</label>
+
+
+
+                <div class="role-grid">
+
+
+
+                    <button
+
+                        class="role active"
+
+                        onclick="chooseLogin('student',this)"
+
+                    >
+
+                        🎓
+
+                        <b>Student</b>
+
+                    </button>
+
+
+
+                    <button
+
+                        class="role"
+
+                        onclick="chooseLogin('faculty',this)"
+
+                    >
+
+                        👨‍🏫
+
+                        <b>Faculty</b>
+
+                    </button>
+
+
+
+                    <button
+
+                        class="role"
+
+                        onclick="chooseLogin('management',this)"
+
+                    >
+
+                        🏢
+
+                        <b>Management</b>
+
+                    </button>
+
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+            <div class="form-group">
+
+
+
+                <label>Email / ID</label>
+
+
+
+                <input
+
+                    id="loginId"
+
+                    class="control"
+
+                    placeholder="Enter email or ID"
+
+                >
+
+
+
+            </div>
+
+
+
+            <div class="form-group">
+
+
+
+                <label>Password</label>
+
+
+
+                <input
+
+                    id="loginPassword"
+
+                    type="password"
+
+                    class="control"
+
+                    placeholder="Enter password"
+
+                >
+
+
+
+            </div>
+
+
+
+            <button
+
+                class="auth-btn"
+
+                onclick="login()"
+
+            >
+
+                Login
+
+            </button>
+
+
+
+            <div class="switch">
+
+                New to EduNexa?
+
+                <button onclick="showSignup()">
+
+                    Create an account
+
+                </button>
+
+            </div>
+
+
+
+            <p
+
+                class="muted"
+
+                style="font-size:10px;text-align:center;margin-top:15px"
+
+            >
+
+                Demo password: <b>123456</b>
+
+            </p>
+
+
+
+            <p
+
+                class="muted"
+
+                style="font-size:10px;text-align:center;margin-top:5px"
+
+            >
+
+                Demo accounts are shown below.
+
+            </p>
+
+
+
+        </div>
+
+
+
+        <!-- SIGNUP -->
+
+
+
+        <div
+
+            class="form-panel hidden"
+
+            id="signupPanel"
+
+        >
+
+
+
+            <h2>Create account</h2>
+
+
+
+            <p class="muted">
+
+                Register a new EduNexa user.
+
+            </p>
+
+
+
+            <div class="form-group">
+
+
+
+                <label>Account Type</label>
+
+
+
+                <div class="role-grid">
+
+
+
+                    <button
+
+                        class="role active"
+
+                        onclick="chooseSignup('student',this)"
+
+                    >
+
+                        🎓
+
+                        <b>Student</b>
+
+                    </button>
+
+
+
+                    <button
+
+                        class="role"
+
+                        onclick="chooseSignup('faculty',this)"
+
+                    >
+
+                        👨‍🏫
+
+                        <b>Faculty</b>
+
+                    </button>
+
+
+
+                    <button
+
+                        class="role"
+
+                        onclick="chooseSignup('management',this)"
+
+                    >
+
+                        🏢
+
+                        <b>Management</b>
+
+                    </button>
+
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+            <div class="form-group">
+
+
+
+                <label>Full Name</label>
+
+
+
+                <input
+
+                    id="suName"
+
+                    class="control"
+
+                    placeholder="Enter full name"
+
+                >
+
+
+
+            </div>
+
+
+
+            <div class="form-group">
+
+
+
+                <label>Email</label>
+
+
+
+                <input
+
+                    id="suEmail"
+
+                    class="control"
+
+                    type="email"
+
+                    placeholder="example@email.com"
+
+                >
+
+
+
+            </div>
+
+
+
+            <div class="form-group">
+
+
+
+                <label>Password</label>
+
+
+
+                <input
+
+                    id="suPass"
+
+                    class="control"
+
+                    type="password"
+
+                    placeholder="Create password"
+
+                >
+
+
+
+            </div>
+
+
+
+            <div id="studentSignup">
+
+
+
+                <div class="form-group">
+
+
+
+                    <label>Student ID</label>
+
+
+
+                    <input
+
+                        id="suStudentId"
+
+                        class="control"
+
+                        placeholder="EDU2026-1001"
+
+                    >
+
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+
+                    <label>Parent Name</label>
+
+
+
+                    <input
+
+                        id="suParent"
+
+                        class="control"
+
+                        placeholder="Parent / Guardian"
+
+                    >
+
+
+
+                </div>
+
+
+
+                <div class="form-group">
+
+
+
+                    <label>Parent Phone</label>
+
+
+
+                    <input
+
+                        id="suParentPhone"
+
+                        class="control"
+
+                        placeholder="+91 XXXXX XXXXX"
+
+                    >
+
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+            <button
+
+                class="auth-btn"
+
+                onclick="register()"
+
+            >
+
+                Create Account
+
+            </button>
+
+
+
+            <div class="switch">
+
+                Already registered?
+
+                <button onclick="showLogin()">
+
+                    Login
+
+                </button>
+
+            </div>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+</div>
+
+
+
+
+
+<!-- ================= MAIN APP ================= -->
+
+
+
+<div id="app" class="app hidden">
+
+
+
+    <aside class="sidebar">
+
+
+
+        <div class="side-brand">
+
+
+
+            <div class="side-icon">
+
+                ✦
+
+            </div>
+
+
+
+            <div>
+
+                <b>EduNexa</b>
+
+                <small>Smart Education</small>
+
+            </div>
+
+
+
+        </div>
+
+
+
+        <div id="nav"></div>
+
+
+
+        <div class="side-foot">
+
+            Role-based access • Academic workflow • Smart notifications
+
+        </div>
+
+
+
+    </aside>
+
+
+
+
+
+    <main class="main">
+
+
+
+        <header class="topbar">
+
+
+
+            <input
+
+                class="search"
+
+                placeholder="Search EduNexa..."
+
+                oninput="searchPages(this.value)"
+
+            >
+
+
+
+            <div class="top-actions">
+
+
+
+                <div
+
+                    class="bell"
+
+                    onclick="go('notifications')"
+
+                >
+
+                    🔔
+
+                    <span class="dot"></span>
+
+                </div>
+
+
+
+                <div class="user">
+
+
+
+                    <div
+
+                        id="avatar"
+
+                        class="avatar"
+
+                    >
+
+                        A
+
+                    </div>
+
+
+
+                    <div>
+
+
+
+                        <b id="userName">
+
+                            User
+
+                        </b>
+
+
+
+                        <small id="userRole">
+
+                            Student
+
+                        </small>
+
+
+
+                    </div>
+
+
+
+                </div>
+
+
+
+                <button
+
+                    class="logout"
+
+                    onclick="logout()"
+
+                >
+
+                    Logout
+
+                </button>
+
+
+
+            </div>
+
+
+
+        </header>
+
+
+
+        <section
+
+            class="content"
+
+            id="pages"
+
+        ></section>
+
+
+
+    </main>
+
+
+
+</div>
+
+
+
+
+
+<!-- ================= MODAL ================= -->
+
+
+
+<div
+
+    id="modal"
+
+    class="modal"
+
+>
+
+
+
+    <div class="modal-box">
+
+
+
+        <div class="modal-head">
+
+
+
+            <h3 id="modalTitle">
+
+                Create
+
+            </h3>
+
+
+
+            <button
+
+                class="close"
+
+                onclick="closeModal()"
+
+            >
+
+                ✕
+
+            </button>
+
+
+
+        </div>
+
+
+
+        <div id="modalBody"></div>
+
+
+
+    </div>
+
+
+
+</div>
+
+
+
+
+
+<!-- ================= TOAST ================= -->
+
+
+
+<div
+
+    id="toast"
+
+    class="toast"
+
+></div>
+
+
+
+
+
+<script>
+
+
+
+>>>>>>> Stashed changes:Edunexa Frontend.html
 /* =========================================================
    EDUNEXA DATABASE
 ========================================================= */
