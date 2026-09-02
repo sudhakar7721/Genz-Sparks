@@ -7,10 +7,8 @@ class ORMModel(BaseModel):
 
 
 class LoginIn(BaseModel):
-    email: EmailStr | None = None
-    identifier: str | None = None
+    email: EmailStr
     password: str = Field(min_length=1)
-    role: str | None = None
 
 
 class SignupIn(BaseModel):
@@ -156,7 +154,6 @@ class TestCreate(BaseModel):
     test_date: date
     max_marks: float = 100
     description: str | None = None
-    questions: list[dict] = []
 
 
 class TestOut(ORMModel):
@@ -166,7 +163,6 @@ class TestOut(ORMModel):
     test_date: date
     max_marks: float
     description: str | None
-    questions: list[dict] = []
     created_by: int
 
 
