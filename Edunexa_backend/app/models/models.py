@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, JSON
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -136,7 +136,6 @@ class Test(Base):
     test_date: Mapped[date] = mapped_column(Date)
     max_marks: Mapped[float] = mapped_column(Float, default=100)
     description: Mapped[str | None] = mapped_column(Text)
-    questions: Mapped[list | None] = mapped_column(JSON, default=list)
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
 
