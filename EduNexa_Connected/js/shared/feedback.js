@@ -36,7 +36,7 @@ function resetFeedbackForm(){
     selectFeedbackType("infrastructure");
 }
 
-function submitFeedback(event){
+async function submitFeedback(event){
     event.preventDefault();
     if(!currentUser || currentUser.role!=="student"){toast("Only students can submit feedback.");return;}
     const type=document.getElementById("feedbackType").value;
@@ -58,6 +58,24 @@ function submitFeedback(event){
     };
     if(!message||!rating){toast("Please enter feedback and rating.");return;}
     if(type==="event"&&!feedback.event){toast("Please enter the event or function name.");return;}
+    if(EDUNEXA_BACKEND_ENABLED){
+        try{
+            const created = await api("/feedback", {
+                method:"POST",
+                body:JSON.stringify({
+                    feedback_type:type,
+                    subject:feedback.subject || null,
+                    rating,
+                    message
+                })
+            });
+            feedback.id = "FDB-" + created.id;
+            feedback.backendId = created.id;
+        }catch(error){
+            toast(error.message);
+            return;
+        }
+    }
     db.feedbacks.push(feedback);
     addNotice("New Student Feedback",`${feedback.id}: ${feedback.typeLabel} feedback from ${feedback.studentName}. Rating ${rating}/5.`,"adviser");
     save();refreshAll();go("student-feedback");
@@ -132,18 +150,43 @@ function openFeedbackResponse(feedbackId){
         <button class="btn primary" onclick="saveFeedbackResponse('${escAttr(f.id)}')">Save Response</button>`);
 }
 
-function saveFeedbackResponse(feedbackId){
+async function saveFeedbackResponse(feedbackId){
     const f=db.feedbacks.find(x=>x.id===feedbackId);if(!f)return;
     const status=document.getElementById("feedbackModalStatus").value,response=document.getElementById("feedbackModalResponse").value.trim();
-    f.status=status;f.adviserResponse=response;f.updatedAt=new Date().toLocaleString();
-    addNotice("Feedback Update",`Your feedback ${f.id} is now "${status}".${response?" Adviser response: "+response:""}`,f.studentId);
+    if(EDUNEXA_BACKEND_ENABLED && f.backendId){
+        try{
+            const updated = await api(`/feedback/${f.backendId}/respond`, {
+                method:"PUT",
+                body:JSON.stringify({response})
+            });
+            f.status = updated.status || "Responded";
+            f.adviserResponse = updated.response || response;
+        }catch(error){ toast(error.message); return; }
+    }else{
+        f.status=status;
+        f.adviserResponse=response;
+    }
+    f.updatedAt=new Date().toLocaleString();
+    addNotice("Feedback Update",`Your feedback ${f.id} is now "${f.status}".${response?" Adviser response: "+response:""}`,f.studentId);
     save();closeModal();refreshAll();go("adviser-feedback");toast(`Feedback ${f.id} updated.`);
 }
 
-function updateFeedbackStatus(feedbackId,status){
+async function updateFeedbackStatus(feedbackId,status){
     const f=db.feedbacks.find(x=>x.id===feedbackId);if(!f)return;
-    f.status=status;f.updatedAt=new Date().toLocaleString();
-    addNotice("Feedback Status Updated",`Your feedback ${f.id} is now "${status}".`,f.studentId);
+    if(EDUNEXA_BACKEND_ENABLED && f.backendId && status !== "Submitted"){
+        try{
+            const updated = await api(`/feedback/${f.backendId}/respond`, {
+                method:"PUT",
+                body:JSON.stringify({response:f.adviserResponse || ""})
+            });
+            f.status = updated.status || "Responded";
+            f.adviserResponse = updated.response || f.adviserResponse || "";
+        }catch(error){ toast(error.message); return; }
+    }else{
+        f.status=status;
+    }
+    f.updatedAt=new Date().toLocaleString();
+    addNotice("Feedback Status Updated",`Your feedback ${f.id} is now "${f.status}".`,f.studentId);
     save();refreshAll();go("adviser-feedback");toast(`Feedback marked ${status}.`);
 }
 

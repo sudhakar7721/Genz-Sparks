@@ -103,6 +103,10 @@ try:
                 test_date=date.today(),
                 max_marks=100,
                 description="Basic Python and data analysis",
+                questions=[
+                    {"q":"Which keyword defines a function in Python?","opts":["func","def","function","define"],"ans":1},
+                    {"q":"Which data type is immutable?","opts":["List","Dictionary","Tuple","Set"],"ans":2}
+                ],
                 created_by=faculty_user.id,
             ),
             Assignment(

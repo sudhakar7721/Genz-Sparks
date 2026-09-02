@@ -61,13 +61,29 @@ def signup(data: SignupIn, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenOut)
 def login(data: LoginIn, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email).first()
+    identifier = (data.identifier or (str(data.email) if data.email else "")).strip()
+    user = db.query(User).filter(
+        (User.email == identifier)
+    ).first()
+
+    if not user:
+        student = db.query(Student).filter(Student.student_id == identifier).first()
+        if student:
+            user = db.get(User, student.user_id)
+
+    if not user:
+        faculty = db.query(Faculty).filter(Faculty.faculty_id == identifier).first()
+        if faculty:
+            user = db.get(User, faculty.user_id)
 
     if not user or not verify_password(data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
         )
+
+    if data.role and user.role != data.role.lower():
+        raise HTTPException(401, "Invalid login role")
 
     token = create_access_token(user.id, user.role)
     return TokenOut(

@@ -2,7 +2,7 @@
    LEAVE
 ========================================================= */
 
-function submitLeave(event){
+async function submitLeave(event){
 
     event.preventDefault();
 
@@ -60,8 +60,23 @@ function submitLeave(event){
     };
 
 
-    db.leaves.push(leave);
+    if(EDUNEXA_BACKEND_ENABLED){
+        try{
+            const created = await api("/leaves", {
+                method:"POST",
+                body:JSON.stringify({
+                    leave_type:leave.type,
+                    from_date:leave.from,
+                    to_date:leave.to,
+                    reason:leave.reason
+                })
+            });
+            leave.id = created.id;
+            leave.backendId = created.id;
+        }catch(error){ toast(error.message); return; }
+    }
 
+    db.leaves.push(leave);
 
     addNotice(
         "Leave request submitted",
@@ -206,7 +221,7 @@ function renderFacultyLeaves(){
 }
 
 
-function reviewLeave(id,status){
+async function reviewLeave(id,status){
 
     const leave =
         db.leaves.find(
@@ -223,7 +238,21 @@ function reviewLeave(id,status){
     }
 
 
-    leave.status = status;
+    if(EDUNEXA_BACKEND_ENABLED && leave.backendId){
+        try{
+            const updated = await api(`/leaves/${leave.backendId}/review`, {
+                method:"PUT",
+                body:JSON.stringify({
+                    status,
+                    reviewer_comment:"Reviewed by " + currentUser.name
+                })
+            });
+            leave.status = updated.status;
+            leave.reviewerComment = updated.reviewer_comment || "";
+        }catch(error){ toast(error.message); return; }
+    }else{
+        leave.status = status;
+    }
 
     leave.reviewedBy =
         currentUser.name;

@@ -2,7 +2,7 @@
    ATTENDANCE
 ========================================================= */
 
-function updateAttendance(studentId){
+async function updateAttendance(studentId){
 
     const select =
         document.querySelector(
@@ -47,6 +47,20 @@ function updateAttendance(studentId){
 
     }
 
+
+    if(EDUNEXA_BACKEND_ENABLED && student.backendStudentId){
+        try{
+            await api("/attendance", {
+                method:"POST",
+                body:JSON.stringify({
+                    student_id: student.backendStudentId,
+                    date: today(),
+                    subject: null,
+                    status
+                })
+            });
+        }catch(error){ toast(error.message); return; }
+    }
 
     student.attendance = current;
 

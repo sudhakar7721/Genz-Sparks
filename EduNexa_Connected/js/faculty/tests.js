@@ -2,7 +2,7 @@
    FACULTY TESTS
 ========================================================= */
 
-function createTest(event){
+async function createTest(event){
 
     event.preventDefault();
 
@@ -137,6 +137,23 @@ function createTest(event){
 
     };
 
+
+    if(EDUNEXA_BACKEND_ENABLED){
+        try{
+            const created = await api("/tests", {
+                method:"POST",
+                body:JSON.stringify({
+                    title,
+                    subject,
+                    test_date:start,
+                    max_marks:100,
+                    description:"EduNexa test with " + questions.length + " questions",
+                    questions
+                })
+            });
+            test.id = created.id;
+        }catch(error){ toast(error.message); return; }
+    }
 
     db.tests.push(test);
 

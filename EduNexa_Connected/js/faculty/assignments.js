@@ -2,7 +2,7 @@
    FACULTY ASSIGNMENTS
 ========================================================= */
 
-function createAssignment(event){
+async function createAssignment(event){
 
     event.preventDefault();
 
@@ -60,6 +60,21 @@ function createAssignment(event){
 
     };
 
+
+    if(EDUNEXA_BACKEND_ENABLED){
+        try{
+            const created = await api("/assignments", {
+                method:"POST",
+                body:JSON.stringify({
+                    title,
+                    subject,
+                    due_date:due,
+                    description
+                })
+            });
+            assignment.id = created.id;
+        }catch(error){ toast(error.message); return; }
+    }
 
     db.assignments.push(
         assignment
