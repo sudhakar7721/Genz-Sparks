@@ -2,7 +2,7 @@
    MARKS
 ========================================================= */
 
-function saveMark(studentId){
+async function saveMark(studentId){
 
     const mark1 =
         Number(
@@ -48,6 +48,34 @@ function saveMark(studentId){
             (mark1 + mark2 + mark3) / 3
         );
 
+
+    if(EDUNEXA_BACKEND_ENABLED){
+        const student = getStudent(studentId);
+        if(student?.backendStudentId){
+            try{
+                const payload = {
+                    student_id: student.backendStudentId,
+                    subject: "Overall",
+                    m1: mark1,
+                    m2: mark2,
+                    m3: mark3,
+                    m4: 0
+                };
+                if(student._backendMarkId){
+                    await api(`/marks/${student._backendMarkId}`, {
+                        method:"PUT",
+                        body:JSON.stringify(payload)
+                    });
+                }else{
+                    const created = await api("/marks", {
+                        method:"POST",
+                        body:JSON.stringify(payload)
+                    });
+                    student._backendMarkId = created.id;
+                }
+            }catch(error){ toast(error.message); return; }
+        }
+    }
 
     const existing =
         db.marks.find(

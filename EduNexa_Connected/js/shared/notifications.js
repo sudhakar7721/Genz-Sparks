@@ -2,29 +2,34 @@
    NOTIFICATIONS
 ========================================================= */
 
-function addNotice(
+async function addNotice(
     title,
     message,
     target="all"
 ){
 
-    db.notifications.push({
+    const localNotice = {
+        id: Date.now() + Math.random(),
+        title, message, target,
+        createdAt: new Date().toLocaleString()
+    };
+    db.notifications.push(localNotice);
 
-        id:
-            Date.now() +
-            Math.random(),
-
-        title,
-
-        message,
-
-        target,
-
-        createdAt:
-            new Date().toLocaleString()
-
-    });
-
+    if(EDUNEXA_BACKEND_ENABLED && localStorage.getItem("edunexa_token")){
+        try{
+            const student = target && target !== "all" ? getStudent(String(target)) : null;
+            await api("/notifications", {
+                method:"POST",
+                body:JSON.stringify({
+                    student_id: student?.backendStudentId || null,
+                    recipient_role: student ? null : (target || "all"),
+                    title, message
+                })
+            });
+        }catch(error){
+            console.warn("Notification API failed:", error.message);
+        }
+    }
 
     save();
 

@@ -65,231 +65,113 @@ function chooseSignup(role,element){
 }
 
 
-function register(){
+async function register(){
 
-    const name =
-        document.getElementById("suName")
-        .value.trim();
-
-    const email =
-        document.getElementById("suEmail")
-        .value.trim()
-        .toLowerCase();
-
-    const password =
-        document.getElementById("suPass")
-        .value.trim();
-
+    const name = document.getElementById("suName").value.trim();
+    const email = document.getElementById("suEmail").value.trim().toLowerCase();
+    const password = document.getElementById("suPass").value.trim();
 
     if(!name || !email || !password){
-
         toast("Please complete all required fields.");
-
         return;
-
     }
-
 
     if(password.length < 6){
-
         toast("Password must contain at least 6 characters.");
-
         return;
-
     }
 
-
-    if(
-        db.users.some(
-            user => user.email.toLowerCase() === email
-        )
-    ){
-
-        toast("Email already registered.");
-
+    if(!EDUNEXA_BACKEND_ENABLED){
+        toast("Backend mode is required for registration.");
         return;
-
     }
 
-
-    const user = {
-
-        name:name,
-
-        email:email,
-
-        password:password,
-
-        role:signupRole
-
+    const payload = {
+        name,
+        email,
+        password,
+        role: signupRole,
+        student_id: signupRole === "student"
+            ? (document.getElementById("suStudentId")?.value.trim() || null)
+            : null,
+        parent_name: signupRole === "student"
+            ? (document.getElementById("suParent")?.value.trim() || "Parent / Guardian")
+            : null,
+        parent_phone: signupRole === "student"
+            ? (document.getElementById("suParentPhone")?.value.trim() || null)
+            : null,
+        batch: signupRole === "student" ? "2025-2028" : null,
+        class_name: signupRole === "student" ? "II B.Sc Data Analytics" : null,
+        department: "Data Analytics"
     };
 
+    try{
+        const data = await api("/auth/signup", {
+            method:"POST",
+            body:JSON.stringify(payload)
+        });
 
-    if(signupRole === "student"){
+        localStorage.setItem("edunexa_token", data.access_token);
+        localStorage.setItem("edunexa_user", JSON.stringify(data.user));
+        currentUser = data.user;
 
-        const studentId =
-            document
-                .getElementById("suStudentId")
-                .value.trim()
-            || `EDU-${Date.now()}`;
-
-
-        if(
-            db.users.some(
-                user => user.studentId === studentId
-            )
-        ){
-
-            toast("Student ID already exists.");
-
-            return;
-
-        }
-
-
-        user.studentId = studentId;
-
-        user.parentName =
-            document
-                .getElementById("suParent")
-                .value.trim()
-            || "Parent / Guardian";
-
-        user.parentPhone =
-            document
-                .getElementById("suParentPhone")
-                .value.trim();
-
-        user.department = "Data Analytics";
-
-        user.batch = "2025-2028";
-
-        user.attendance = 0;
-
-        user.skills = {
-
-            Python:0,
-            SQL:0,
-            "Power BI":0,
-            Excel:0,
-            Communication:0
-
-        };
-
+        toast("Account created successfully.");
+        await openApp();
+    }catch(error){
+        toast(error.message);
     }
-
-
-    if(signupRole === "faculty"){
-
-        user.facultyId =
-            "FAC-" + Date.now();
-
-        user.mentor = false;
-
-        user.classAdviser = false;
-
-        user.department = "Data Analytics";
-
-    }
-
-
-    if(signupRole === "management"){
-
-        user.adminId =
-            "ADM-" + Date.now();
-
-    }
-
-
-    db.users.push(user);
-
-    save();
-
-    toast("Account created successfully.");
-
-    showLogin();
-
 }
-
-
 
 /* =========================================================
    LOGIN
 ========================================================= */
 
-function login(){
+async function login(){
 
-    const id =
-        document
-            .getElementById("loginId")
-            .value.trim();
-
-    const password =
-        document
-            .getElementById("loginPassword")
-            .value.trim();
-
+    const id = document.getElementById("loginId").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
 
     if(!id || !password){
-
         toast("Enter login ID and password.");
-
         return;
-
     }
 
-
-    const user =
-        db.users.find(
-            item =>
-
-                (
-                    item.email === id ||
-                    item.studentId === id ||
-                    item.facultyId === id ||
-                    item.adminId === id
-                )
-
-                &&
-
-                item.password === password
-
-                &&
-
-                item.role === loginRole
-        );
-
-
-    if(!user){
-
-        toast("Invalid login details or user type.");
-
+    if(!EDUNEXA_BACKEND_ENABLED){
+        toast("Backend mode is disabled.");
         return;
-
     }
 
+    try{
+        const data = await api("/auth/login", {
+            method:"POST",
+            body:JSON.stringify({
+                identifier:id,
+                email:id.includes("@") ? id : undefined,
+                password,
+                role:loginRole
+            })
+        });
 
-    currentUser = user;
+        localStorage.setItem("edunexa_token", data.access_token);
+        localStorage.setItem("edunexa_user", JSON.stringify(data.user));
+        localStorage.setItem("edunexa_session", JSON.stringify(data.user));
 
-
-    localStorage.setItem(
-        "edunexa_session",
-        JSON.stringify(user)
-    );
-
-
-    openApp();
-
+        currentUser = data.user;
+        await openApp();
+    }catch(error){
+        toast(error.message);
+    }
 }
+
 
 
 function logout(){
 
     currentUser = null;
 
-    localStorage.removeItem(
-        "edunexa_session"
-    );
+    localStorage.removeItem("edunexa_session");
+    localStorage.removeItem("edunexa_token");
+    localStorage.removeItem("edunexa_user");
 
     document
         .getElementById("app")
@@ -364,7 +246,7 @@ function labelRole(){
    OPEN APPLICATION
 ========================================================= */
 
-function openApp(){
+async function openApp(){
 
     document
         .getElementById("auth")
@@ -374,6 +256,9 @@ function openApp(){
         .getElementById("app")
         .classList.remove("hidden");
 
+    if(EDUNEXA_BACKEND_ENABLED && localStorage.getItem("edunexa_token")){
+        await syncBackendState();
+    }
 
     document
         .getElementById("userName")
