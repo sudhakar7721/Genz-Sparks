@@ -272,6 +272,15 @@ function facultyPages(){
                             class="control"
                             required
                         >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target Class</label>
+                        <select id="testClass" class="control" required>
+                            <option value="II B.Sc Data Analytics">II B.Sc Data Analytics</option>
+                            <option value="I B.Sc Data Analytics">I B.Sc Data Analytics</option>
+                            <option value="III B.Sc Data Analytics">III B.Sc Data Analytics</option>
+                        </select>
 
                     </div>
 
@@ -428,6 +437,15 @@ function facultyPages(){
                             class="control"
                             required
                         >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target Class</label>
+                        <select id="asClass" class="control" required>
+                            <option value="II B.Sc Data Analytics">II B.Sc Data Analytics</option>
+                            <option value="I B.Sc Data Analytics">I B.Sc Data Analytics</option>
+                            <option value="III B.Sc Data Analytics">III B.Sc Data Analytics</option>
+                        </select>
 
                     </div>
 

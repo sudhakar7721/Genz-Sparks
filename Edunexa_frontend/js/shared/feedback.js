@@ -99,7 +99,7 @@ function adviserFeedbackCard(f){
         <div style="text-align:right"><div class="feedback-rating">★ ${esc(f.rating)}/5</div><span class="feedback-status ${feedbackStatusClass(f.status)}">${esc(f.status)}</span></div></div>
         <p style="margin-top:10px"><b>${esc(f.typeLabel)}</b> • ${feedbackDetailsHTML(f)}</p><p>${esc(f.message)}</p>
         <div class="actions">
-            <button class="btn secondary" onclick="openFeedbackResponse('${escAttr(f.id)}')">🔎 Review / Respond</button>
+            <button class="btn secondary" onclick="openFeedbackResponse('${escAttr(f.id)}')">🔎 Review / Respond</button> <button class="btn secondary" onclick="v2ViewFeedback('${escAttr(f.id)}')">👁 View</button>
             ${f.status==="Submitted"?`<button class="btn primary" onclick="updateFeedbackStatus('${escAttr(f.id)}','Reviewed')">Mark Reviewed</button>`:""}
             ${f.status==="Reviewed"?`<button class="btn success" onclick="updateFeedbackStatus('${escAttr(f.id)}','Action Taken')">Mark Action Taken</button>`:""}
             ${f.status==="Action Taken"?`<button class="btn secondary" onclick="updateFeedbackStatus('${escAttr(f.id)}','Closed')">Close</button>`:""}

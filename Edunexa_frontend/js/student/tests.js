@@ -32,6 +32,7 @@ function renderStudentTests(){
 
     element.innerHTML =
         db.tests
+        .filter(test => !test.className || test.className === (currentUser.className || currentUser.class || currentUser.classesHandled?.[0] || "II B.Sc Data Analytics"))
         .map(
             test => {
 

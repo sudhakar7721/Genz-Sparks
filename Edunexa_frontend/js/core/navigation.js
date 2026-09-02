@@ -94,6 +94,7 @@ function buildNav(){
                 ["student-timetable","🕐","Class Timetable"],
                 ["student-committee","👥","Class Committee"],
                 ["student-leave-requests","📋","My Leave Requests"],
+                ["student-class-leave-v2","🗓️","Class Adviser Leave"],
 
                 ["notifications","🔔","Notifications"]
 
@@ -116,8 +117,6 @@ function buildNav(){
                 ["faculty-assignments","📋","Assignments"],
 
                 ["faculty-attendance","📅","Attendance"],
-
-                ["faculty-leaves","🗓️","Leave Requests"],
 
                 ["faculty-marks","🎯","Marks & Results"]
 
@@ -151,6 +150,11 @@ function buildNav(){
                         "adviser-dashboard",
                         "⭐",
                         "Full Class Access"
+                    ],
+                    [
+                        "adviser-leaves",
+                        "🗓️",
+                        "Class Leave Requests"
                     ],
 
                     [

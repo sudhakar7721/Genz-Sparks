@@ -193,6 +193,18 @@ function register(){
     }
 
 
+    if(signupRole === "hod"){
+
+        user.hodId = "HOD-" + Date.now();
+        user.department = "Data Analytics";
+        user.designation = "Head of Department";
+        user.qualification = "";
+        user.experience = "";
+        user.phone = "";
+        user.extraInfo = "";
+
+    }
+
     if(signupRole === "management"){
 
         user.adminId =
@@ -247,6 +259,7 @@ function login(){
                     item.email === id ||
                     item.studentId === id ||
                     item.facultyId === id ||
+                    item.hodId === id ||
                     item.adminId === id
                 )
 

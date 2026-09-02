@@ -37,3 +37,7 @@ Management: HOD details, department details, existing management features, extra
 
 ## Important
 This is a frontend/localStorage implementation. Uploaded files are stored as Data URLs in browser localStorage. For production, move file storage, authentication, authorization and personal student records to the Python/SQLite backend.
+
+
+## V2 additions
+All original modules are retained. Added `js/updates_v2.js` for the requested non-destructive enhancements: HOD login/registration, class-targeted tests and assignments, timetable tables, Class Adviser leave console, feedback View actions, HOD department console/analytics, and Management HOD/department View + feedback analytics. Clear browser localStorage only if you intentionally want a fresh demo database.

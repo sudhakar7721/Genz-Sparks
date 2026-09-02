@@ -32,6 +32,7 @@ function renderStudentAssignments(){
 
     element.innerHTML =
         db.assignments
+        .filter(assignment => !assignment.className || assignment.className === (currentUser.className || currentUser.class || currentUser.classesHandled?.[0] || "II B.Sc Data Analytics"))
         .map(
             assignment => {
 
