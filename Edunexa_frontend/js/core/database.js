@@ -7,6 +7,20 @@ const DB_KEY = "edunexa_v4";
 let db = loadDatabase();
 // Backward-compatible migration for databases created before the Feedback module.
 db.feedbacks = Array.isArray(db.feedbacks) ? db.feedbacks : [];
+// Enhanced EduNexa modules: backward-compatible localStorage migrations.
+db.studentProfiles = Array.isArray(db.studentProfiles) ? db.studentProfiles : [];
+db.certificates = Array.isArray(db.certificates) ? db.certificates : [];
+db.completedCourses = Array.isArray(db.completedCourses) ? db.completedCourses : [];
+db.internships = Array.isArray(db.internships) ? db.internships : [];
+db.classTimetables = Array.isArray(db.classTimetables) ? db.classTimetables : [];
+db.classMeetings = Array.isArray(db.classMeetings) ? db.classMeetings : [];
+db.markChangeRequests = Array.isArray(db.markChangeRequests) ? db.markChangeRequests : [];
+db.facultyTimetables = Array.isArray(db.facultyTimetables) ? db.facultyTimetables : [];
+db.facultyAttendance = Array.isArray(db.facultyAttendance) ? db.facultyAttendance : [];
+db.hodDetails = Array.isArray(db.hodDetails) ? db.hodDetails : [];
+db.managementExtra = db.managementExtra || {};
+db.departments = Array.isArray(db.departments) ? db.departments : [];
+
 
 let currentUser = null;
 
@@ -39,7 +53,19 @@ function createDefaultDatabase(){
         marks: [],
 
         fees: [],
-        feedbacks: []
+        feedbacks: [],
+        studentProfiles: [],
+        certificates: [],
+        completedCourses: [],
+        internships: [],
+        classTimetables: [],
+        classMeetings: [],
+        markChangeRequests: [],
+        facultyTimetables: [],
+        facultyAttendance: [],
+        hodDetails: [],
+        managementExtra: {},
+        departments: []
 
     };
 
@@ -146,6 +172,20 @@ function seedDatabase(){
             office:"Block A - Room 204",
             phone:"+91 90000 10001",
             extraInfo:"Class Adviser for II B.Sc Data Analytics; Mentor for student skill dashboard; coordinates academic activities."
+        },
+
+
+        {
+            name:"Dr. HOD Admin",
+            email:"hod@edunexa.com",
+            password:"123456",
+            role:"hod",
+            hodId:"HOD-1001",
+            department:"Data Analytics",
+            designation:"Head of Department",
+            phone:"+91 90000 20001",
+            qualification:"Ph.D.",
+            experience:"12 Years"
         },
 
 

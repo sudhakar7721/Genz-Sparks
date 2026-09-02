@@ -1,0 +1,10 @@
+/* =========================================================
+   EDUNEXA ENHANCEMENT STYLES
+========================================================= */
+.table-wrap{overflow-x:auto}
+.table-wrap table{min-width:760px}
+#student-professional .card,#student-committee .card,#faculty-student-management .card{margin-bottom:18px}
+#student-professional input[type=file],#faculty-student-management input[type=file]{padding:10px}
+.position-badge{display:inline-block;padding:4px 8px;border-radius:8px;background:rgba(100,100,100,.12)}
+.page .card h3{margin-bottom:8px}
+@media(max-width:800px){.table-wrap table{font-size:12px}.table-wrap th,.table-wrap td{padding:8px}}

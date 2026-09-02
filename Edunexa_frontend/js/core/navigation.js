@@ -16,6 +16,12 @@ function defaultPage(){
 
     }
 
+    if(currentUser.role === "hod"){
+
+        return "hod-dashboard";
+
+    }
+
     return "management-dashboard";
 
 }
@@ -84,6 +90,10 @@ function buildNav(){
                 ["student-skills","🧠","Skill Dashboard"],
 
                 ["student-feedback","💬","Feedback"],
+                ["student-professional","🎓","Certificates & Career"],
+                ["student-timetable","🕐","Class Timetable"],
+                ["student-committee","👥","Class Committee"],
+                ["student-leave-requests","📋","My Leave Requests"],
 
                 ["notifications","🔔","Notifications"]
 
@@ -158,6 +168,16 @@ function buildNav(){
                         "adviser-feedback",
                         "💬",
                         "Student Feedback"
+                    ],
+                    [
+                        "adviser-timetable",
+                        "🕐",
+                        "Class Timetable"
+                    ],
+                    [
+                        "adviser-mark-requests",
+                        "⏳",
+                        "Mark Change Requests"
                     ]
 
                 ]
@@ -180,6 +200,28 @@ function buildNav(){
     }
 
 
+    if(currentUser.role === "hod"){
+
+        addSection(
+            "HOD",
+            [
+                ["hod-dashboard","🏛️","HOD Dashboard"],
+                ["hod-faculty","👨‍🏫","Faculty Details"],
+                ["hod-students","👨‍🎓","Student Records"],
+                ["hod-mark-requests","🎯","Mark Change Requests"],
+                ["hod-class-details","🏫","Class Details"],
+                ["hod-timetable","🕐","Class Timetables"],
+                ["hod-faculty-timetable","📅","Faculty Timetable"],
+                ["hod-faculty-attendance","🧾","Faculty Attendance"],
+                ["hod-extra","⚙️","HOD Extra Details"],
+                ["hod-feedback","💬","Class Committee Feedback"],
+                ["notifications","🔔","Notifications"]
+            ]
+        );
+
+    }
+
+
     if(currentUser.role === "management"){
         addSection(
             "Management",
@@ -189,7 +231,10 @@ function buildNav(){
                 ["management-fees","💳","Department Fees"],
                 ["management-marks","🎯","Student Marks"],
                 ["management-placements","🏢","Placements"],
-                ["management-feedback","💬","Feedback Analytics"]
+                ["management-feedback","💬","Feedback Analytics"],
+                ["management-hod","🏛️","HOD Details"],
+                ["management-departments","🏫","Department Details"],
+                ["management-extra","⚙️","Extra Institution Details"]
             ]
         );
     }
@@ -247,6 +292,10 @@ function go(pageId){
         renderAdviserFeedback();
     }
 
+    if(typeof renderEnhancementPage === "function"){
+        renderEnhancementPage(pageId);
+    }
+
 }
 
 
@@ -266,6 +315,8 @@ function renderPages(){
             ${facultyPages()}
 
             ${managementPages()}
+
+            ${enhancementPages()}
 
             <div
                 class="page"

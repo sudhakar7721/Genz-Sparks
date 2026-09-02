@@ -176,6 +176,11 @@ function submitAssignment(id){
 
 
             <div class="form-group">
+                <label>Upload Assignment File (optional)</label>
+                <input id="studentAssignmentFile" type="file" class="control" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt">
+            </div>
+
+            <div class="form-group">
 
                 <label>
                     Submission Date

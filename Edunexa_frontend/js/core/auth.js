@@ -353,6 +353,12 @@ function labelRole(){
 
     }
 
+    if(currentUser.role === "hod"){
+
+        return "HOD • Department Head";
+
+    }
+
 
     return "Student";
 

@@ -202,6 +202,11 @@ function takeTest(id){
 
             ${body}
 
+            <div class="form-group">
+                <label>Upload Answer / Supporting File (optional)</label>
+                <input id="studentTestFile" type="file" class="control" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt">
+            </div>
+
             <button
                 class="btn primary"
                 type="submit"

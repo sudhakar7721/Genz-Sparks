@@ -22,6 +22,7 @@
     "js/faculty/mentor.js",
     "js/shared/notifications.js",
     "js/faculty/adviser-fees.js",
+    "js/shared/enhancements.js",
     "js/core/ui.js",
     "js/core/init.js"
   ],
@@ -41,7 +42,18 @@
     "student",
     "faculty",
     "management",
-    "shared"
+    "shared",
+    "student-professional-records",
+    "half-day-leave",
+    "leave-request-table",
+    "class-timetable",
+    "class-committee-feedback",
+    "faculty-student-management",
+    "assessment-file-upload",
+    "hod-portal",
+    "mark-change-hod-approval",
+    "management-hod-details",
+    "management-extra-details"
   ],
   "original_lines": {
     "html": 898,
