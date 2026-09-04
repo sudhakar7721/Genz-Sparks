@@ -20,6 +20,7 @@ db.facultyAttendance = Array.isArray(db.facultyAttendance) ? db.facultyAttendanc
 db.hodDetails = Array.isArray(db.hodDetails) ? db.hodDetails : [];
 db.managementExtra = db.managementExtra || {};
 db.departments = Array.isArray(db.departments) ? db.departments : [];
+db.hodDetails = Array.isArray(db.hodDetails) ? db.hodDetails : [];
 
 
 let currentUser = null;
