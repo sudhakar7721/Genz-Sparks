@@ -23,6 +23,9 @@ function refreshAll(){
 
         renderStudentLeaves();
 
+        if(typeof refreshEnhancements === "function"){
+            refreshEnhancements();
+        }
 
         const dash =
             document.getElementById(
@@ -84,8 +87,23 @@ function refreshAll(){
 
         renderAdviserFees();
 
+        if(typeof refreshEnhancements === "function"){
+            refreshEnhancements();
+        }
+
     }
 
+    if(currentUser.role === "hod" && typeof refreshEnhancements === "function"){
+        refreshEnhancements();
+    }
+
+    if(currentUser.role === "management" && typeof refreshEnhancements === "function"){
+        refreshEnhancements();
+    }
+
+    if(typeof injectFacultyAssessmentUploads === "function"){
+        injectFacultyAssessmentUploads();
+    }
 
     renderNotifications();
 

@@ -32,6 +32,7 @@ function renderStudentAssignments(){
 
     element.innerHTML =
         db.assignments
+        .filter(assignment => !assignment.className || assignment.className === (currentUser.className || currentUser.class || currentUser.classesHandled?.[0] || "II B.Sc Data Analytics"))
         .map(
             assignment => {
 
@@ -174,6 +175,11 @@ function submitAssignment(id){
 
             </div>
 
+
+            <div class="form-group">
+                <label>Upload Assignment File (optional)</label>
+                <input id="studentAssignmentFile" type="file" class="control" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt">
+            </div>
 
             <div class="form-group">
 

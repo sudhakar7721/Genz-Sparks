@@ -22,6 +22,19 @@ function submitLeave(event){
             .getElementById("leaveReason")
             .value.trim();
 
+    const durationType =
+        document.getElementById("leaveDuration")?.value || "full";
+
+    const hoursValue =
+        durationType === "half"
+        ? Number(document.getElementById("leaveHours")?.value || 0)
+        : 0;
+
+    if(durationType === "half" && (!Number.isInteger(hoursValue) || hoursValue < 1 || hoursValue > 6)){
+        toast("Half-day leave must be between 1 and 6 hours.");
+        return;
+    }
+
 
     if(new Date(to) < new Date(from)){
 
@@ -54,6 +67,10 @@ function submitLeave(event){
         to,
 
         reason,
+
+        durationType:durationType === "half" ? "Half Day" : "Full Day",
+
+        hours:durationType === "half" ? hoursValue : "Full Day",
 
         status:"Pending"
 

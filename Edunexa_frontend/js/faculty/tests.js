@@ -127,6 +127,8 @@ function createTest(event){
 
         subject,
 
+        className:document.getElementById("testClass")?.value || currentUser.className || currentUser.classesHandled?.[0] || "II B.Sc Data Analytics",
+
         faculty:currentUser.name,
 
         start,
@@ -187,6 +189,7 @@ function renderFacultyTests(){
 
                 <p>
                     ${esc(test.subject)}
+                    • Class: ${esc(test.className || "All")}
                     • ${esc(test.start)}
                     →
                     ${esc(test.due)}

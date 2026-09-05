@@ -50,6 +50,8 @@ function createAssignment(event){
 
         subject,
 
+        className:document.getElementById("asClass")?.value || currentUser.className || currentUser.classesHandled?.[0] || "II B.Sc Data Analytics",
+
         faculty:currentUser.name,
 
         assigned,
@@ -114,6 +116,7 @@ function renderFacultyAssignments(){
 
                 <p>
                     ${esc(assignment.subject)}
+                    • Class: ${esc(assignment.className || "All")}
                     •
                     ${esc(assignment.assigned)}
                     →
