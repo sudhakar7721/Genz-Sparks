@@ -78,15 +78,12 @@ function chooseSignup(role,element){
 
     element.classList.add("active");
 
-    const studentBox = document.getElementById("studentSignup");
-    if(studentBox){
-        studentBox.classList.toggle("hidden", role !== "student");
-    }
-
-    const hodBox = document.getElementById("hodSignup");
-    if(hodBox){
-        hodBox.classList.toggle("hidden", role !== "hod");
-    }
+    document
+        .getElementById("studentSignup")
+        .classList.toggle(
+            "hidden",
+            role !== "student"
+        );
 
 }
 
@@ -222,11 +219,11 @@ function register(){
     if(signupRole === "hod"){
 
         user.hodId = "HOD-" + Date.now();
-        user.department = document.getElementById("suHodDepartment")?.value.trim() || "Data Analytics";
+        user.department = "Data Analytics";
         user.designation = "Head of Department";
-        user.qualification = document.getElementById("suHodQualification")?.value.trim() || "";
-        user.experience = document.getElementById("suHodExperience")?.value.trim() || "";
-        user.phone = document.getElementById("suHodPhone")?.value.trim() || "";
+        user.qualification = "";
+        user.experience = "";
+        user.phone = "";
         user.extraInfo = "";
 
     }

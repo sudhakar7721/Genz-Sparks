@@ -219,7 +219,6 @@ function buildNav(){
                 ["hod-faculty-attendance","🧾","Faculty Attendance"],
                 ["hod-extra","⚙️","HOD Extra Details"],
                 ["hod-feedback","💬","Class Committee Feedback"],
-                ["hod-achievements","📊","Department Achievements"],
                 ["notifications","🔔","Notifications"]
             ]
         );
