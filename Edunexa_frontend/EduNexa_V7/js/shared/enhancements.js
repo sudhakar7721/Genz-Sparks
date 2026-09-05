@@ -178,15 +178,8 @@ return `
 
 <!-- ================= HOD ================= -->
 <div class="page" id="hod-dashboard"><div class="page-title"><h1>HOD Dashboard 🏛️</h1><p>Department-level academic, faculty, student and approval controls.</p></div>
-  <div class="stats" id="hodDashboardStats"></div>
-  <div class="grid3">
-   <button class="card" onclick="go('hod-students')"><h3>👨‍🎓 Student Records & Marks</h3><p class="muted">View student profiles, attendance and academic marks.</p></button>
-   <button class="card" onclick="go('hod-faculty')"><h3>👨‍🏫 Faculty & Subject Details</h3><p class="muted">View faculty positions, classes, subjects and adviser roles.</p></button>
-   <button class="card" onclick="go('hod-mark-requests')"><h3>🎯 Mark Change Approval</h3><p class="muted">Approve or reject student mark correction requests.</p></button>
-   <button class="card" onclick="go('hod-class-details')"><h3>🏫 Class & Timetable Control</h3><p class="muted">View classes, advisers and department schedules.</p></button>
-   <button class="card" onclick="go('hod-feedback')"><h3>💬 Feedback & Analytics</h3><p class="muted">Review committee feedback and department ratings.</p></button>
-   <button class="card" onclick="go('hod-achievements')"><h3>📊 Department Achievements</h3><p class="muted">Track ranks, placements, certifications and research.</p></button>
-  </div>
+  <div class="stats">${stat("Faculty", "—", "Department faculty")}${stat("Students","—","Department students")}${stat("Pending Requests","—","Mark approvals")}${stat("Feedback","—","Committee feedback")}</div>
+  <div class="grid3"><button class="card" onclick="go('hod-students')"><h3>👨‍🎓 Student Records</h3><p class="muted">View complete student records.</p></button><button class="card" onclick="go('hod-mark-requests')"><h3>🎯 Mark Requests</h3><p class="muted">Approve or reject expired-period corrections.</p></button><button class="card" onclick="go('hod-class-details')"><h3>🏫 Class Details</h3><p class="muted">Timetables and class information.</p></button></div>
 </div>
 <div class="page" id="hod-faculty"><div class="page-title"><h1>HOD Faculty Details 👨‍🏫</h1><p>Faculty, positions, subjects and adviser assignments.</p></div><div class="card"><div id="hodFacultyList"></div></div></div>
 <div class="page" id="hod-students"><div class="page-title"><h1>HOD Student Records 👨‍🎓</h1><p>Department student records.</p></div><div class="card"><div id="hodStudentList"></div></div></div>
@@ -195,9 +188,8 @@ return `
 <div class="page" id="hod-timetable"><div class="page-title"><h1>Class Timetables 🕐</h1><p>Department-wide class schedules.</p></div><div class="card"><div id="hodTimetables"></div></div></div>
 <div class="page" id="hod-faculty-timetable"><div class="page-title"><h1>Faculty Timetable 📅</h1><p>Faculty teaching schedule.</p></div><div class="card"><div id="hodFacultyTimetable"></div></div></div>
 <div class="page" id="hod-faculty-attendance"><div class="page-title"><h1>Faculty Attendance 🧾</h1><p>Faculty attendance records.</p></div><div class="card"><div id="hodFacultyAttendance"></div></div></div>
-<div class="page" id="hod-achievements"><div class="page-title"><h1>Department Achievements 📊</h1><p>Department performance, milestones and academic achievements.</p></div><div class="card"><div id="hodAchievements"></div></div></div>
 <div class="page" id="hod-extra"><div class="page-title"><h1>HOD Extra Details ⚙️</h1></div><div class="card"><form onsubmit="saveHodExtra(event)"><textarea id="hodExtraText" class="control" rows="6" placeholder="Department plans, meetings, academic targets, accreditation notes, etc."></textarea><button class="btn primary" style="margin-top:10px">Save</button></form><div id="hodExtraView" style="margin-top:15px"></div></div></div>
-<div class="page" id="hod-feedback"><div class="page-title"><h1>Class Committee Feedback & Analytics 💬</h1><p>Subject-wise and general feedback sent by students.</p></div><div class="stats" id="hodFeedbackAnalytics"></div><div class="card"><div id="hodFeedbackList"></div></div></div>
+<div class="page" id="hod-feedback"><div class="page-title"><h1>Class Committee Feedback 💬</h1><p>Subject-wise and general feedback sent by students.</p></div><div class="card"><div id="hodFeedbackList"></div></div></div>
 
 <!-- ================= MANAGEMENT EXTRA ================= -->
 <div class="page" id="management-hod"><div class="page-title"><h1>HOD Details 🏛️</h1><p>HOD information across departments.</p></div><div class="card"><div id="managementHodList"></div></div></div>
@@ -306,7 +298,7 @@ function renderCommitteeHistory(){
 }
 function renderHodFeedback(){
  const e=document.getElementById("hodFeedbackList");if(!e)return;
- e.innerHTML=db.classMeetings.map(x=>`<div class="item"><div class="item-top"><b>${esc(x.studentName)} • ${esc(x.subject)}</b><span class="badge blue">${esc(x.status)}</span></div><p>Rating: ${esc(x.rating)}/5 • ${esc(x.type||"general")}</p><p>${esc(x.message)}</p><small>${esc(x.createdAt)}</small></div>`).join("")||`<div class="empty">No committee feedback.</div>`;
+ e.innerHTML=db.classMeetings.map(x=>`<div class="item"><div class="item-top"><b>${esc(x.studentName)} • ${esc(x.subject)}</b><span class="badge blue">${esc(x.status)}</span></div><p>${esc(x.message)}</p><small>${esc(x.createdAt)}</small></div>`).join("")||`<div class="empty">No committee feedback.</div>`;
 }
 
 /* ---------- Leave half-day + table ---------- */
@@ -368,92 +360,18 @@ function reviewMarkRequest(id,status){
  save();renderHodMarkRequests();toast(`Request ${status.toLowerCase()}.`);
 }
 
-
-/* ---------- HOD sample data (5 records per HOD feature) ---------- */
-function seedHodSampleData(){
- const students=[
-  {name:"Arjun Kumar",email:"arjun@edunexa.com",password:"123456",role:"student",studentId:"EDU2026-1002",parentName:"S. Kumar",parentPhone:"+91 90000 00002",department:"Data Analytics",batch:"2025-2028",attendance:91,skills:{Python:90,SQL:88,"Power BI":86,Excel:92,Communication:84}},
-  {name:"Divya Sri",email:"divya@edunexa.com",password:"123456",role:"student",studentId:"EDU2026-1003",parentName:"R. Suresh",parentPhone:"+91 90000 00003",department:"Data Analytics",batch:"2025-2028",attendance:87,skills:{Python:84,SQL:91,"Power BI":89,Excel:88,Communication:90}},
-  {name:"Karthik Raj",email:"karthik@edunexa.com",password:"123456",role:"student",studentId:"EDU2026-1004",parentName:"K. Rajan",parentPhone:"+91 90000 00004",department:"Data Analytics",batch:"2025-2028",attendance:83,skills:{Python:86,SQL:80,"Power BI":85,Excel:82,Communication:78}},
-  {name:"Meena Priya",email:"meena@edunexa.com",password:"123456",role:"student",studentId:"EDU2026-1005",parentName:"P. Selvam",parentPhone:"+91 90000 00005",department:"Data Analytics",batch:"2025-2028",attendance:94,skills:{Python:93,SQL:90,"Power BI":95,Excel:91,Communication:92}},
-  {name:"Rahul Dev",email:"rahul@edunexa.com",password:"123456",role:"student",studentId:"EDU2026-1006",parentName:"D. Ravi",parentPhone:"+91 90000 00006",department:"Data Analytics",batch:"2025-2028",attendance:89,skills:{Python:88,SQL:85,"Power BI":90,Excel:87,Communication:86}}
- ];
- students.forEach(u=>{if(!db.users.some(x=>x.studentId===u.studentId))db.users.push(u);});
- const faculties=[
-  {name:"Dr. Arun",email:"arun.faculty@edunexa.com",password:"123456",role:"faculty",facultyId:"FAC-1002",mentor:false,classAdviser:false,department:"Data Analytics",position:"Assistant Professor",designation:"Faculty",classesHandled:["I B.Sc Data Analytics","II B.Sc Data Analytics"],basicSubjects:["Statistics"],extraSubjects:["R Programming"],qualification:"Ph.D. in Statistics",experience:"9 Years",phone:"+91 90000 10002"},
-  {name:"Ms. Kavitha",email:"kavitha.faculty@edunexa.com",password:"123456",role:"faculty",facultyId:"FAC-1003",mentor:true,classAdviser:false,department:"Data Analytics",position:"Assistant Professor",designation:"Mentor",classesHandled:["II B.Sc Data Analytics"],basicSubjects:["Excel"],extraSubjects:["Data Visualization"],qualification:"M.Sc. Data Analytics",experience:"6 Years",phone:"+91 90000 10003"},
-  {name:"Ms. Nivetha",email:"nivetha.faculty@edunexa.com",password:"123456",role:"faculty",facultyId:"FAC-1004",mentor:false,classAdviser:false,department:"Data Analytics",position:"Assistant Professor",designation:"Faculty",classesHandled:["II B.Sc Data Analytics","III B.Sc Data Analytics"],basicSubjects:["Power BI"],extraSubjects:["Tableau"],qualification:"M.Sc. Computer Science",experience:"5 Years",phone:"+91 90000 10004"},
-  {name:"Dr. Kishore",email:"kishore.faculty@edunexa.com",password:"123456",role:"faculty",facultyId:"FAC-1005",mentor:false,classAdviser:false,department:"Data Analytics",position:"Associate Professor",designation:"Faculty Coordinator",classesHandled:["I B.Sc Data Analytics","III B.Sc Data Analytics"],basicSubjects:["Machine Learning"],extraSubjects:["Python"],qualification:"Ph.D. in Data Science",experience:"11 Years",phone:"+91 90000 10005"}
- ];
- faculties.forEach(u=>{if(!db.users.some(x=>x.facultyId===u.facultyId))db.users.push(u);});
-
- const profiles=[
-  ["EDU2026-1002","Arjun Kumar","19","Male","General","Tamil Nadu","Trichy","S. Kumar","P. Lakshmi","S. Kumar","+91 90000 00002","arjun@edunexa.com","+91 90000 00002","O+","KSR Higher Secondary School","91","88"],
-  ["EDU2026-1003","Divya Sri","19","Female","General","Tamil Nadu","Salem","R. Suresh","R. Uma","R. Suresh","+91 90000 00003","divya@edunexa.com","+91 90000 00003","B+","Government Girls Higher Secondary School","94","91"],
-  ["EDU2026-1004","Karthik Raj","20","Male","BC","Tamil Nadu","Namakkal","K. Rajan","M. Devi","K. Rajan","+91 90000 00004","karthik@edunexa.com","+91 90000 00004","A+","Sri Vidya Matriculation School","86","84"],
-  ["EDU2026-1005","Meena Priya","19","Female","MBC","Tamil Nadu","Erode","P. Selvam","P. Rani","P. Selvam","+91 90000 00005","meena@edunexa.com","+91 90000 00005","O+","Vivekananda Higher Secondary School","96","94"],
-  ["EDU2026-1006","Rahul Dev","20","Male","BC","Tamil Nadu","Karur","D. Ravi","D. Kavitha","D. Ravi","+91 90000 00006","rahul@edunexa.com","+91 90000 00006","B+","National Higher Secondary School","89","87"]
- ];
- profiles.forEach(a=>{if(!db.studentProfiles.some(x=>x.studentId===a[0]))db.studentProfiles.push({studentId:a[0],name:a[1],age:a[2],sex:a[3],caste:a[4],region:a[5],address:a[6],fatherName:a[7],motherName:a[8],guardianName:a[9],studentContact:a[10],email:a[11],parentContact:a[12],bloodGroup:a[13],school:a[14],mark10:a[15],mark12:a[16],department:"Data Analytics",className:"II B.Sc Data Analytics",extra:"HOD sample record",updatedBy:"System",updatedAt:"2026-09-01"});});
-
- const sampleMarks=[
-  ["EDU2026-1048",88,90,92],["EDU2026-1002",82,86,88],["EDU2026-1003",90,92,94],["EDU2026-1004",76,81,85],["EDU2026-1005",95,93,96],["EDU2026-1006",84,88,90]
- ];
- sampleMarks.forEach(a=>{if(!db.marks.some(x=>x.studentId===a[0]))db.marks.push({studentId:a[0],ca1:a[1],ca2:a[2],model:a[3],average:Math.round((a[1]+a[2]+a[3])/3),lastModifiedBy:"Dr. HOD Admin",lastModifiedAt:"2026-09-01"});});
-
- const reqs=[
-  ["MCR-1001","EDU2026-1002","FAC-1002","Dr. Arun",[82,86,88]],
-  ["MCR-1002","EDU2026-1003","FAC-1003","Ms. Kavitha",[90,92,94]],
-  ["MCR-1003","EDU2026-1004","FAC-1004","Ms. Nivetha",[76,81,85]],
-  ["MCR-1004","EDU2026-1005","FAC-1005","Dr. Kishore",[95,93,96]],
-  ["MCR-1005","EDU2026-1048","FAC-1001","Dr. Priya",[88,90,92]]
- ];
- reqs.forEach((a,i)=>{if(!db.markChangeRequests.some(x=>x.id===a[0]))db.markChangeRequests.push({id:a[0],studentId:a[1],facultyId:a[2],facultyName:a[3],department:"Data Analytics",requested:{ca1:a[4][0],ca2:a[4][1],model:a[4][2]},requestedAt:`2026-09-0${i+1} 10:30 AM`,periodEnd:"2026-08-31",status:i<2?"Pending":i===2?"Approved":"Rejected",reviewedBy:i<2?"":"Dr. HOD Admin",reviewedAt:i<2?"":"2026-09-02 02:00 PM"});});
-
- const fts=[
-  ["Dr. Priya","Monday","09:00 - 09:50","Python","II B.Sc Data Analytics"],["Dr. Arun","Monday","09:50 - 10:40","Statistics","II B.Sc Data Analytics"],["Ms. Kavitha","Tuesday","11:00 - 11:50","Excel","II B.Sc Data Analytics"],["Ms. Nivetha","Wednesday","10:40 - 11:30","Power BI","II B.Sc Data Analytics"],["Dr. Kishore","Thursday","09:00 - 09:50","Machine Learning","II B.Sc Data Analytics"]
- ];
- fts.forEach((a,i)=>{if(!db.facultyTimetables.some(x=>x.facultyName===a[0]&&x.subject===a[3]))db.facultyTimetables.push({id:"FT-"+(1001+i),facultyName:a[0],day:a[1],time:a[2],subject:a[3],className:a[4]});});
- const fas=[["Dr. Priya","2026-09-01","Present","Morning session"],["Dr. Arun","2026-09-01","Present","Statistics lecture"],["Ms. Kavitha","2026-09-01","Late","10 minutes late"],["Ms. Nivetha","2026-09-01","Present","Power BI lab"],["Dr. Kishore","2026-09-01","Present","ML practical"]];
- fas.forEach(a=>{if(!db.facultyAttendance.some(x=>x.facultyName===a[0]&&x.date===a[1]))db.facultyAttendance.push({id:"FA-"+a[0].replace(/\W/g,"").slice(0,4),facultyName:a[0],date:a[1],status:a[2],remarks:a[3]});});
- const meetings=[
-  ["CMF-1001","Arjun Kumar","EDU2026-1002","Python",5,"Python lab exercises are effective.","Reviewed"],
-  ["CMF-1002","Divya Sri","EDU2026-1003","SQL",4,"More SQL practice hours would help.","Submitted"],
-  ["CMF-1003","Karthik Raj","EDU2026-1004","General",4,"Classroom projector needs maintenance.","Action Taken"],
-  ["CMF-1004","Meena Priya","EDU2026-1005","Power BI",5,"Power BI practical sessions are very useful.","Reviewed"],
-  ["CMF-1005","Rahul Dev","EDU2026-1006","General",3,"More industry interaction sessions requested.","Submitted"]
- ];
- meetings.forEach((a,i)=>{if(!db.classMeetings.some(x=>x.id===a[0]))db.classMeetings.push({id:a[0],studentId:a[2],studentName:a[1],department:"Data Analytics",batch:"2025-2028",className:"II B.Sc Data Analytics",type:a[3]==="General"?"general":"subject",subject:a[3],rating:a[4],message:a[5],status:a[6],createdAt:`2026-09-0${i+1} 11:00 AM`});});
-
- if(!db.hodAchievements || db.hodAchievements.length<5) db.hodAchievements=[
-  {title:"University Rank",detail:"II B.Sc Data Analytics secured 2 university ranks in the previous semester.",year:"2025-26"},
-  {title:"Placement Milestone",detail:"92% placement achieved with highest package of ₹8.5 LPA.",year:"2025-26"},
-  {title:"Hackathon Winners",detail:"Department team won first place in the State Data Challenge.",year:"2026"},
-  {title:"Certification Drive",detail:"78 students completed industry-recognized analytics certifications.",year:"2026"},
-  {title:"Research Publication",detail:"Faculty and students published 5 papers in analytics and AI domains.",year:"2026"}
- ];
- if(!db.hodExtraSamples || db.hodExtraSamples.length<5) db.hodExtraSamples=[
-  "2026-27 target: improve department placement to 95%.","Monthly faculty development programme scheduled for the first Friday.","New Power BI and Python lab equipment proposal submitted.","Student mentoring review to be conducted every two weeks.","NAAC documentation and academic audit files updated for the department."];
- if(db.departments.length<5) db.departments.push({name:"Data Science",hod:"Dr. HOD Admin",classes:["I B.Sc Data Science","II B.Sc Data Science","III B.Sc Data Science"],facultyCount:11});
- save();
-}
-seedHodSampleData();
-
 /* ---------- HOD / Management ---------- */
 function renderHodData(){
  const dept=currentUser.department||"";
  const fac=db.users.filter(x=>x.role==="faculty"&&(!dept||x.department===dept));
  const students=db.users.filter(x=>x.role==="student"&&(!dept||x.department===dept));
- const f=document.getElementById("hodFacultyList");if(f)f.innerHTML=fac.map(x=>`<div class="item"><b>${esc(x.name)}</b><p>${esc(x.facultyId||"-")} • ${esc(x.position||x.designation||"Faculty")} • Adviser: ${x.classAdviser?"Yes":"No"} • Mentor: ${x.mentor?"Yes":"No"}</p><p>${esc((x.classesHandled||[]).join(", "))} • Subjects: ${esc((x.basicSubjects||[]).join(", "))}</p><p>Qualification: ${esc(x.qualification||"-")} • Experience: ${esc(x.experience||"-")} • Phone: ${esc(x.phone||"-")}</p></div>`).join("")||`<div class="empty">No faculty records.</div>`;
- const s=document.getElementById("hodStudentList");if(s)s.innerHTML=students.map(x=>{const r=db.studentProfiles.find(y=>y.studentId===x.studentId);const m=db.marks.find(y=>y.studentId===x.studentId)||{ca1:0,ca2:0,model:0,average:0};return `<div class="item"><div class="item-top"><b>${esc(x.name)} (${esc(x.studentId)})</b><span class="badge blue">Average ${esc(m.average||0)}%</span></div><p>${esc(x.department||"-")} • ${esc(x.batch||"-")} • Attendance ${esc(x.attendance||0)}%</p><p>CA1: ${esc(m.ca1)} • CA2: ${esc(m.ca2)} • Model: ${esc(m.model)}</p>${r?`<p>Age ${esc(r.age||"-")} • ${esc(r.sex||"-")} • Blood ${esc(r.bloodGroup||"-")} • 10th ${esc(r.mark10||"-")}% • 12th ${esc(r.mark12||"-")}%</p><p>Father: ${esc(r.fatherName||"-")} • Mother: ${esc(r.motherName||"-")} • School: ${esc(r.school||"-")}</p>`:""}</div>`}).join("")||`<div class="empty">No students.</div>`;
- const c=document.getElementById("hodClassDetails");if(c)c.innerHTML=(db.departments||[]).filter(x=>!dept||x.name===dept).map(x=>`<div class="item"><b>${esc(x.name)}</b><p>HOD: ${esc(x.hod)} • Faculty: ${esc(x.facultyCount)}</p><p>Classes: ${esc(x.classes.join(", "))}</p></div>`).join("")||`<div class="empty">No class details.</div>`;
+ const f=document.getElementById("hodFacultyList");if(f)f.innerHTML=fac.map(x=>`<div class="item"><b>${esc(x.name)}</b><p>${esc(x.facultyId||"-")} • ${esc(x.position||x.designation||"Faculty")} • Adviser: ${x.classAdviser?"Yes":"No"} • Mentor: ${x.mentor?"Yes":"No"}</p><p>${esc((x.classesHandled||[]).join(", "))} • Subjects: ${esc((x.basicSubjects||[]).join(", "))}</p></div>`).join("")||`<div class="empty">No faculty records.</div>`;
+ const s=document.getElementById("hodStudentList");if(s)s.innerHTML=students.map(x=>{const r=db.studentProfiles.find(y=>y.studentId===x.studentId);return `<div class="item"><b>${esc(x.name)} (${esc(x.studentId)})</b><p>${esc(x.department||"-")} • ${esc(x.batch||"-")} • Attendance ${esc(x.attendance||0)}%</p>${r?`<p>Father: ${esc(r.fatherName||"-")} • Mother: ${esc(r.motherName||"-")} • School: ${esc(r.school||"-")}</p>`:""}</div>`}).join("")||`<div class="empty">No students.</div>`;
+ const c=document.getElementById("hodClassDetails");if(c)c.innerHTML=(db.departments||[]).filter(x=>!dept||x.name===dept).map(x=>`<div class="item"><b>${esc(x.name)}</b><p>HOD: ${esc(x.hod)} • Faculty: ${esc(x.facultyCount)}</p><p>Classes: ${esc(x.classes.join(", "))}</p></div>`).join("");
  renderTimetable("hodTimetables");
  const ft=document.getElementById("hodFacultyTimetable");if(ft)ft.innerHTML=db.facultyTimetables.map(x=>`<div class="item"><b>${esc(x.facultyName||"-")}</b><p>${esc(x.day||"-")} • ${esc(x.time||"-")} • ${esc(x.subject||"-")} • ${esc(x.className||"-")}</p></div>`).join("")||`<div class="empty">Faculty timetable not entered yet.</div>`;
  const fa=document.getElementById("hodFacultyAttendance");if(fa)fa.innerHTML=db.facultyAttendance.map(x=>`<div class="item"><b>${esc(x.facultyName||"-")}</b><p>${esc(x.date||"-")} • ${esc(x.status||"-")} • ${esc(x.remarks||"")}</p></div>`).join("")||`<div class="empty">Faculty attendance not entered yet.</div>`;
- const he=document.getElementById("hodExtraView");if(he)he.innerHTML=(db.hodExtraSamples||[]).map(x=>`<div class="item"><b>Department Plan</b><p>${esc(x)}</p></div>`).join("");
- const ach=document.getElementById("hodAchievements");if(ach)ach.innerHTML=(db.hodAchievements||[]).map(x=>`<div class="item"><div class="item-top"><b>${esc(x.title)}</b><span class="badge blue">${esc(x.year)}</span></div><p>${esc(x.detail)}</p></div>`).join("");
- const dash=document.getElementById("hodDashboardStats");if(dash)dash.innerHTML=`${stat("Faculty",fac.length,"Department faculty")}${stat("Students",students.length,"Department students")}${stat("Pending Requests",db.markChangeRequests.filter(x=>x.status==="Pending").length,"Mark approvals")}${stat("Feedback",db.classMeetings.length,"Committee feedback")}`;
- const analytics=document.getElementById("hodFeedbackAnalytics");if(analytics){const total=db.classMeetings.length,avg=total?(db.classMeetings.reduce((a,x)=>a+Number(x.rating||0),0)/total).toFixed(1):"0.0";analytics.innerHTML=`${stat("Total Feedback",total,"All committee feedback")}${stat("Average Rating",avg+" / 5","Student rating")}${stat("Action Taken",db.classMeetings.filter(x=>x.status==="Action Taken").length,"Resolved items")}`;}
+ const he=document.getElementById("hodExtraView");if(he)he.innerHTML=currentUser.hodExtra?`<div class="notice">${esc(currentUser.hodExtra)}</div>`:"";
 }
 function saveHodExtra(event){event.preventDefault();currentUser.hodExtra=document.getElementById("hodExtraText").value.trim();const u=db.users.find(x=>x.email===currentUser.email);if(u)u.hodExtra=currentUser.hodExtra;save();renderHodData();toast("HOD extra details saved.");}
 function renderManagementEnhancements(){

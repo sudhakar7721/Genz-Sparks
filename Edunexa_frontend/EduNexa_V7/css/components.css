@@ -1,0 +1,552 @@
+/* ================= CONTENT ================= */
+
+
+
+.content{
+
+    padding:30px;
+
+    max-width:1600px;
+
+    margin:auto;
+
+}
+
+
+
+.page{
+
+    display:none;
+
+}
+
+
+
+.page.active{
+
+    display:block;
+
+    animation:fade .2s ease;
+
+}
+
+
+
+@keyframes fade{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(5px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:none;
+
+    }
+
+}
+
+
+
+.welcome,
+
+.page-title{
+
+    margin-bottom:24px;
+
+}
+
+
+
+.welcome{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+
+
+.welcome h1,
+
+.page-title h1{
+
+    font-size:27px;
+
+}
+
+
+
+.welcome p,
+
+.page-title p{
+
+    color:var(--muted);
+
+    font-size:13px;
+
+    margin-top:6px;
+
+}
+
+
+
+.stats{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:17px;
+
+    margin-bottom:22px;
+
+}
+
+
+
+.stat,
+
+.card{
+
+    background:#fff;
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    box-shadow:var(--shadow);
+
+}
+
+
+
+.stat{
+
+    padding:20px;
+
+}
+
+
+
+.stat-title{
+
+    color:var(--muted);
+
+    font-size:11px;
+
+    margin-bottom:10px;
+
+}
+
+
+
+.stat-number{
+
+    font-size:26px;
+
+    font-weight:850;
+
+}
+
+
+
+.stat-change{
+
+    font-size:10px;
+
+    color:var(--green);
+
+    margin-top:7px;
+
+}
+
+
+
+.card{
+
+    padding:21px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.card-head{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:15px;
+
+    align-items:center;
+
+    margin-bottom:18px;
+
+}
+
+
+
+.card-head h3{
+
+    font-size:15px;
+
+}
+
+
+
+.card-head p{
+
+    font-size:11px;
+
+    color:var(--muted);
+
+    margin-top:4px;
+
+}
+
+
+
+.grid2{
+
+    display:grid;
+
+    grid-template-columns:1.4fr 1fr;
+
+    gap:20px;
+
+}
+
+
+
+.grid3{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:15px;
+
+}
+
+
+
+.table-wrap{
+
+    overflow:auto;
+
+}
+
+
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    min-width:700px;
+
+}
+
+
+
+th,
+
+td{
+
+    padding:12px 10px;
+
+    border-bottom:1px solid var(--border);
+
+    text-align:left;
+
+    font-size:11px;
+
+}
+
+
+
+th{
+
+    color:var(--muted);
+
+    font-size:10px;
+
+}
+
+
+
+.badge{
+
+    padding:5px 8px;
+
+    border-radius:20px;
+
+    font-size:9px;
+
+    font-weight:800;
+
+}
+
+
+
+.green{
+
+    background:#ddf8eb;
+
+    color:#087b44;
+
+}
+
+
+
+.yellow{
+
+    background:#fff3d2;
+
+    color:#9c6715;
+
+}
+
+
+
+.red{
+
+    background:#ffe8e9;
+
+    color:#b4232b;
+
+}
+
+
+
+.blue{
+
+    background:#ebe9ff;
+
+    color:#3e46aa;
+
+}
+
+
+
+.progress{
+
+    height:8px;
+
+    background:#edf0f6;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    margin:8px 0 14px;
+
+}
+
+
+
+.progress i{
+
+    display:block;
+
+    height:100%;
+
+    background:var(--primary);
+
+    border-radius:20px;
+
+}
+
+
+
+.list{
+
+    display:grid;
+
+    gap:10px;
+
+}
+
+
+
+.item{
+
+    padding:14px;
+
+    border:1px solid var(--border);
+
+    border-radius:12px;
+
+    background:#fafbfe;
+
+}
+
+
+
+.item-top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+}
+
+
+
+.item p{
+
+    color:var(--muted);
+
+    font-size:11px;
+
+    line-height:1.5;
+
+    margin-top:5px;
+
+}
+
+
+
+.actions{
+
+    display:flex;
+
+    gap:7px;
+
+    flex-wrap:wrap;
+
+    margin-top:10px;
+
+}
+
+
+
+.btn{
+
+    padding:11px 16px;
+
+    border-radius:9px;
+
+    font-weight:700;
+
+}
+
+
+
+.primary{
+
+    background:var(--primary);
+
+    color:#fff;
+
+}
+
+
+
+.secondary{
+
+    background:#eef0f6;
+
+    color:var(--text);
+
+}
+
+
+
+.danger{
+
+    background:#ffe8e9;
+
+    color:#b4232b;
+
+}
+
+
+
+.success{
+
+    background:#ddf8eb;
+
+    color:#087b44;
+
+}
+
+
+
+.form-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:14px;
+
+}
+
+
+
+.full{
+
+    grid-column:1/-1;
+
+}
+
+
+
+.empty{
+
+    text-align:center;
+
+    padding:30px;
+
+    color:var(--muted);
+
+}
+
+
+
+.skill{
+
+    margin:14px 0;
+
+}
+
+
+
+.skill-top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    font-size:11px;
+
+}
+
+
+
+.fee-total{
+
+    font-size:24px;
+
+    font-weight:800;
+
+}
+
+
+

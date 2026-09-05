@@ -60,7 +60,6 @@
     "css": 1956,
     "js": 6951
   },
-  "version": "10.0",
-  "staffLogin": "Faculty + HOD",
-  "update": "Faculty/HOD login fix, HOD account creation, HOD feature preview, demo run"
+  "version": "8.0",
+  "staffLogin": "Faculty + HOD"
 }
