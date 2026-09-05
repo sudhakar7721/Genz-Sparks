@@ -1,48 +1,90 @@
-# EduNexa V3 Requested Feature Flowchart
+# EduNexa V3 Flowchart — Requested Changes + Existing Features Preserved
 
-```mermaid
-flowchart TD
-    A[Login] --> R{Role}
-
-    R --> S[Student]
-    S --> ST[Class Timetable<br/>Weekly Rows × Period Columns]
-    S --> LC[Class Adviser Leave Console]
-    LC --> LF[Submit Leave Request]
-    LF --> AC[Class Adviser Leave Console]
-    LC --> MR[My Leave Requests Table]
-    AC --> D{Approve / Decline}
-    D --> MR
-
-    R --> F[Faculty]
-    F --> FT[Faculty Timetable<br/>Weekly Rows × Period Columns]
-    F --> CT[Class Timetable<br/>Weekly Rows × Period Columns]
-    F --> AL[Class Adviser Leave Console]
-    AL --> D
-
-    R --> M[Management]
-    M --> H[HOD Details]
-    H --> HV[View HOD]
-    H --> HE[Edit HOD]
-    H --> HA[Add New HOD]
-    M --> DEP[Department Details & Feedback]
-    DEP --> DV[View Department]
-    DEP --> DE[Edit Department]
-    DEP --> DA[Add New Department]
-    DEP --> FB[Feedback Count + Average Rating]
+```text
+LOGIN / REGISTRATION
+ |
+ +--> STUDENT
+ |     |
+ |     +--> Dashboard
+ |     +--> Marks / Academics
+ |     +--> Tests + Assignments
+ |     +--> Attendance
+ |     +--> Fees
+ |     +--> LEAVE & CLASS ADVISER 🗓️  [ONE SECTION ONLY]
+ |     |      |
+ |     |      +--> Submit Full-Day / Half-Day leave
+ |     |      +--> Date / period / hours / reason
+ |     |      +--> Request --> Class Adviser Leave Console
+ |     |      +--> My Leave Requests --> TABLE FORMAT
+ |     |      +--> Status: Pending / Approved / Rejected
+ |     |
+ |     +--> Class Timetable 🕐
+ |            +--> ROWS = Days
+ |            +--> COLUMNS = Periods
+ |            +--> Subject + Faculty
+ |
+ +--> FACULTY
+ |     |
+ |     +--> Existing Tests / Assignments / Attendance / Marks
+ |     +--> Faculty Timetable 📅
+ |     |      +--> ROWS = Days
+ |     |      +--> COLUMNS = Periods
+ |     |      +--> Class + Subject + Room
+ |     |
+ |     +--> CLASS ADVISER
+ |            +--> Class Adviser Leave Console 🗓️
+ |            |      +--> Receives student leave requests
+ |            |      +--> View / Approve / Decline
+ |            +--> Class Timetable 🕐
+ |                   +--> ROWS = Days
+ |                   +--> COLUMNS = Periods
+ |                   +--> Subject + Faculty + Room
+ |
+ +--> HOD
+ |     +--> Existing HOD console preserved
+ |     +--> Achievements
+ |     +--> Class / Student / Marks / Placement
+ |     +--> Faculty details
+ |     +--> Feedback & Analytics
+ |
+ +--> MANAGEMENT
+       |
+       +--> Existing Fees / Marks / Placements / Faculty modules
+       |
+       +--> HOD INFORMATION 🏛️
+       |      +--> View HODs across departments
+       |      +--> Add New HOD
+       |      +--> Edit HOD
+       |      +--> Contact / Qualification / Experience / Office / Extra info
+       |
+       +--> DEPARTMENT DETAILS 🏫
+              +--> View departments
+              +--> Add New Department
+              +--> Edit Department
+              +--> Department code / HOD / classes / contact / description
+              +--> Feedback count + average rating
+              +--> View department feedback
+              +--> OLD "Management Views" MENU REMOVED
 ```
 
-## Final navigation
+## Data flow
 
-**Student**
-- Class Timetable
-- **Class Adviser Leave Console** — one section only; request form + My Leave Requests table
+Student Leave Form
+    -> `db.classLeaveRequests`
+    -> Class Adviser Leave Console
+    -> Approve / Decline
+    -> Student My Leave Requests table
 
-**Faculty**
-- **Faculty Timetable** — weekly rows/columns
-- **Class Timetable** — weekly rows/columns
-- Class Adviser Leave Console (for advisers)
+Timetable
+    -> `db.classTimetables` / `db.facultyTimetables`
+    -> day-by-period matrix
 
-**Management**
-- **HOD Details** — View / Edit / Add New HOD
-- **Department Details & Feedback** — View / Edit / Add New Department + feedback analytics
-- Removed the old **Management Views** group and separate management feedback entry.
+Management HOD
+    -> `db.hodDetails`
+    -> optionally synchronized with HOD login user
+
+Management Department
+    -> `db.departments`
+    -> feedback analytics reads `db.feedbacks`
+
+All existing EduNexa modules remain in the project. The V3 layer adds/overrides only the requested behavior.
