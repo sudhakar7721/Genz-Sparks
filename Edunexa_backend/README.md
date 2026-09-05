@@ -1,86 +1,42 @@
-# EduNexa Python Backend
+# EduNexa V12 Full Backend
 
-A modular FastAPI + SQLAlchemy backend for the EduNexa frontend.
+FastAPI + SQLite backend for the supplied EduNexa V12 frontend.
 
-## Stack
-- Python 3.11+
-- FastAPI
-- SQLAlchemy
-- SQLite for zero-configuration development
-- MySQL supported through DATABASE_URL
-- JWT authentication
-- CORS enabled for the frontend
+## Windows
 
-## 1. Install
-
-```bash
-cd backend
-python -m venv venv
+```bat
+py -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --port 8000
 ```
 
-Windows:
-```bash
-venv\Scripts\activate
-```
+If `py` is unavailable, use `python`.
 
-macOS/Linux:
-```bash
-source venv/bin/activate
-```
-
-```bash
-pip install -r requirements.txt
-```
-
-## 2. Configure
-
-Copy `.env.example` to `.env`.
-
-Default development database:
-`sqlite:///./edunexa.db`
-
-For MySQL:
-`mysql+pymysql://root:YOUR_PASSWORD@localhost:3306/edunexa`
-
-## 3. Seed demo data
-
-```bash
-python seed.py
-```
-
-## 4. Run
-
-```bash
-uvicorn app.main:app --reload --port 8000
-```
-
-API:
-http://127.0.0.1:8000
-
-Swagger:
-http://127.0.0.1:8000/docs
-
-Health:
-http://127.0.0.1:8000/api/health
+- Backend: http://127.0.0.1:8000
+- Swagger: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
 
 ## Demo accounts
 
-Student:
-- email: alexa@example.com
-- password: 123456
+Password for all: `123456`
 
-Faculty:
-- email: faculty@edunexa.com
-- password: 123456
+- Student: `alexa@example.com`
+- Faculty: `faculty@edunexa.com`
+- HOD: `hod@edunexa.com`
+- Management: `admin@edunexa.com`
 
-Management:
-- email: admin@edunexa.com
-- password: 123456
+## Included modules
 
-## Frontend
+Authentication/JWT, SQLite persistence, student records, faculty records, HOD dashboard,
+marks and HOD mark-change approval/decline, class and faculty timetables, full/half-day
+leave (half-day 1-6 hours), attendance, feedback + HOD analytics, tests/assignments and
+file uploads, certificates/courses/internships, fees, placement companies/package ranking,
+achievements, notifications and role-based access.
 
-Change frontend API base URL to:
+The current V12 frontend still has its localStorage database. `frontend_integration/api.js`
+contains a helper for gradually connecting its existing UI to this API without removing
+existing features.
 
-`http://127.0.0.1:8000/api`
-
-The old localStorage database can remain temporarily while modules are migrated one by one.
+The SQLite database is created automatically at `data/edunexa.db`.
+To reset demo data: `python scripts/reset_database.py`.
