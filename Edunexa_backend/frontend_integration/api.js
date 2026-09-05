@@ -1,0 +1,3 @@
+const EDUNEXA_API='http://127.0.0.1:8000/api';
+async function apiFetch(path,options={}){const h=new Headers(options.headers||{}),t=localStorage.getItem('edunexa_token');if(t)h.set('Authorization','Bearer '+t);if(options.body&&!(options.body instanceof FormData)&&!h.has('Content-Type'))h.set('Content-Type','application/json');const r=await fetch(EDUNEXA_API+path,{...options,headers:h}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.detail||'API request failed');return d;}
+async function edunexaLogin(email,password){const d=await apiFetch('/auth/login',{method:'POST',body:JSON.stringify({email,password})});localStorage.setItem('edunexa_token',d.access_token);localStorage.setItem('edunexa_user',JSON.stringify(d.user));return d;}
