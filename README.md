@@ -1,2 +1,0 @@
-# Genz Sparks
-
