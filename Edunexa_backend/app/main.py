@@ -1,5 +1,5 @@
 from pathlib import Path
-import shutil,uuid
+import shutil,uuid,json,sqlite3
 from fastapi import FastAPI,Depends,HTTPException,UploadFile,File,Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -85,7 +85,13 @@ def change(x:Change,u=Depends(current_user)):
   m=row(db.execute('SELECT * FROM marks WHERE id=?',(x.mark_id,)))
   if not m: raise HTTPException(404,'Mark not found')
   if u['role']=='student' and m['student_id']!=u['id']: raise HTTPException(403,'Access denied')
-  cur=db.execute('INSERT INTO mark_change_requests(mark_id,student_id,requested_by,old_mark,new_mark,reason,student_approved) VALUES(?,?,?,?,?,?,?)',(x.mark_id,m['student_id'],u['id'],m['mark'],x.new_mark,x.reason,int(x.student_approved)))
+  if x.new_mark < 0 or x.new_mark > m['max_mark']: raise HTTPException(400,'New mark out of range')
+  if u['role'] not in ('student','faculty','hod','management'): raise HTTPException(403,'Access denied')
+  cur=db.execute('INSERT INTO mark_change_requests(mark_id,student_id,requested_by,old_mark,new_mark,reason,student_approved) VALUES(?,?,?,?,?,?,?)',
+                 (x.mark_id,m['student_id'],u['id'],m['mark'],x.new_mark,x.reason,int(x.student_approved)))
+  if u['role'] in ('faculty','management') and x.student_approved:
+   db.execute("UPDATE mark_change_requests SET status='approved',reviewed_by=?,review_note='Student approved',reviewed_at=CURRENT_TIMESTAMP WHERE id=?",(u['id'],cur.lastrowid))
+   db.execute("UPDATE marks SET mark=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",(x.new_mark,x.mark_id))
   return row(db.execute('SELECT * FROM mark_change_requests WHERE id=?',(cur.lastrowid,)))
 @app.get('/api/hod/mark-requests')
 def requests(u=Depends(roles('hod'))):
@@ -147,7 +153,14 @@ def leaves(u=Depends(current_user)):
 @app.put('/api/leaves/{lid}')
 def leave_review(lid:int,x:Review,u=Depends(roles('faculty','hod'))):
  if x.status not in ('approved','declined'): raise HTTPException(400,'Invalid status')
- with get_db() as db: db.execute('UPDATE leaves SET status=?,reviewed_by=?,adviser_note=?,reviewed_at=CURRENT_TIMESTAMP WHERE id=?',(x.status,u['id'],x.review_note,lid))
+ with get_db() as db:
+  l=row(db.execute('SELECT l.*,s.department FROM leaves l JOIN users s ON s.id=l.student_id WHERE l.id=?',(lid,)))
+  if not l or l['department']!=u['department']: raise HTTPException(404,'Leave request not found')
+  if l['status']!='pending': raise HTTPException(409,'Leave request already reviewed')
+  db.execute('UPDATE leaves SET status=?,reviewed_by=?,adviser_note=?,reviewed_at=CURRENT_TIMESTAMP WHERE id=?',
+             (x.status,u['id'],x.review_note,lid))
+  db.execute('INSERT INTO notifications(user_id,title,message) VALUES(?,?,?)',
+             (l['student_id'],'Leave request updated','Your leave request was '+x.status+'.'))
  return {'message':'Leave '+x.status}
 @app.post('/api/attendance')
 def attendance(x:dict,u=Depends(roles('faculty','hod'))):
@@ -181,6 +194,9 @@ def create_test(title:str=Form(...),description:str=Form(''),subject:str=Form(''
 @app.get('/api/academics/tests')
 def tests(class_name:str|None=None,u=Depends(current_user)):
  with get_db() as db:
+  if u['role']=='student':
+   cn=class_name or u['batch']
+   return rows(db.execute('SELECT * FROM tests WHERE class_name=? ORDER BY id DESC',(cn,)))
   q='SELECT * FROM tests'; a=[]
   if class_name: q+=' WHERE class_name=?'; a=[class_name]
   return rows(db.execute(q+' ORDER BY id DESC',a))
@@ -192,6 +208,9 @@ def create_assignment(title:str=Form(...),description:str=Form(''),subject:str=F
 @app.get('/api/academics/assignments')
 def assignments(class_name:str|None=None,u=Depends(current_user)):
  with get_db() as db:
+  if u['role']=='student':
+   cn=class_name or u['batch']
+   return rows(db.execute('SELECT * FROM assignments WHERE class_name=? ORDER BY id DESC',(cn,)))
   q='SELECT * FROM assignments'; a=[]
   if class_name: q+=' WHERE class_name=?'; a=[class_name]
   return rows(db.execute(q+' ORDER BY id DESC',a))
@@ -276,3 +295,295 @@ def notifications(u=Depends(current_user)):
 def notification_read(nid:int,u=Depends(current_user)):
  with get_db() as db: db.execute('UPDATE notifications SET is_read=1 WHERE id=? AND user_id=?',(nid,u['id']))
  return {'message':'Notification marked read'}
+
+
+# =========================================================
+# Extended EduNexa V12 endpoints
+# =========================================================
+
+def _department_guard(student_id, u):
+    if u["role"] == "management":
+        return
+    with get_db() as db:
+        s=row(db.execute("SELECT department FROM users WHERE id=? AND role='student'",(student_id,)))
+    if not s or s["department"] != u["department"]:
+        raise HTTPException(403,"Access denied for this department")
+
+@app.get("/api/classes")
+def list_classes(department:str|None=None,u=Depends(current_user)):
+    d=department or u.get("department")
+    if u["role"] not in ("management","hod") and d != u.get("department"):
+        raise HTTPException(403,"Access denied")
+    with get_db() as db:
+        return rows(db.execute("""SELECT c.*,d.name department_name,u.name class_adviser_name
+          FROM classes c LEFT JOIN departments d ON d.id=c.department_id
+          LEFT JOIN users u ON u.id=c.class_adviser_id
+          WHERE d.name=? ORDER BY c.name""",(d,)))
+
+@app.post("/api/classes")
+def create_class(p:dict,u=Depends(roles("hod","management"))):
+    name=(p.get("name") or "").strip()
+    department=p.get("department") or u["department"]
+    if not name: raise HTTPException(400,"Class name is required")
+    with get_db() as db:
+        d=row(db.execute("SELECT id FROM departments WHERE name=?",(department,)))
+        if not d:
+            cur=db.execute("INSERT INTO departments(name,description) VALUES(?,?)",(department,""))
+            did=cur.lastrowid
+        else: did=d["id"]
+        try:
+            cur=db.execute("""INSERT INTO classes(department_id,name,batch,semester,section,class_adviser_id)
+              VALUES(?,?,?,?,?,?)""",(did,name,p.get("batch"),p.get("semester"),p.get("section"),p.get("class_adviser_id")))
+        except sqlite3.IntegrityError as e:
+            raise HTTPException(409,"Class already exists")
+    return {"id":cur.lastrowid,"message":"Class created"}
+
+@app.put("/api/classes/{cid}")
+def update_class(cid:int,p:dict,u=Depends(roles("hod","management"))):
+    allowed={"name","batch","semester","section","class_adviser_id"}
+    data={k:v for k,v in p.items() if k in allowed}
+    if not data: raise HTTPException(400,"No valid fields supplied")
+    with get_db() as db:
+        c=row(db.execute("""SELECT c.*,d.name department FROM classes c
+          LEFT JOIN departments d ON d.id=c.department_id WHERE c.id=?""",(cid,)))
+        if not c or (u["role"]=="hod" and c["department"]!=u["department"]):
+            raise HTTPException(404,"Class not found")
+        db.execute("UPDATE classes SET "+",".join(k+"=?" for k in data)+" WHERE id=?",
+                   (*data.values(),cid))
+    return {"message":"Class updated"}
+
+@app.get("/api/departments")
+def departments(u=Depends(current_user)):
+    with get_db() as db:
+        if u["role"]=="management":
+            return rows(db.execute("""SELECT d.*,u.name hod_name FROM departments d
+              LEFT JOIN users u ON u.id=d.hod_user_id ORDER BY d.name"""))
+        return rows(db.execute("""SELECT d.*,u.name hod_name FROM departments d
+              LEFT JOIN users u ON u.id=d.hod_user_id WHERE d.name=?""",(u["department"],)))
+
+@app.put("/api/students/{sid}")
+def update_student(sid:int,p:dict,u=Depends(roles("faculty","hod","management"))):
+    allowed={"name","email","student_id","department","batch","phone","parent_name","parent_phone","designation","attendance","is_active"}
+    data={k:v for k,v in p.items() if k in allowed}
+    if not data: raise HTTPException(400,"No valid fields supplied")
+    _department_guard(sid,u)
+    with get_db() as db:
+        if "email" in data:
+            exists=row(db.execute("SELECT id FROM users WHERE email=? COLLATE NOCASE AND id<>?",(data["email"],sid)))
+            if exists: raise HTTPException(409,"Email already registered")
+        db.execute("UPDATE users SET "+",".join(k+"=?" for k in data)+" WHERE id=? AND role='student'",
+                   (*data.values(),sid))
+    return {"message":"Student details updated"}
+
+@app.get("/api/faculty/{fid}")
+def faculty_detail(fid:int,u=Depends(current_user)):
+    with get_db() as db:
+        x=row(db.execute("""SELECT u.*,fp.classes_handled,fp.subjects_handled,
+          fp.is_class_adviser,fp.extra_info FROM users u
+          LEFT JOIN faculty_profiles fp ON fp.user_id=u.id
+          WHERE u.id=? AND u.role='faculty'""",(fid,)))
+    if not x: raise HTTPException(404,"Faculty not found")
+    if u["role"]!="management" and x["department"]!=u["department"]:
+        raise HTTPException(403,"Access denied")
+    return x
+
+@app.put("/api/faculty/{fid}")
+def update_faculty(fid:int,p:dict,u=Depends(roles("hod","management"))):
+    with get_db() as db:
+        f=row(db.execute("SELECT * FROM users WHERE id=? AND role='faculty'",(fid,)))
+        if not f or (u["role"]=="hod" and f["department"]!=u["department"]):
+            raise HTTPException(404,"Faculty not found")
+        user_allowed={"name","email","department","designation","phone","qualification","experience","specialization","office"}
+        data={k:v for k,v in p.items() if k in user_allowed}
+        if data:
+            db.execute("UPDATE users SET "+",".join(k+"=?" for k in data)+" WHERE id=?",
+                       (*data.values(),fid))
+        profile_allowed={"classes_handled","subjects_handled","is_class_adviser","extra_info"}
+        pdata={k:v for k,v in p.items() if k in profile_allowed}
+        if "classes_handled" in pdata and isinstance(pdata["classes_handled"],list):
+            pdata["classes_handled"]=json.dumps(pdata["classes_handled"])
+        if "subjects_handled" in pdata and isinstance(pdata["subjects_handled"],list):
+            pdata["subjects_handled"]=json.dumps(pdata["subjects_handled"])
+        db.execute("INSERT OR IGNORE INTO faculty_profiles(user_id) VALUES(?)",(fid,))
+        if pdata:
+            db.execute("UPDATE faculty_profiles SET "+",".join(k+"=?" for k in pdata)+" WHERE user_id=?",
+                       (*pdata.values(),fid))
+    return {"message":"Faculty details updated"}
+
+@app.get("/api/student-records/{sid}")
+def student_records_for_staff(sid:int,u=Depends(roles("faculty","hod","management"))):
+    _department_guard(sid,u)
+    with get_db() as db:
+        return {
+          "certificates":rows(db.execute("""SELECT c.*,f.original_name FROM certificates c
+             LEFT JOIN files f ON f.id=c.file_id WHERE c.student_id=? ORDER BY c.id DESC""",(sid,))),
+          "courses":rows(db.execute("""SELECT c.*,f.original_name FROM courses c
+             LEFT JOIN files f ON f.id=c.certificate_file_id WHERE c.student_id=? ORDER BY c.id DESC""",(sid,))),
+          "internships":rows(db.execute("""SELECT i.*,f.original_name FROM internships i
+             LEFT JOIN files f ON f.id=i.file_id WHERE i.student_id=? ORDER BY i.id DESC""",(sid,)))
+        }
+
+@app.post("/api/student-records/{kind}/with-file")
+def student_record_with_file(kind:str,title:str=Form(""),issuer:str=Form(""),
+    provider:str=Form(""),completion_date:str=Form(""),company:str=Form(""),
+    role:str=Form(""),start_date:str=Form(""),end_date:str=Form(""),
+    description:str=Form(""),file:UploadFile|None=File(None),
+    u=Depends(roles("student"))):
+    if kind not in ("certificate","course","internship"):
+        raise HTTPException(400,"Invalid record type")
+    fid=save_file(file,u["id"],kind) if file else None
+    with get_db() as db:
+        if kind=="certificate":
+            cur=db.execute("INSERT INTO certificates(student_id,title,issuer,completion_date,file_id) VALUES(?,?,?,?,?)",
+                           (u["id"],title,issuer,completion_date,fid))
+        elif kind=="course":
+            cur=db.execute("INSERT INTO courses(student_id,title,provider,completion_date,certificate_file_id) VALUES(?,?,?,?,?)",
+                           (u["id"],title,provider,completion_date,fid))
+        else:
+            cur=db.execute("""INSERT INTO internships(student_id,company,role,start_date,end_date,description,file_id)
+              VALUES(?,?,?,?,?,?,?)""",(u["id"],company,role,start_date,end_date,description,fid))
+    return {"id":cur.lastrowid,"file_id":fid,"message":"Student record saved"}
+
+@app.get("/api/submissions")
+def list_submissions(item_type:str|None=None,item_id:int|None=None,
+                     student_id:int|None=None,u=Depends(current_user)):
+    if u["role"]=="student":
+        sid=u["id"]
+    else:
+        sid=student_id
+        if sid is not None: _department_guard(sid,u)
+    with get_db() as db:
+        q="""SELECT s.*,u.name student_name,u.student_id as register_no,
+             f.original_name FROM submissions s
+             LEFT JOIN users u ON u.id=s.student_id
+             LEFT JOIN files f ON f.id=s.file_id WHERE 1=1"""
+        a=[]
+        if sid is not None: q+=" AND s.student_id=?"; a.append(sid)
+        if item_type: q+=" AND s.item_type=?"; a.append(item_type)
+        if item_id is not None: q+=" AND s.item_id=?"; a.append(item_id)
+        return rows(db.execute(q+" ORDER BY s.submitted_at DESC",a))
+
+@app.put("/api/submissions/{submission_id}/mark")
+def mark_submission(submission_id:int, p:dict, u=Depends(roles("faculty","hod"))):
+    mark=float(p.get("mark",0))
+    with get_db() as db:
+        s=row(db.execute("""SELECT s.*,u.department FROM submissions s
+          JOIN users u ON u.id=s.student_id WHERE s.id=?""",(submission_id,)))
+        if not s or s["department"]!=u["department"]: raise HTTPException(404,"Submission not found")
+        db.execute("UPDATE submissions SET mark=?,status=? WHERE id=?",(mark,p.get("status","evaluated"),submission_id))
+    return {"message":"Submission evaluated"}
+
+@app.put("/api/feedback/{fid}/response")
+def feedback_response(fid:int,p:dict,u=Depends(roles("faculty","hod","management"))):
+    status=p.get("status","reviewed")
+    response=p.get("response") or p.get("message") or ""
+    with get_db() as db:
+        f=row(db.execute("""SELECT f.*,s.department FROM feedbacks f
+          LEFT JOIN users s ON s.id=f.student_id WHERE f.id=?""",(fid,)))
+        if not f or (u["role"]!="management" and f["department"]!=u["department"]):
+            raise HTTPException(404,"Feedback not found")
+        db.execute("""UPDATE feedbacks SET status=?,response=?,responded_by=?,
+          responded_at=CURRENT_TIMESTAMP WHERE id=?""",(status,response,u["id"],fid))
+        if f["student_id"]:
+            db.execute("INSERT INTO notifications(user_id,title,message) VALUES(?,?,?)",
+                       (f["student_id"],"Feedback response","Your feedback has received a response."))
+    return {"message":"Feedback response saved"}
+
+@app.get("/api/management/dashboard")
+def management_dashboard(u=Depends(roles("management"))):
+    with get_db() as db:
+        return {
+          "role":"management",
+          "departments":db.execute("SELECT COUNT(*) FROM departments").fetchone()[0],
+          "students":db.execute("SELECT COUNT(*) FROM users WHERE role='student'").fetchone()[0],
+          "faculty":db.execute("SELECT COUNT(*) FROM users WHERE role='faculty'").fetchone()[0],
+          "companies":db.execute("SELECT COUNT(*) FROM placement_companies").fetchone()[0],
+          "placed_students":db.execute("SELECT COUNT(*) FROM placements WHERE offer_status='placed'").fetchone()[0]
+        }
+
+@app.get("/api/management/students")
+def management_students(department:str|None=None,class_name:str|None=None,u=Depends(roles("management"))):
+    with get_db() as db:
+        q="""SELECT u.id,u.name,u.email,u.student_id,u.department,u.batch,u.phone,
+             u.parent_name,u.parent_phone,u.attendance,
+             COALESCE(AVG(m.mark),0) average_mark,
+             COALESCE(f.tuition_total,0) tuition_total,COALESCE(f.tuition_paid,0) tuition_paid,
+             COALESCE(f.bus_total,0) bus_total,COALESCE(f.bus_paid,0) bus_paid,
+             COALESCE(f.hostel_total,0) hostel_total,COALESCE(f.hostel_paid,0) hostel_paid,
+             COALESCE(f.placement_total,0) placement_total,COALESCE(f.placement_paid,0) placement_paid
+             FROM users u LEFT JOIN marks m ON m.student_id=u.id
+             LEFT JOIN fees f ON f.student_id=u.id
+             WHERE u.role='student'"""
+        a=[]
+        if department: q+=" AND u.department=?"; a.append(department)
+        if class_name: q+=" AND u.batch=?"; a.append(class_name)
+        return rows(db.execute(q+" GROUP BY u.id ORDER BY u.department,u.batch,u.name",a))
+
+@app.get("/api/management/marks/{sid}")
+def management_marks(sid:int,u=Depends(roles("management"))):
+    with get_db() as db:
+        return rows(db.execute("""SELECT m.*,u.name student_name,u.student_id register_no
+          FROM marks m JOIN users u ON u.id=m.student_id WHERE m.student_id=?
+          ORDER BY m.subject,m.exam""",(sid,)))
+
+@app.put("/api/management/marks/{mid}")
+def management_update_mark(mid:int,p:dict,u=Depends(roles("management"))):
+    if "mark" not in p: raise HTTPException(400,"mark is required")
+    new=float(p["mark"])
+    with get_db() as db:
+        m=row(db.execute("""SELECT m.*,u.department FROM marks m
+          JOIN users u ON u.id=m.student_id WHERE m.id=?""",(mid,)))
+        if not m: raise HTTPException(404,"Mark not found")
+        if new<0 or new>m["max_mark"]: raise HTTPException(400,"Mark out of range")
+        # Management can change marks only with explicit student approval.
+        if not bool(p.get("student_approved",False)):
+            raise HTTPException(409,"Student approval is required for management mark changes")
+        db.execute("UPDATE marks SET mark=?,entered_by=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                   (new,u["id"],mid))
+    return {"message":"Mark updated with student approval"}
+
+@app.get("/api/management/fees/structures")
+def fee_structures(department:str|None=None,u=Depends(roles("management","hod"))):
+    d=department or (u["department"] if u["role"]=="hod" else None)
+    with get_db() as db:
+        if d: return rows(db.execute("SELECT * FROM fee_structures WHERE department=? ORDER BY class_name",(d,)))
+        return rows(db.execute("SELECT * FROM fee_structures ORDER BY department,class_name"))
+
+@app.post("/api/management/fees/structures")
+def save_fee_structure(p:dict,u=Depends(roles("management","hod"))):
+    d=p.get("department") or u["department"]
+    if u["role"]=="hod" and d!=u["department"]: raise HTTPException(403,"Access denied")
+    vals=(d,p.get("class_name",""),float(p.get("tuition",0)),float(p.get("bus",0)),
+          float(p.get("hostel",0)),float(p.get("placement",0)))
+    with get_db() as db:
+        db.execute("""INSERT INTO fee_structures(department,class_name,tuition,bus,hostel,placement)
+          VALUES(?,?,?,?,?,?) ON CONFLICT(department,class_name) DO UPDATE SET
+          tuition=excluded.tuition,bus=excluded.bus,hostel=excluded.hostel,placement=excluded.placement""",vals)
+    return {"message":"Fee structure saved"}
+
+@app.get("/api/management/faculty")
+def management_faculty(department:str|None=None,u=Depends(roles("management"))):
+    with get_db() as db:
+        q="""SELECT u.*,fp.classes_handled,fp.subjects_handled,
+          fp.is_class_adviser,fp.extra_info FROM users u
+          LEFT JOIN faculty_profiles fp ON fp.user_id=u.id
+          WHERE u.role='faculty'"""
+        a=[]
+        if department: q+=" AND u.department=?"; a.append(department)
+        return rows(db.execute(q+" ORDER BY u.department,u.name",a))
+
+@app.get("/api/management/placements")
+def management_placements(department:str|None=None,u=Depends(roles("management"))):
+    with get_db() as db:
+        q="""SELECT p.*,c.company_name,c.industry,c.location,c.visited,
+          u.name student_name,u.student_id,u.department FROM placements p
+          JOIN users u ON u.id=p.student_id LEFT JOIN placement_companies c ON c.id=p.company_id"""
+        a=[]
+        if department: q+=" WHERE u.department=?"; a.append(department)
+        return rows(db.execute(q+" ORDER BY p.package DESC",a))
+
+@app.put("/api/notifications/read-all")
+def notification_read_all(u=Depends(current_user)):
+    with get_db() as db:
+        db.execute("UPDATE notifications SET is_read=1 WHERE user_id=?",(u["id"],))
+    return {"message":"All notifications marked read"}

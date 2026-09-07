@@ -1,3 +1,46 @@
+// ==========================================
+// EduNexa Backend API Configuration
+// ==========================================
+
+const API_BASE_URL = "http://127.0.0.1:8000";
+
+async function apiRequest(endpoint, options = {}) {
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                ...(options.headers || {})
+            }
+        });
+
+        const data = await response.json().catch(() => null);
+
+        if (!response.ok) {
+            throw new Error(
+                data?.detail || `API Error: ${response.status}`
+            );
+        }
+
+        return data;
+    } catch (error) {
+        console.error("EduNexa API Error:", error);
+        throw error;
+    }
+}
+async function testBackendConnection() {
+    try {
+        const response = await fetch(API_BASE_URL);
+
+        if (response.ok) {
+            console.log("✅ EduNexa Backend Connected");
+        } else {
+            console.log("⚠️ Backend responded:", response.status);
+        }
+    } catch (error) {
+        console.error("❌ Backend Connection Failed:", error);
+    }
+}
 /* =========================================================
    EDUNEXA DATABASE
 ========================================================= */
