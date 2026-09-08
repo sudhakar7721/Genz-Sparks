@@ -53,6 +53,8 @@ function submitLeave(event){
 
         studentName:currentUser.name,
 
+        department:currentUser.department || "",
+
         parentName:currentUser.parentName,
 
         parentPhone:currentUser.parentPhone,
@@ -80,13 +82,7 @@ function submitLeave(event){
     db.leaves.push(leave);
 
 
-    addNotice(
-        "Leave request submitted",
-        `${currentUser.name} submitted a ${leave.type}.`,
-        "faculty"
-    );
-
-
+    // Leave requests are routed to the student's Class Adviser only.
     addNotice(
         "Leave request submitted",
         `${currentUser.name} submitted a ${leave.type}.`,
@@ -121,8 +117,15 @@ function renderFacultyLeaves(){
 
     }
 
+    // Student leave details are private to the Class Adviser.
+    if(currentUser?.role === "faculty" && !currentUser.classAdviser){
+        element.innerHTML = `<div class="card notice"><b>Class Adviser access only</b><p>Student leave requests and their reasons are visible only to the assigned Class Adviser.</p></div>`;
+        return;
+    }
 
-    if(db.leaves.length === 0){
+    const visibleLeaves = db.leaves.filter(leave => canAccessLeave(leave));
+
+    if(visibleLeaves.length === 0){
 
         element.innerHTML = `
             <div class="card empty">
@@ -136,7 +139,7 @@ function renderFacultyLeaves(){
 
 
     element.innerHTML =
-        db.leaves
+        visibleLeaves
         .map(
             leave => `
 
@@ -239,6 +242,10 @@ function reviewLeave(id,status){
 
     }
 
+    if(!canAccessLeave(leave)){
+        toast("Only the student's Class Adviser can review this leave request.");
+        return;
+    }
 
     leave.status = status;
 

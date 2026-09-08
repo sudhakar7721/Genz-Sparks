@@ -42,8 +42,8 @@ function facultyPages(){
 
             ${stat(
                 "Assigned Students",
-                "52",
-                "Class strength"
+                students().length,
+                "Department students"
             )}
 
             ${stat(
@@ -54,16 +54,14 @@ function facultyPages(){
 
             ${stat(
                 "Pending Leaves",
-                db.leaves.filter(
-                    l => l.status === "Pending"
-                ).length,
+                db.leaves.filter(l => l.status === "Pending" && canAccessLeave(l)).length,
                 "Requires review"
             )}
 
             ${stat(
                 "Assessments",
-                db.tests.length + db.assignments.length,
-                "Published"
+                db.tests.filter(t => departmentRecordDepartment(t) === currentUser.department).length + db.assignments.filter(a => departmentRecordDepartment(a) === currentUser.department).length,
+                "Department published"
             )}
 
         </div>
@@ -96,7 +94,7 @@ function facultyPages(){
                     <div class="item">
 
                         <b>
-                            ${db.tests.length}
+                            ${db.tests.filter(t => departmentRecordDepartment(t) === currentUser.department).length}
                         </b>
 
                         <p>
@@ -109,7 +107,7 @@ function facultyPages(){
                     <div class="item">
 
                         <b>
-                            ${db.assignments.length}
+                            ${db.assignments.filter(a => departmentRecordDepartment(a) === currentUser.department).length}
                         </b>
 
                         <p>
@@ -122,7 +120,7 @@ function facultyPages(){
                     <div class="item">
 
                         <b>
-                            ${db.submissions.length}
+                            ${db.submissions.filter(s => { const st=db.users.find(u=>u.role==="student"&&u.studentId===s.studentId); return canAccessStudent(st); }).length}
                         </b>
 
                         <p>
@@ -989,7 +987,7 @@ function facultyPages(){
 
             <p>
                 Full access to assigned class:
-                marks, attendance, leave, tests,
+                personal details, marks, attendance, leave, tests,
                 assignments, fees and notifications.
             </p>
 
@@ -1006,9 +1004,7 @@ function facultyPages(){
 
             ${stat(
                 "Pending Leaves",
-                db.leaves.filter(
-                    l => l.status === "Pending"
-                ).length,
+                db.leaves.filter(l => l.status === "Pending" && canAccessLeave(l)).length,
                 "Review now"
             )}
 
@@ -1020,8 +1016,8 @@ function facultyPages(){
 
             ${stat(
                 "Assessments",
-                db.tests.length + db.assignments.length,
-                "Published"
+                db.tests.filter(t => departmentRecordDepartment(t) === currentUser.department).length + db.assignments.filter(a => departmentRecordDepartment(a) === currentUser.department).length,
+                "Department published"
             )}
 
         </div>

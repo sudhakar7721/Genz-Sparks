@@ -4,6 +4,11 @@
 
 seedDatabase();
 
+// Load the expanded multi-department demo accounts without deleting existing data.
+if (typeof ensureDemoAccounts === "function") {
+    ensureDemoAccounts();
+}
+
 
 const savedSession =
     localStorage.getItem(

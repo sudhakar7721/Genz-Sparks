@@ -54,6 +54,8 @@ function createAssignment(event){
 
         faculty:currentUser.name,
 
+        department:currentUser.department || "",
+
         assigned,
 
         due,

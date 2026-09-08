@@ -187,6 +187,7 @@ function seedDatabase(){
             parentPhone:"+91 90000 00001",
             department:"Data Analytics",
             batch:"2025-2028",
+            className:"II B.Sc Data Analytics",
             attendance:86,
             skills:{
                 Python:88,
