@@ -12,7 +12,7 @@ app=FastAPI(title='EduNexa V12 API',version='12.0',description='EduNexa Student 
 app.add_middleware(CORSMiddleware,allow_origins=CORS_ORIGINS or ['*'],allow_credentials=True,allow_methods=['*'],allow_headers=['*'])
 @app.on_event('startup')
 def startup(): seed()
-class Login(BaseModel): email:EmailStr; password:str=Field(min_length=6)
+class Login(BaseModel): identifier:str=Field(min_length=3); password:str=Field(min_length=6)
 class Register(BaseModel): name:str; email:EmailStr; password:str=Field(min_length=6); role:str='student'; student_id:str|None=None; department:str='Data Analytics'; batch:str|None=None; parent_name:str|None=None; parent_phone:str|None=None
 class Mark(BaseModel): student_id:int; subject:str; exam:str; mark:float; max_mark:float=100
 class Change(BaseModel): mark_id:int; new_mark:float; reason:str=Field(min_length=3); student_approved:bool=False
@@ -28,12 +28,18 @@ def root(): return {'app':'EduNexa V12','status':'online','docs':'/docs','api':'
 def health(): return {'status':'ok'}
 @app.post('/api/auth/login')
 def login(x:Login):
- with get_db() as db: u=row(db.execute('SELECT * FROM users WHERE email=? COLLATE NOCASE',(x.email,)))
- if not u or not verify_password(x.password,u['password_hash']): raise HTTPException(401,'Invalid email or password')
- return {'access_token':token(u['id'],u['role']),'token_type':'bearer','user':{k:v for k,v in u.items() if k!='password_hash'}}
+    identifier=x.identifier.strip()
+    with get_db() as db:
+        u=row(db.execute('''SELECT * FROM users
+            WHERE (email=? COLLATE NOCASE OR student_id=? COLLATE NOCASE
+                   OR faculty_id=? COLLATE NOCASE OR hod_id=? COLLATE NOCASE)
+            AND is_active=1 LIMIT 1''',(identifier,identifier,identifier,identifier)))
+    if not u or not verify_password(x.password,u['password_hash']):
+        raise HTTPException(401,'Invalid login ID/email or password')
+    return {'access_token':token(u['id'],u['role']),'token_type':'bearer','user':{k:v for k,v in u.items() if k!='password_hash'}}
 @app.post('/api/auth/register')
 def register(x:Register):
- if x.role not in ('student','faculty','hod'): raise HTTPException(400,'Role must be student, faculty or hod')
+ if x.role not in ('student','faculty','hod','management'): raise HTTPException(400,'Invalid account role')
  with get_db() as db:
   if row(db.execute('SELECT id FROM users WHERE email=? COLLATE NOCASE',(x.email,))): raise HTTPException(409,'Email already registered')
   cur=db.execute('INSERT INTO users(name,email,password_hash,role,student_id,department,batch,parent_name,parent_phone) VALUES(?,?,?,?,?,?,?,?,?)',(x.name,x.email,hash_password(x.password),x.role,x.student_id,x.department,x.batch,x.parent_name,x.parent_phone)); uid=cur.lastrowid

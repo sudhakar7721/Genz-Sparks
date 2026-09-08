@@ -1,17 +1,15 @@
 import sqlite3
 from app.security import verify_password
 
-db = sqlite3.connect("data/edunexa.db")
+DB_PATH = "data/edunexa.db"
+EMAIL = "arun_kumar@example.com"
+PASSWORD = "123456"
 
-row = db.execute(
-    "SELECT password_hash FROM users WHERE email = ?",
-    ("arun_kumar@example.com",)
-).fetchone()
+with sqlite3.connect(DB_PATH) as db:
+    row = db.execute(
+        "SELECT password_hash FROM users WHERE email=? COLLATE NOCASE",
+        (EMAIL,),
+    ).fetchone()
 
 print("User found:", row is not None)
-
-if row:
-    result = verify_password("123456", row[0])
-    print("Password valid:", result)
-
-db.close()
+print("Password valid:", bool(row and verify_password(PASSWORD, row[0])))

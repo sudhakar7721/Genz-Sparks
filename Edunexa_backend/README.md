@@ -1,262 +1,129 @@
-# EduNexa V12 — Complete FastAPI + SQLite Backend
+# EduNexa V12 — Corrected FastAPI + SQLite Backend
 
-This package is the completed backend for the EduNexa academic management system.
+This package is a corrected local-development backend for EduNexa.
 
-## 1. Requirements
+## What was fixed
+
+- Login now accepts **email, Student ID, Faculty ID, or HOD ID** in the `identifier` field.
+- Login safely rejects malformed/legacy bcrypt hashes instead of crashing.
+- Replaced the Passlib/bcrypt version-warning path with the `bcrypt` package directly.
+- Centralized frontend API helper stores and sends the JWT bearer token.
+- Added frontend helper methods for students and departments.
+- Existing Student, Faculty, HOD, and Management API routes/schema/data are retained.
+
+## Requirements
 
 - Windows 10/11
 - Python 3.12 recommended
-- VS Code (recommended)
+- VS Code recommended
 
-## 2. Run on Windows
+## Install and run
 
-Open Command Prompt in this folder:
+From this folder:
 
 ```bat
 py -m venv .venv
 .venv\Scripts\activate
+python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-If `py` is unavailable, use `python` to create the virtual environment.
+Swagger:
 
-Backend:
-- http://127.0.0.1:8000
-- Swagger API documentation: http://127.0.0.1:8000/docs
-- ReDoc: http://127.0.0.1:8000/redoc
-- Health check: http://127.0.0.1:8000/api/health
+`http://127.0.0.1:8000/docs`
 
-## 3. Demo accounts
+Health:
 
-Password for all demo accounts: `123456`
+`http://127.0.0.1:8000/api/health`
 
-| Role | Email |
-|---|---|
-| Student | alexa@example.com |
-| Faculty | faculty@edunexa.com |
-| HOD | hod@edunexa.com |
-| Management | admin@edunexa.com |
+## Login
 
-The frontend can show Student / Faculty / Management at the top level. When Faculty is selected, it can present Faculty and HOD login choices without displaying HOD/Faculty in the main section.
+The login body is now:
 
-## 4. Included backend modules
-
-### Authentication
-- Login
-- Registration
-- JWT bearer authentication
-- `/api/auth/me`
-- Role-based authorization
-- Student / Faculty / HOD / Management roles
-
-### Student
-- Complete student profile
-- Parent and contact information
-- School, 10th and 12th marks
-- Blood group and additional details
-- Marks
-- Attendance
-- Class timetable
-- Tests
-- Assignments
-- File upload and submission
-- Full-day leave
-- Half-day leave with 1–6 hour control
-- Leave request table API
-- Certificates
-- Completed courses
-- Internships
-- Fees
-- Feedback
-- Notifications
-
-### Faculty
-- Student records
-- Student profile update
-- Faculty details
-- Classes handled
-- Subjects handled
-- Class adviser information
-- Faculty timetable
-- Class timetable
-- Attendance
-- Marks entry
-- Mark change request
-- Test creation for a selected class
-- Assignment creation for a selected class
-- Question/assignment file upload
-- Submission viewing and evaluation
-- Leave review
-- Feedback viewing and response
-
-### HOD
-- Department dashboard
-- Overall department achievements
-- Department student details
-- Student marks
-- Placement details
-- Full faculty details
-- Class adviser / subjects information
-- Feedback analytics
-- Feedback response
-- Mark-change approval / decline
-- Class timetable
-- Faculty timetable
-- Achievement management
-- Department-specific access control
-
-### Management
-- Overall management dashboard
-- All departments
-- All students
-- All faculty
-- Student fee details
-- Department/class fee structures
-- Tuition / bus / hostel / placement totals and paid values
-- Student marks access
-- Mark changes with explicit student approval
-- Placement company information
-- Campus visit / not-visited status
-- Placement packages
-- Department-wise placement ranking
-- Faculty details, classes and subjects
-
-## 5. Database
-
-SQLite database is automatically created at:
-
-`data/edunexa.db`
-
-Uploads are stored at:
-
-`uploads/`
-
-The database schema is in:
-
-`app/schema.sql`
-
-Initialization and demo-data creation:
-
-`app/init_db.py`
-
-To reset the database to demo data:
-
-```bat
-python scripts/reset_database.py
+```json
+{
+  "identifier": "DA2025001",
+  "password": "123456"
+}
 ```
 
-## 6. Frontend integration
+Email also works:
+
+```json
+{
+  "identifier": "arun_kumar@example.com",
+  "password": "123456"
+}
+```
+
+For Arun Kumar:
+
+- Student ID: `DA2025001`
+- Email: `arun_kumar@example.com`
+- Password: `123456`
+
+## Important: existing database
+
+The ZIP contains the current `data/edunexa.db` so your current imported data is preserved.
+
+A backup is also included. Do **not** run `scripts/reset_database.py` unless you intentionally want to reset the database to demo data.
+
+If a student password needs to be reset:
+
+```bat
+python reset_student_password.py
+```
+
+This sets all student accounts to `123456`.
+
+## Frontend API connection
 
 Use:
 
 `frontend_integration/api.js`
 
-The API base URL is:
+The API base is:
 
 `http://127.0.0.1:8000/api`
 
-The helper automatically adds the saved JWT token from:
+Example browser-console test after loading `api.js`:
 
-`localStorage["edunexa_token"]`
-
-Do not create a second API helper with another `API_BASE_URL`; use one centralized API configuration.
-
-## 7. Main API groups
-
-- `/api/auth/*`
-- `/api/dashboard/*`
-- `/api/students/*`
-- `/api/faculty/*`
-- `/api/marks/*`
-- `/api/hod/*`
-- `/api/classes/*`
-- `/api/departments`
-- `/api/timetables/*`
-- `/api/attendance/*`
-- `/api/leaves/*`
-- `/api/feedback/*`
-- `/api/files/*`
-- `/api/academics/tests`
-- `/api/academics/assignments`
-- `/api/academics/submissions`
-- `/api/student-records/*`
-- `/api/fees/*`
-- `/api/placements/*`
-- `/api/management/*`
-- `/api/notifications/*`
-
-## 8. Important frontend connection
-
-Start the backend first:
-
-```bat
-python -m uvicorn app.main:app --reload --port 8000
+```js
+EduNexaAPI.login('DA2025001', '123456')
 ```
 
-Then start your frontend.
+Then:
 
-For a Vite frontend, normally:
-
-```bat
-npm install
-npm run dev
+```js
+EduNexaAPI.me()
 ```
 
-For a simple HTML frontend, use VS Code Live Server or another local web server.
+The JWT is stored in `localStorage["edunexa_token"]` and automatically sent as a Bearer token.
 
-Never open the frontend by relying on `file:///...` when API/CORS testing is required.
+## Simple HTML frontend server
 
-## 9. Troubleshooting
-
-### pip is not recognized
-
-Use:
+If VS Code Live Server is unavailable, run the following from your frontend folder:
 
 ```bat
-python -m pip install -r requirements.txt
+python -m http.server 5500
 ```
 
-instead of:
+Then open:
 
-```bat
-pip install -r requirements.txt
-```
+`http://127.0.0.1:5500`
 
-### uvicorn is not recognized
+Do not open an API-connected frontend as `file:///...`.
 
-Use:
+## CORS
 
-```bat
-python -m uvicorn app.main:app --reload --port 8000
-```
+The default development origins include:
 
-### Login says Invalid email or password
+- `http://127.0.0.1:5500`
+- `http://localhost:5500`
+- `http://127.0.0.1:5173`
+- `http://localhost:5173`
+- `http://127.0.0.1:3000`
+- `http://localhost:3000`
 
-Make sure the backend is running and reset the demo database:
-
-```bat
-python scripts/reset_database.py
-```
-
-Then restart Uvicorn and use the demo accounts above.
-
-### CORS error
-
-The backend already allows common local development origins including:
-- 127.0.0.1:5500
-- localhost:5500
-- 127.0.0.1:5173
-- localhost:5173
-- 127.0.0.1:3000
-- localhost:3000
-
-## 10. Security note
-
-The included secret key is intended for local development only. Before production deployment, set:
-
-`EDUNEXA_SECRET_KEY`
-
-to a long random secret and configure the exact frontend origin using:
-
-`EDUNEXA_CORS_ORIGINS`
+For production, set `EDUNEXA_SECRET_KEY` and `EDUNEXA_CORS_ORIGINS`.
