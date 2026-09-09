@@ -190,8 +190,6 @@ function register(){
 
         user.batch = "2025-2028";
 
-        user.className = "II B.Sc Data Analytics";
-
         user.attendance = 0;
 
         user.skills = {
@@ -452,9 +450,3 @@ function openApp(){
 }
 
 
-
-
-function toggleDemoCredentials(){
-    const box=document.getElementById('demoCredentials');
-    if(box) box.classList.toggle('hidden');
-}

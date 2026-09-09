@@ -1,4 +1,25 @@
-const EDUNEXA_API = "http://127.0.0.1:8000/api";
+/* =========================================================
+   EDUNEXA FRONTEND <-> BACKEND API CLIENT
+   =========================================================
+   This file is a copy of the sanctioned client located at:
+   Edunexa_backend/frontend_integration/api.js
+
+   It is copied into the frontend so the frontend can be served
+   on its own (Live Server / python -m http.server) and still
+   talk to the FastAPI backend on http://127.0.0.1:8000.
+
+   It exposes window.EduNexaAPI and auto-attaches the JWT stored
+   in localStorage["edunexa_token"] to every request.
+   ========================================================= */
+
+window.__EDUNEXA_BRIDGE__ = true;
+
+/* Optional override so the API address is configurable without editing code:
+   set window.EDUNEXA_API_URL (or the key edunexa_api_url in localStorage) to
+   e.g. "http://127.0.0.1:8026/api" before this script loads. Defaults to :8000. */
+const EDUNEXA_API =
+    (window.EDUNEXA_API_URL && window.EDUNEXA_API_URL.replace(/\/$/, "")) ||
+    (localStorage.getItem("edunexa_api_url") || "http://127.0.0.1:8000/api").replace(/\/$/, "");
 
 async function apiFetch(path, options = {}) {
     const headers = new Headers(options.headers || {});

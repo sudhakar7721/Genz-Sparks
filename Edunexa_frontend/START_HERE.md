@@ -18,7 +18,3 @@ Demo accounts:
 - Management: admin@edunexa.com / 123456
 
 All existing modules and data structures are preserved. The login repair does not clear localStorage.
-
-
-## Department-wise access update
-See `DEPARTMENT_ACCESS_FLOWCHART.md` and `DEPARTMENT_ACCESS_RULES.md`. Faculty and HOD sessions are restricted to their own department; Management retains all-department access.
