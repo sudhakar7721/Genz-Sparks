@@ -4,14 +4,11 @@
 
 seedDatabase();
 
-// Load the expanded multi-department demo accounts without deleting existing data.
-if (typeof ensureDemoAccounts === "function") {
-    ensureDemoAccounts();
-}
-
 
 const savedSession =
-    localStorage.getItem(
+    (window.__EDUNEXA_BRIDGE__)
+    ? null
+    : localStorage.getItem(
         "edunexa_session"
     );
 

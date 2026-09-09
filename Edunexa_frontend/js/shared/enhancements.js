@@ -189,7 +189,7 @@ return `
   </div>
 </div>
 <div class="page" id="hod-faculty"><div class="page-title"><h1>HOD Faculty Details 👨‍🏫</h1><p>Faculty, positions, subjects and adviser assignments.</p></div><div class="card"><div id="hodFacultyList"></div></div></div>
-<div class="page" id="hod-students"><div class="page-title"><h1>HOD Student Records 👨‍🎓</h1><p>Department academic records only. Personal details and leave requests remain with the assigned Class Adviser.</p></div><div class="card"><div id="hodStudentList"></div></div></div>
+<div class="page" id="hod-students"><div class="page-title"><h1>HOD Student Records 👨‍🎓</h1><p>Department student records.</p></div><div class="card"><div id="hodStudentList"></div></div></div>
 <div class="page" id="hod-mark-requests"><div class="page-title"><h1>HOD Mark Change Requests 🎯</h1><p>Review requests after the mark-edit period ends.</p></div><div class="card"><div id="hodMarkRequests"></div></div></div>
 <div class="page" id="hod-class-details"><div class="page-title"><h1>Class Details 🏫</h1><p>Every class timetable and adviser information.</p></div><div class="card"><div id="hodClassDetails"></div></div></div>
 <div class="page" id="hod-timetable"><div class="page-title"><h1>Class Timetables 🕐</h1><p>Department-wide class schedules.</p></div><div class="card"><div id="hodTimetables"></div></div></div>
@@ -306,7 +306,7 @@ function renderCommitteeHistory(){
 }
 function renderHodFeedback(){
  const e=document.getElementById("hodFeedbackList");if(!e)return;
- e.innerHTML=db.classMeetings.filter(x=>!currentUser.department||sameDepartment(x.department,currentUser.department)).map(x=>`<div class="item"><div class="item-top"><b>${esc(x.studentName)} • ${esc(x.subject)}</b><span class="badge blue">${esc(x.status)}</span></div><p>Rating: ${esc(x.rating)}/5 • ${esc(x.type||"general")}</p><p>${esc(x.message)}</p><small>${esc(x.createdAt)}</small></div>`).join("")||`<div class="empty">No committee feedback.</div>`;
+ e.innerHTML=db.classMeetings.map(x=>`<div class="item"><div class="item-top"><b>${esc(x.studentName)} • ${esc(x.subject)}</b><span class="badge blue">${esc(x.status)}</span></div><p>Rating: ${esc(x.rating)}/5 • ${esc(x.type||"general")}</p><p>${esc(x.message)}</p><small>${esc(x.createdAt)}</small></div>`).join("")||`<div class="empty">No committee feedback.</div>`;
 }
 
 /* ---------- Leave half-day + table ---------- */
@@ -331,10 +331,6 @@ function renderLeaveRequestTable(){
 
 /* ---------- Student records ---------- */
 function saveStudentRecord(event){
- if(!(currentUser?.role === "management" || currentUser?.role === "faculty" && currentUser.classAdviser)){
-   toast("Only the Class Adviser can manage student personal details.");
-   return;
- }
  event.preventDefault();
  const id=document.getElementById("srStudentId").value.trim();
  const record={studentId:id,name:document.getElementById("srName").value.trim(),age:document.getElementById("srAge").value,sex:document.getElementById("srSex").value,caste:document.getElementById("srCaste").value.trim(),region:document.getElementById("srRegion").value.trim(),address:document.getElementById("srAddress").value.trim(),fatherName:document.getElementById("srFather").value.trim(),motherName:document.getElementById("srMother").value.trim(),guardianName:document.getElementById("srGuardian").value.trim(),studentContact:document.getElementById("srContact").value.trim(),email:document.getElementById("srEmail").value.trim(),parentContact:document.getElementById("srParentContact").value.trim(),bloodGroup:document.getElementById("srBlood").value.trim(),school:document.getElementById("srSchool").value.trim(),mark10:document.getElementById("sr10").value,mark12:document.getElementById("sr12").value,department:document.getElementById("srDepartment").value.trim(),className:document.getElementById("srClass").value.trim(),extra:document.getElementById("srExtra").value.trim(),updatedBy:currentUser.name,updatedAt:new Date().toLocaleString()};
@@ -343,12 +339,7 @@ function saveStudentRecord(event){
 }
 function renderStudentRecords(){
  const e=document.getElementById("facultyStudentRecords");if(!e)return;
- if(!(currentUser?.role === "management" || currentUser?.role === "faculty" && currentUser.classAdviser)){
-   e.innerHTML=`<div class="notice"><b>Class Adviser access only</b><p>Personal student records are restricted to the assigned Class Adviser.</p></div>`;
-   return;
- }
- const visibleIds=new Set(db.users.filter(u=>u.role==="student" && canAccessStudentPersonal(u)).map(u=>u.studentId));
- e.innerHTML=db.studentProfiles.filter(x=>visibleIds.has(x.studentId)).map(x=>`<div class="item"><div class="item-top"><b>${esc(x.name)} (${esc(x.studentId)})</b><span class="badge blue">${esc(x.className||"-")}</span></div><p>${esc(x.department||"-")} • Age ${esc(x.age||"-")} • ${esc(x.sex||"-")} • Blood ${esc(x.bloodGroup||"-")}</p><p>Father: ${esc(x.fatherName||"-")} • Mother: ${esc(x.motherName||"-")} • Guardian: ${esc(x.guardianName||"-")}</p><p>10th: ${esc(x.mark10||"-")} • 12th: ${esc(x.mark12||"-")} • School: ${esc(x.school||"-")}</p></div>`).join("")||`<div class="empty">No student records.</div>`;
+ e.innerHTML=db.studentProfiles.map(x=>`<div class="item"><div class="item-top"><b>${esc(x.name)} (${esc(x.studentId)})</b><span class="badge blue">${esc(x.className||"-")}</span></div><p>${esc(x.department||"-")} • Age ${esc(x.age||"-")} • ${esc(x.sex||"-")} • Blood ${esc(x.bloodGroup||"-")}</p><p>Father: ${esc(x.fatherName||"-")} • Mother: ${esc(x.motherName||"-")} • Guardian: ${esc(x.guardianName||"-")}</p><p>10th: ${esc(x.mark10||"-")} • 12th: ${esc(x.mark12||"-")} • School: ${esc(x.school||"-")}</p></div>`).join("")||`<div class="empty">No student records.</div>`;
 }
 
 /* ---------- Mark change period / HOD approval ---------- */
@@ -454,11 +445,11 @@ function renderHodData(){
  const fac=db.users.filter(x=>x.role==="faculty"&&(!dept||x.department===dept));
  const students=db.users.filter(x=>x.role==="student"&&(!dept||x.department===dept));
  const f=document.getElementById("hodFacultyList");if(f)f.innerHTML=fac.map(x=>`<div class="item"><b>${esc(x.name)}</b><p>${esc(x.facultyId||"-")} • ${esc(x.position||x.designation||"Faculty")} • Adviser: ${x.classAdviser?"Yes":"No"} • Mentor: ${x.mentor?"Yes":"No"}</p><p>${esc((x.classesHandled||[]).join(", "))} • Subjects: ${esc((x.basicSubjects||[]).join(", "))}</p><p>Qualification: ${esc(x.qualification||"-")} • Experience: ${esc(x.experience||"-")} • Phone: ${esc(x.phone||"-")}</p></div>`).join("")||`<div class="empty">No faculty records.</div>`;
- const s=document.getElementById("hodStudentList");if(s)s.innerHTML=students.map(x=>{const r=db.studentProfiles.find(y=>y.studentId===x.studentId);const m=db.marks.find(y=>y.studentId===x.studentId)||{ca1:0,ca2:0,model:0,average:0};return `<div class="item"><div class="item-top"><b>${esc(x.name)} (${esc(x.studentId)})</b><span class="badge blue">Average ${esc(m.average||0)}%</span></div><p>${esc(x.department||"-")} • ${esc(x.batch||"-")} • Attendance ${esc(x.attendance||0)}%</p><p>CA1: ${esc(m.ca1)} • CA2: ${esc(m.ca2)} • Model: ${esc(m.model)}</p>${r?`<p>Class: ${esc(r.className||studentClass(x)||"-")} • 10th: ${esc(r.mark10||"-")}% • 12th: ${esc(r.mark12||"-")}%</p>`:""}</div>`}).join("")||`<div class="empty">No students.</div>`;
+ const s=document.getElementById("hodStudentList");if(s)s.innerHTML=students.map(x=>{const r=db.studentProfiles.find(y=>y.studentId===x.studentId);const m=db.marks.find(y=>y.studentId===x.studentId)||{ca1:0,ca2:0,model:0,average:0};return `<div class="item"><div class="item-top"><b>${esc(x.name)} (${esc(x.studentId)})</b><span class="badge blue">Average ${esc(m.average||0)}%</span></div><p>${esc(x.department||"-")} • ${esc(x.batch||"-")} • Attendance ${esc(x.attendance||0)}%</p><p>CA1: ${esc(m.ca1)} • CA2: ${esc(m.ca2)} • Model: ${esc(m.model)}</p>${r?`<p>Age ${esc(r.age||"-")} • ${esc(r.sex||"-")} • Blood ${esc(r.bloodGroup||"-")} • 10th ${esc(r.mark10||"-")}% • 12th ${esc(r.mark12||"-")}%</p><p>Father: ${esc(r.fatherName||"-")} • Mother: ${esc(r.motherName||"-")} • School: ${esc(r.school||"-")}</p>`:""}</div>`}).join("")||`<div class="empty">No students.</div>`;
  const c=document.getElementById("hodClassDetails");if(c)c.innerHTML=(db.departments||[]).filter(x=>!dept||x.name===dept).map(x=>`<div class="item"><b>${esc(x.name)}</b><p>HOD: ${esc(x.hod)} • Faculty: ${esc(x.facultyCount)}</p><p>Classes: ${esc(x.classes.join(", "))}</p></div>`).join("")||`<div class="empty">No class details.</div>`;
  renderTimetable("hodTimetables");
- const ft=document.getElementById("hodFacultyTimetable");if(ft)ft.innerHTML=db.facultyTimetables.filter(x=>currentUser.role==="management"||sameDepartment(x.department||departmentRecordDepartment(x),dept)).map(x=>`<div class="item"><b>${esc(x.facultyName||"-")}</b><p>${esc(x.day||"-")} • ${esc(x.time||"-")} • ${esc(x.subject||"-")} • ${esc(x.className||"-")}</p></div>`).join("")||`<div class="empty">Faculty timetable not entered yet.</div>`;
- const fa=document.getElementById("hodFacultyAttendance");if(fa)fa.innerHTML=db.facultyAttendance.filter(x=>currentUser.role==="management"||sameDepartment(x.department||departmentRecordDepartment(x),dept)).map(x=>`<div class="item"><b>${esc(x.facultyName||"-")}</b><p>${esc(x.date||"-")} • ${esc(x.status||"-")} • ${esc(x.remarks||"")}</p></div>`).join("")||`<div class="empty">Faculty attendance not entered yet.</div>`;
+ const ft=document.getElementById("hodFacultyTimetable");if(ft)ft.innerHTML=db.facultyTimetables.map(x=>`<div class="item"><b>${esc(x.facultyName||"-")}</b><p>${esc(x.day||"-")} • ${esc(x.time||"-")} • ${esc(x.subject||"-")} • ${esc(x.className||"-")}</p></div>`).join("")||`<div class="empty">Faculty timetable not entered yet.</div>`;
+ const fa=document.getElementById("hodFacultyAttendance");if(fa)fa.innerHTML=db.facultyAttendance.map(x=>`<div class="item"><b>${esc(x.facultyName||"-")}</b><p>${esc(x.date||"-")} • ${esc(x.status||"-")} • ${esc(x.remarks||"")}</p></div>`).join("")||`<div class="empty">Faculty attendance not entered yet.</div>`;
  const he=document.getElementById("hodExtraView");if(he)he.innerHTML=(db.hodExtraSamples||[]).map(x=>`<div class="item"><b>Department Plan</b><p>${esc(x)}</p></div>`).join("");
  const ach=document.getElementById("hodAchievements");if(ach)ach.innerHTML=(db.hodAchievements||[]).map(x=>`<div class="item"><div class="item-top"><b>${esc(x.title)}</b><span class="badge blue">${esc(x.year)}</span></div><p>${esc(x.detail)}</p></div>`).join("");
  const dash=document.getElementById("hodDashboardStats");if(dash)dash.innerHTML=`${stat("Faculty",fac.length,"Department faculty")}${stat("Students",students.length,"Department students")}${stat("Pending Requests",db.markChangeRequests.filter(x=>x.status==="Pending").length,"Mark approvals")}${stat("Feedback",db.classMeetings.length,"Committee feedback")}`;

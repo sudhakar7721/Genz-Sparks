@@ -12,7 +12,7 @@ app=FastAPI(title='EduNexa V12 API',version='12.0',description='EduNexa Student 
 app.add_middleware(CORSMiddleware,allow_origins=CORS_ORIGINS or ['*'],allow_credentials=True,allow_methods=['*'],allow_headers=['*'])
 @app.on_event('startup')
 def startup(): seed()
-class Login(BaseModel): identifier:str=Field(min_length=3); password:str=Field(min_length=6)
+class Login(BaseModel): email:EmailStr; password:str=Field(min_length=6)
 class Register(BaseModel): name:str; email:EmailStr; password:str=Field(min_length=6); role:str='student'; student_id:str|None=None; department:str='Data Analytics'; batch:str|None=None; parent_name:str|None=None; parent_phone:str|None=None
 class Mark(BaseModel): student_id:int; subject:str; exam:str; mark:float; max_mark:float=100
 class Change(BaseModel): mark_id:int; new_mark:float; reason:str=Field(min_length=3); student_approved:bool=False
@@ -26,20 +26,15 @@ class Company(BaseModel): company_name:str; industry:str|None=None; location:str
 def root(): return {'app':'EduNexa V12','status':'online','docs':'/docs','api':'/api'}
 @app.get('/api/health')
 def health(): return {'status':'ok'}
+def clean(row): return None if row is None else {k:v for k,v in row.items() if k!='password_hash'}
 @app.post('/api/auth/login')
 def login(x:Login):
-    identifier=x.identifier.strip()
-    with get_db() as db:
-        u=row(db.execute('''SELECT * FROM users
-            WHERE (email=? COLLATE NOCASE OR student_id=? COLLATE NOCASE
-                   OR faculty_id=? COLLATE NOCASE OR hod_id=? COLLATE NOCASE)
-            AND is_active=1 LIMIT 1''',(identifier,identifier,identifier,identifier)))
-    if not u or not verify_password(x.password,u['password_hash']):
-        raise HTTPException(401,'Invalid login ID/email or password')
-    return {'access_token':token(u['id'],u['role']),'token_type':'bearer','user':{k:v for k,v in u.items() if k!='password_hash'}}
+ with get_db() as db: u=row(db.execute('SELECT * FROM users WHERE email=? COLLATE NOCASE',(x.email,)))
+ if not u or not verify_password(x.password,u['password_hash']): raise HTTPException(401,'Invalid email or password')
+ return {'access_token':token(u['id'],u['role']),'token_type':'bearer','user':{k:v for k,v in u.items() if k!='password_hash'}}
 @app.post('/api/auth/register')
 def register(x:Register):
- if x.role not in ('student','faculty','hod','management'): raise HTTPException(400,'Invalid account role')
+ if x.role not in ('student','faculty','hod'): raise HTTPException(400,'Role must be student, faculty or hod')
  with get_db() as db:
   if row(db.execute('SELECT id FROM users WHERE email=? COLLATE NOCASE',(x.email,))): raise HTTPException(409,'Email already registered')
   cur=db.execute('INSERT INTO users(name,email,password_hash,role,student_id,department,batch,parent_name,parent_phone) VALUES(?,?,?,?,?,?,?,?,?)',(x.name,x.email,hash_password(x.password),x.role,x.student_id,x.department,x.batch,x.parent_name,x.parent_phone)); uid=cur.lastrowid
@@ -57,13 +52,13 @@ def dashboard(u=Depends(current_user)):
   return {'role':u['role'],'students':db.execute("SELECT COUNT(*) FROM users WHERE role='student'").fetchone()[0],'faculty':db.execute("SELECT COUNT(*) FROM users WHERE role='faculty'").fetchone()[0]}
 @app.get('/api/students')
 def students(u=Depends(roles('faculty','hod','management'))):
- with get_db() as db: return rows(db.execute("SELECT u.*,sp.age,sp.sex,sp.caste,sp.region,sp.address,sp.blood_group,sp.school_name,sp.tenth_mark,sp.twelfth_mark,sp.additional_details FROM users u LEFT JOIN student_profiles sp ON sp.user_id=u.id WHERE u.role='student' ORDER BY u.name"))
+ with get_db() as db: return [clean(r) for r in rows(db.execute("SELECT u.*,sp.age,sp.sex,sp.caste,sp.region,sp.address,sp.blood_group,sp.school_name,sp.tenth_mark,sp.twelfth_mark,sp.additional_details FROM users u LEFT JOIN student_profiles sp ON sp.user_id=u.id WHERE u.role='student' ORDER BY u.name"))]
 @app.get('/api/students/{sid}')
 def student(sid:int,u=Depends(current_user)):
  if sid!=u['id'] and u['role'] not in ('faculty','hod','management'): raise HTTPException(403,'Access denied')
  with get_db() as db: x=row(db.execute("SELECT u.*,sp.* FROM users u LEFT JOIN student_profiles sp ON sp.user_id=u.id WHERE u.id=? AND u.role='student'",(sid,)))
  if not x: raise HTTPException(404,'Student not found')
- return x
+ return clean(x)
 @app.put('/api/students/{sid}/profile')
 def student_profile(sid:int,p:dict,u=Depends(current_user)):
  if sid!=u['id'] and u['role'] not in ('faculty','hod','management'): raise HTTPException(403,'Access denied')
@@ -74,7 +69,7 @@ def student_profile(sid:int,p:dict,u=Depends(current_user)):
  return {'message':'Profile updated'}
 @app.get('/api/faculty')
 def faculty(u=Depends(roles('faculty','hod','management'))):
- with get_db() as db: return rows(db.execute("SELECT u.*,fp.classes_handled,fp.subjects_handled,fp.is_class_adviser,fp.extra_info FROM users u LEFT JOIN faculty_profiles fp ON fp.user_id=u.id WHERE u.role='faculty' ORDER BY u.name"))
+ with get_db() as db: return [clean(r) for r in rows(db.execute("SELECT u.*,fp.classes_handled,fp.subjects_handled,fp.is_class_adviser,fp.extra_info FROM users u LEFT JOIN faculty_profiles fp ON fp.user_id=u.id WHERE u.role='faculty' ORDER BY u.name"))]
 @app.get('/api/marks')
 def marks(student_id:int|None=None,u=Depends(current_user)):
  sid=student_id or u['id']
@@ -269,7 +264,7 @@ def hod_students(u=Depends(roles('hod'))):
  with get_db() as db: return rows(db.execute("SELECT u.id,u.name,u.email,u.student_id,u.department,u.batch,u.attendance,COALESCE(AVG(m.mark),0) average_mark FROM users u LEFT JOIN marks m ON m.student_id=u.id WHERE u.role='student' AND u.department=? GROUP BY u.id ORDER BY u.name",(u['department'],)))
 @app.get('/api/hod/faculty')
 def hod_faculty(u=Depends(roles('hod'))):
- with get_db() as db: return rows(db.execute("SELECT u.*,fp.classes_handled,fp.subjects_handled,fp.is_class_adviser,fp.extra_info FROM users u LEFT JOIN faculty_profiles fp ON fp.user_id=u.id WHERE u.role='faculty' AND u.department=? ORDER BY u.name",(u['department'],)))
+ with get_db() as db: return [clean(r) for r in rows(db.execute("SELECT u.*,fp.classes_handled,fp.subjects_handled,fp.is_class_adviser,fp.extra_info FROM users u LEFT JOIN faculty_profiles fp ON fp.user_id=u.id WHERE u.role='faculty' AND u.department=? ORDER BY u.name",(u['department'],)))]
 @app.get('/api/hod/class-details')
 def hod_class_details(class_name:str|None=None,u=Depends(roles('hod'))):
  with get_db() as db:
@@ -391,7 +386,7 @@ def faculty_detail(fid:int,u=Depends(current_user)):
     if not x: raise HTTPException(404,"Faculty not found")
     if u["role"]!="management" and x["department"]!=u["department"]:
         raise HTTPException(403,"Access denied")
-    return x
+    return clean(x)
 
 @app.put("/api/faculty/{fid}")
 def update_faculty(fid:int,p:dict,u=Depends(roles("hod","management"))):
@@ -576,7 +571,7 @@ def management_faculty(department:str|None=None,u=Depends(roles("management"))):
           WHERE u.role='faculty'"""
         a=[]
         if department: q+=" AND u.department=?"; a.append(department)
-        return rows(db.execute(q+" ORDER BY u.department,u.name",a))
+        return [clean(r) for r in rows(db.execute(q+" ORDER BY u.department,u.name",a))]
 
 @app.get("/api/management/placements")
 def management_placements(department:str|None=None,u=Depends(roles("management"))):
