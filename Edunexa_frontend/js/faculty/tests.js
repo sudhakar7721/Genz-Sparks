@@ -131,6 +131,8 @@ function createTest(event){
 
         faculty:currentUser.name,
 
+        department:currentUser.department || "",
+
         start,
 
         due,
