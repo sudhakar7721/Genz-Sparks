@@ -400,3 +400,6 @@
 @media(max-width:600px){
     .staff-login-grid{grid-template-columns:1fr;}
 }
+
+
+.demo-access-card{margin-top:14px}.demo-access-btn{width:100%;padding:10px 12px;border:1px solid rgba(255,255,255,.16);border-radius:10px;background:rgba(255,255,255,.05);color:inherit;cursor:pointer;font-weight:600}.demo-credentials{margin-top:8px;padding:10px;border-radius:10px;background:rgba(0,0,0,.18);font-size:11px;line-height:1.65}.demo-credentials div{margin-bottom:5px}

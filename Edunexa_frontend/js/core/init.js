@@ -1,28 +1,64 @@
 /* =========================================================
    INITIALIZE
-   Backend-aware session restore. A legacy localStorage session
-   without a FastAPI token must not automatically bypass login.
 ========================================================= */
 
 seedDatabase();
 
-const backendToken = localStorage.getItem("edunexa_token");
-const savedSession = localStorage.getItem("edunexa_session");
+// Load the expanded multi-department demo accounts without deleting existing data.
+if (typeof ensureDemoAccounts === "function") {
+    ensureDemoAccounts();
+}
 
-if (backendToken && savedSession) {
-    try {
-        const session = JSON.parse(savedSession);
-        const existingUser = db.users.find(user =>
-            (user.email || "").toLowerCase() ===
-            String(session.email || "").toLowerCase()
+
+const savedSession =
+    localStorage.getItem(
+        "edunexa_session"
+    );
+
+
+if(savedSession){
+
+    try{
+
+        const session =
+            JSON.parse(
+                savedSession
+            );
+
+
+        const existingUser =
+            db.users.find(
+                user =>
+                    user.email ===
+                    session.email
+            );
+
+
+        if(existingUser){
+
+            currentUser = existingUser;
+
+            openApp();
+
+        }else{
+
+            localStorage.removeItem(
+                "edunexa_session"
+            );
+
+        }
+
+    }catch(error){
+
+        console.error(
+            "Session error:",
+            error
         );
 
-        if (existingUser) {
-            currentUser = existingUser;
-            openApp();
-        }
-    } catch (error) {
-        console.error("Session error:", error);
-        localStorage.removeItem("edunexa_session");
+        localStorage.removeItem(
+            "edunexa_session"
+        );
+
     }
+
 }

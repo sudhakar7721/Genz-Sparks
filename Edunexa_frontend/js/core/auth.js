@@ -450,3 +450,9 @@ function openApp(){
 }
 
 
+
+
+function toggleDemoCredentials(){
+    const box=document.getElementById('demoCredentials');
+    if(box) box.classList.toggle('hidden');
+}
