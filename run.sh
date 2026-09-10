@@ -26,7 +26,7 @@ else
 fi
 
 echo "==> Starting backend  -> http://127.0.0.1:$BACKEND_PORT  (Ctrl+C to stop both)"
-( cd "$DIR/Edunexa_backend" && exec "$BACKEND_PY" -m uvicorn app.main:app --host 127.0.0.1 --port "$BACKEND_PORT" ) &
+( cd "$DIR/Edunexa_backend" && "$BACKEND_PY" -m app.init_db && exec "$BACKEND_PY" -m uvicorn app.main:app --host 127.0.0.1 --port "$BACKEND_PORT" ) &
 BACKEND_PID=$!
 
 echo "==> Starting frontend -> http://127.0.0.1:$WEB_PORT"

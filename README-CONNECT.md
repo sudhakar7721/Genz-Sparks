@@ -12,7 +12,31 @@ This package connects the two: the frontend now talks to the backend for
 tests, assignments, submissions, placements, achievements)** instead of
 running purely on demo data.
 
-## Demo accounts (password for all: `123456`)
+## Login accounts — 77 total
+
+The project includes the complete credential list supplied in `Login Details.pdf`:
+
+- 50 Student accounts
+- 20 Faculty accounts
+- 5 HOD accounts
+- 2 Management accounts
+
+The same credentials are stored in `LOGIN_ACCOUNTS.csv` for quick reference. The
+backend seed data is in `Edunexa_backend/data/login_accounts.json`.
+
+The backend initialization script automatically creates/updates all 77 accounts
+before the API starts, so the accounts are retained even if the database is
+recreated.
+
+### Account format
+
+Student passwords use the supplied `<login-id>@123` pattern.
+Faculty passwords use `<login-id-prefix>@fac_77`.
+HOD passwords use `<login-id-prefix>@hod_55`.
+Management passwords use `<login-id-prefix>@admin_33`.
+
+The exact names, login IDs and passwords are listed in `LOGIN_ACCOUNTS.csv`.
+
 
 | Role | Email | Login screen |
 |---|---|---|
