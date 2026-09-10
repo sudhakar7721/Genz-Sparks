@@ -7,7 +7,8 @@ from .security import hash_password
 SCHEMA = Path(__file__).with_name("schema.sql").read_text(encoding="utf-8")
 ACCOUNTS_FILE = DB_PATH.parent / "login_accounts.json"
 
-# The PDF supplied with this project defines 77 accounts:
+# The supplied Login Details PDF defines the 77 authoritative accounts.
+# Passwords are taken from login_accounts.json and must not be replaced by demo passwords.
 # 50 students + 20 faculty + 5 HODs + 2 management admins.
 LEGACY_MAP = {
     "alexa@example.com": "arun.kumar@stu.com",
@@ -24,6 +25,16 @@ def ensure_column(c, table, column, definition):
 def migrate(c):
     ensure_column(c, "classes", "section", "TEXT")
     ensure_column(c, "classes", "class_adviser_id", "INTEGER")
+    ensure_column(c, "faculty_profiles", "is_mentor", "INTEGER DEFAULT 0")
+    c.execute("""CREATE TABLE IF NOT EXISTS student_staff_assignments(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        class_id INTEGER REFERENCES classes(id) ON DELETE SET NULL,
+        class_adviser_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        mentor_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        CHECK(class_adviser_id IS NULL OR mentor_id IS NULL OR class_adviser_id <> mentor_id)
+    )""")
     ensure_column(c, "feedbacks", "response", "TEXT")
     ensure_column(c, "feedbacks", "responded_by", "INTEGER")
     ensure_column(c, "feedbacks", "responded_at", "TEXT")
@@ -47,6 +58,7 @@ def upsert_accounts(c, accounts):
 
     for a in accounts:
         existing = c.execute("SELECT id FROM users WHERE email=?", (a["email"],)).fetchone()
+        # Hash the exact password from the supplied credential file; never invent a replacement password.
         password_hash = hash_password(a["password"])
         if existing:
             c.execute("""UPDATE users SET
@@ -94,18 +106,48 @@ def seed_demo_data(c):
     fc = c.execute("SELECT id FROM users WHERE email='dr.priya@fac.com'").fetchone()[0]
     hd = c.execute("SELECT id FROM users WHERE email='dr.anand.kumar@hod.com'").fetchone()[0]
 
-    c.execute("""INSERT OR IGNORE INTO faculty_profiles
-        (user_id,classes_handled,subjects_handled,is_class_adviser,extra_info)
-        VALUES(?,?,?,?,?)""",
-        (fc, json.dumps(["II B.Sc Data Analytics","I B.Sc Data Analytics"]),
-         json.dumps(["Python","Data Analytics","SQL","Power BI"]), 1,
-         "Class Adviser and academic coordinator"))
+    # Explicit department hierarchy: one Class Adviser and a different Mentor
+    # for every department. Remaining faculty stay as normal faculty.
+    role_map = {
+        "Data Analytics": ("dr.priya@fac.com", "priya.devi@fac.com"),
+        "Computer Science": ("meena.krishnan@fac.com", "arun.prakash@fac.com"),
+        "Commerce": ("naveen.kumar@fac.com", "anitha.r@fac.com"),
+        "Artificial Intelligence": ("vignesh.r@fac.com", "swetha.k@fac.com"),
+        "Information Technology": ("dinesh.kumar@fac.com", "pavithra.s@fac.com"),
+    }
+    for dept_name, (adviser_email, mentor_email) in role_map.items():
+        adviser = c.execute("SELECT id FROM users WHERE email=? AND role='faculty'", (adviser_email,)).fetchone()
+        mentor = c.execute("SELECT id FROM users WHERE email=? AND role='faculty'", (mentor_email,)).fetchone()
+        if not adviser or not mentor or adviser[0] == mentor[0]:
+            continue
+        c.execute("INSERT OR IGNORE INTO faculty_profiles(user_id) VALUES(?)", (adviser[0],))
+        c.execute("INSERT OR IGNORE INTO faculty_profiles(user_id) VALUES(?)", (mentor[0],))
+        c.execute("UPDATE faculty_profiles SET is_class_adviser=0, is_mentor=0 WHERE user_id IN (SELECT id FROM users WHERE role='faculty' AND department=?)", (dept_name,))
+        c.execute("UPDATE faculty_profiles SET is_class_adviser=1, is_mentor=0, extra_info=? WHERE user_id=?", ("Class Adviser for the department", adviser[0]))
+        c.execute("UPDATE faculty_profiles SET is_class_adviser=0, is_mentor=1, extra_info=? WHERE user_id=?", ("Mentor faculty; not a Class Adviser", mentor[0]))
+        did = c.execute("SELECT id FROM departments WHERE name=?", (dept_name,)).fetchone()
+        if not did:
+            continue
+        class_name = f"II B.Sc {dept_name}"
+        existing_class = c.execute("SELECT id FROM classes WHERE department_id=? AND name=?", (did[0], class_name)).fetchone()
+        if existing_class:
+            class_id = existing_class[0]
+            c.execute("UPDATE classes SET batch=?,semester=?,section=?,class_adviser_id=? WHERE id=?", ("2025-2028", "III", "A", adviser[0], class_id))
+        else:
+            cur = c.execute("INSERT INTO classes(department_id,name,batch,semester,section,class_adviser_id) VALUES(?,?,?,?,?,?)", (did[0], class_name, "2025-2028", "III", "A", adviser[0]))
+            class_id = cur.lastrowid
+        students = c.execute("SELECT id FROM users WHERE role='student' AND department=? ORDER BY id", (dept_name,)).fetchall()
+        for strow in students:
+            c.execute("""INSERT INTO student_staff_assignments(student_id,class_id,class_adviser_id,mentor_id)
+                VALUES(?,?,?,?) ON CONFLICT(student_id) DO UPDATE SET
+                class_id=excluded.class_id,class_adviser_id=excluded.class_adviser_id,mentor_id=excluded.mentor_id""", (strow[0], class_id, adviser[0], mentor[0]))
 
+    # Keep the original Data Analytics demo profile details while fixing its role.
+    fc = c.execute("SELECT id FROM users WHERE email='dr.priya@fac.com'").fetchone()[0]
+    c.execute("UPDATE faculty_profiles SET classes_handled=?, subjects_handled=?, is_class_adviser=1, is_mentor=0, extra_info=? WHERE user_id=?",
+        (json.dumps(["II B.Sc Data Analytics","I B.Sc Data Analytics"]), json.dumps(["Python","Data Analytics","SQL","Power BI"]), "Class Adviser and academic coordinator", fc))
     dept = c.execute("SELECT id FROM departments WHERE name='Data Analytics'").fetchone()[0]
-    c.execute("""INSERT OR IGNORE INTO classes
-        (department_id,name,batch,semester,section,class_adviser_id)
-        VALUES(?,?,?,?,?,?)""",
-        (dept, "II B.Sc Data Analytics", "2025-2028", "III", "A", fc))
+    c.execute("UPDATE classes SET class_adviser_id=?, batch='2025-2028', semester='III', section='A' WHERE department_id=? AND name='II B.Sc Data Analytics'", (fc, dept))
 
     for sub, ex, mark in [
         ("Python","Internal 1",86), ("SQL","Internal 1",82),

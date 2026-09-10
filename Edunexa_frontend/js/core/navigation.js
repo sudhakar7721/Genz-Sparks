@@ -18,6 +18,11 @@ function defaultPage(){
 
     if(currentUser.role === "hod"){
 
+        // Department Hierarchy is available to HOD for the current department.
+        addSection("Department", [["department-hierarchy","🏛️","Department Hierarchy"]]);
+
+        
+
         return "hod-dashboard";
 
     }
@@ -118,7 +123,8 @@ function buildNav(){
 
                 ["faculty-attendance","📅","Attendance"],
 
-                ["faculty-marks","🎯","Marks & Results"]
+                ["faculty-marks","🎯","Marks & Results"],
+                ["department-hierarchy","🏛️","Department Hierarchy"]
 
             ]
         );
@@ -389,3 +395,10 @@ function stat(title,number,change=""){
 }
 
 
+
+
+(function(){
+  document.addEventListener("click",function(){
+    setTimeout(function(){ if(typeof loadDepartmentHierarchyPage==="function" && document.getElementById("department-hierarchy") && document.getElementById("department-hierarchy").classList.contains("active")) loadDepartmentHierarchyPage(); },50);
+  });
+})();

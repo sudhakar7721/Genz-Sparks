@@ -63,6 +63,7 @@
         var classes = parseList(u.classes_handled);
         var subjects = parseList(u.subjects_handled);
         var isAdviser = u.is_class_adviser ? true : !!u.is_class_adviser;
+        var isMentor = u.is_mentor ? true : !!u.is_mentor;
         return {
             id: u.id,
             name: u.name || "",
@@ -86,13 +87,16 @@
             office: u.office || "",
             position: u.designation || "Faculty",
             classAdviser: isAdviser,
-            mentor: u.role === "faculty",
+            mentor: isMentor,
             isClassAdviser: isAdviser,
             classesHandled: classes,
             basicSubjects: subjects,
             extraSubjects: subjects,
             subjectsHandled: subjects,
             extraInfo: u.extra_info || "",
+            classAdviserName: u.class_adviser_name || "",
+            mentorName: u.mentor_name || "",
+            assignedClassName: u.assigned_class_name || "",
             skills: defaultSkills()
         };
     }
@@ -161,6 +165,18 @@
                 db.users.push(mapped);
             }
         });
+    }
+
+    function refreshCurrentUserFromDb() {
+        if (!currentUser) return;
+        var fresh = (db.users || []).find(function (x) {
+            return Number(x.id) === Number(currentUser.id) ||
+                (x.email && currentUser.email && x.email.toLowerCase() === String(currentUser.email).toLowerCase());
+        });
+        if (fresh) {
+            Object.assign(currentUser, fresh);
+            try { localStorage.setItem("edunexa_session", JSON.stringify(currentUser)); } catch (e) {}
+        }
     }
 
     function mergeById(collection, items, keyFn) {
@@ -628,6 +644,7 @@
             var facultyList = [];
             try { facultyList = await get("/faculty"); } catch (e) {}
             mergeUsers(facultyList);
+            refreshCurrentUserFromDb();
             await Promise.all([
                 loadStudentMarks(),
                 loadFees(),

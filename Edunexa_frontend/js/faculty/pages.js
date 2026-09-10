@@ -1327,3 +1327,9 @@ function facultyPages(){
 }
 
 
+
+
+/* Department hierarchy page */
+function departmentHierarchyPage(){
+    return `<div class="page" id="department-hierarchy"><div class="card"><p>Loading department hierarchy…</p></div></div>`;
+}

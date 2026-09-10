@@ -27,11 +27,25 @@ def root(): return {'app':'EduNexa V12','status':'online','docs':'/docs','api':'
 @app.get('/api/health')
 def health(): return {'status':'ok'}
 def clean(row): return None if row is None else {k:v for k,v in row.items() if k!='password_hash'}
+def enriched_user(db, user_id):
+    return row(db.execute("""SELECT u.*, fp.classes_handled, fp.subjects_handled,
+        fp.is_class_adviser, COALESCE(fp.is_mentor,0) is_mentor, fp.extra_info,
+        ca.name class_adviser_name, me.name mentor_name, c.name assigned_class_name
+        FROM users u
+        LEFT JOIN faculty_profiles fp ON fp.user_id=u.id
+        LEFT JOIN student_staff_assignments a ON a.student_id=u.id
+        LEFT JOIN users ca ON ca.id=a.class_adviser_id
+        LEFT JOIN users me ON me.id=a.mentor_id
+        LEFT JOIN classes c ON c.id=a.class_id
+        WHERE u.id=?""", (user_id,)))
+
 @app.post('/api/auth/login')
 def login(x:Login):
- with get_db() as db: u=row(db.execute('SELECT * FROM users WHERE email=? COLLATE NOCASE',(x.email,)))
- if not u or not verify_password(x.password,u['password_hash']): raise HTTPException(401,'Invalid email or password')
- return {'access_token':token(u['id'],u['role']),'token_type':'bearer','user':{k:v for k,v in u.items() if k!='password_hash'}}
+ with get_db() as db:
+  u=row(db.execute('SELECT * FROM users WHERE email=? COLLATE NOCASE',(x.email,)))
+  if not u or not verify_password(x.password,u['password_hash']): raise HTTPException(401,'Invalid email or password')
+  fresh=enriched_user(db,u['id']) or u
+ return {'access_token':token(u['id'],u['role']),'token_type':'bearer','user':clean(fresh)}
 @app.post('/api/auth/register')
 def register(x:Register):
  if x.role not in ('student','faculty','hod'): raise HTTPException(400,'Role must be student, faculty or hod')
@@ -42,7 +56,9 @@ def register(x:Register):
   if x.role=='faculty': db.execute('INSERT INTO faculty_profiles(user_id) VALUES(?)',(uid,))
  return {'message':'Registration successful','user_id':uid}
 @app.get('/api/auth/me')
-def me(u=Depends(current_user)): return {k:v for k,v in u.items() if k!='password_hash'}
+def me(u=Depends(current_user)):
+ with get_db() as db: fresh=enriched_user(db,u['id']) or u
+ return clean(fresh)
 @app.get('/api/dashboard/summary')
 def dashboard(u=Depends(current_user)):
  with get_db() as db:
@@ -52,7 +68,7 @@ def dashboard(u=Depends(current_user)):
   return {'role':u['role'],'students':db.execute("SELECT COUNT(*) FROM users WHERE role='student'").fetchone()[0],'faculty':db.execute("SELECT COUNT(*) FROM users WHERE role='faculty'").fetchone()[0]}
 @app.get('/api/students')
 def students(u=Depends(roles('faculty','hod','management'))):
- with get_db() as db: return [clean(r) for r in rows(db.execute("SELECT u.*,sp.age,sp.sex,sp.caste,sp.region,sp.address,sp.blood_group,sp.school_name,sp.tenth_mark,sp.twelfth_mark,sp.additional_details FROM users u LEFT JOIN student_profiles sp ON sp.user_id=u.id WHERE u.role='student' ORDER BY u.name"))]
+ with get_db() as db: return [clean(r) for r in rows(db.execute("SELECT u.*,sp.age,sp.sex,sp.caste,sp.region,sp.address,sp.blood_group,sp.school_name,sp.tenth_mark,sp.twelfth_mark,sp.additional_details, ca.name class_adviser_name, me.name mentor_name, c.name assigned_class_name FROM users u LEFT JOIN student_profiles sp ON sp.user_id=u.id LEFT JOIN student_staff_assignments a ON a.student_id=u.id LEFT JOIN users ca ON ca.id=a.class_adviser_id LEFT JOIN users me ON me.id=a.mentor_id LEFT JOIN classes c ON c.id=a.class_id WHERE u.role='student' ORDER BY u.name"))]
 @app.get('/api/students/{sid}')
 def student(sid:int,u=Depends(current_user)):
  if sid!=u['id'] and u['role'] not in ('faculty','hod','management'): raise HTTPException(403,'Access denied')
@@ -69,7 +85,7 @@ def student_profile(sid:int,p:dict,u=Depends(current_user)):
  return {'message':'Profile updated'}
 @app.get('/api/faculty')
 def faculty(u=Depends(roles('faculty','hod','management'))):
- with get_db() as db: return [clean(r) for r in rows(db.execute("SELECT u.*,fp.classes_handled,fp.subjects_handled,fp.is_class_adviser,fp.extra_info FROM users u LEFT JOIN faculty_profiles fp ON fp.user_id=u.id WHERE u.role='faculty' ORDER BY u.name"))]
+ with get_db() as db: return [clean(r) for r in rows(db.execute("SELECT u.*,fp.classes_handled,fp.subjects_handled,fp.is_class_adviser,COALESCE(fp.is_mentor,0) is_mentor,fp.extra_info FROM users u LEFT JOIN faculty_profiles fp ON fp.user_id=u.id WHERE u.role='faculty' ORDER BY u.name"))]
 @app.get('/api/marks')
 def marks(student_id:int|None=None,u=Depends(current_user)):
  sid=student_id or u['id']
@@ -264,7 +280,7 @@ def hod_students(u=Depends(roles('hod'))):
  with get_db() as db: return rows(db.execute("SELECT u.id,u.name,u.email,u.student_id,u.department,u.batch,u.attendance,COALESCE(AVG(m.mark),0) average_mark FROM users u LEFT JOIN marks m ON m.student_id=u.id WHERE u.role='student' AND u.department=? GROUP BY u.id ORDER BY u.name",(u['department'],)))
 @app.get('/api/hod/faculty')
 def hod_faculty(u=Depends(roles('hod'))):
- with get_db() as db: return [clean(r) for r in rows(db.execute("SELECT u.*,fp.classes_handled,fp.subjects_handled,fp.is_class_adviser,fp.extra_info FROM users u LEFT JOIN faculty_profiles fp ON fp.user_id=u.id WHERE u.role='faculty' AND u.department=? ORDER BY u.name",(u['department'],)))]
+ with get_db() as db: return [clean(r) for r in rows(db.execute("SELECT u.*,fp.classes_handled,fp.subjects_handled,fp.is_class_adviser,COALESCE(fp.is_mentor,0) is_mentor,fp.extra_info FROM users u LEFT JOIN faculty_profiles fp ON fp.user_id=u.id WHERE u.role='faculty' AND u.department=? ORDER BY u.name",(u['department'],)))]
 @app.get('/api/hod/class-details')
 def hod_class_details(class_name:str|None=None,u=Depends(roles('hod'))):
  with get_db() as db:
@@ -380,7 +396,7 @@ def update_student(sid:int,p:dict,u=Depends(roles("faculty","hod","management"))
 def faculty_detail(fid:int,u=Depends(current_user)):
     with get_db() as db:
         x=row(db.execute("""SELECT u.*,fp.classes_handled,fp.subjects_handled,
-          fp.is_class_adviser,fp.extra_info FROM users u
+          fp.is_class_adviser,COALESCE(fp.is_mentor,0) is_mentor,fp.extra_info FROM users u
           LEFT JOIN faculty_profiles fp ON fp.user_id=u.id
           WHERE u.id=? AND u.role='faculty'""",(fid,)))
     if not x: raise HTTPException(404,"Faculty not found")
@@ -399,7 +415,7 @@ def update_faculty(fid:int,p:dict,u=Depends(roles("hod","management"))):
         if data:
             db.execute("UPDATE users SET "+",".join(k+"=?" for k in data)+" WHERE id=?",
                        (*data.values(),fid))
-        profile_allowed={"classes_handled","subjects_handled","is_class_adviser","extra_info"}
+        profile_allowed={"classes_handled","subjects_handled","is_class_adviser","is_mentor","extra_info"}
         pdata={k:v for k,v in p.items() if k in profile_allowed}
         if "classes_handled" in pdata and isinstance(pdata["classes_handled"],list):
             pdata["classes_handled"]=json.dumps(pdata["classes_handled"])
@@ -410,6 +426,29 @@ def update_faculty(fid:int,p:dict,u=Depends(roles("hod","management"))):
             db.execute("UPDATE faculty_profiles SET "+",".join(k+"=?" for k in pdata)+" WHERE user_id=?",
                        (*pdata.values(),fid))
     return {"message":"Faculty details updated"}
+
+@app.get("/api/department-hierarchy")
+def department_hierarchy(department:str|None=None,u=Depends(current_user)):
+    d=department or u.get("department")
+    if u["role"] not in ("management","hod") and d != u.get("department"):
+        raise HTTPException(403,"Access denied")
+    with get_db() as db:
+        dept=row(db.execute("SELECT d.*,h.name hod_name FROM departments d LEFT JOIN users h ON h.id=d.hod_user_id WHERE d.name=?",(d,)))
+        if not dept: raise HTTPException(404,"Department not found")
+        faculty=rows(db.execute("""SELECT u.id,u.name,u.email,u.faculty_id,u.designation,
+          COALESCE(fp.is_class_adviser,0) is_class_adviser,COALESCE(fp.is_mentor,0) is_mentor
+          FROM users u LEFT JOIN faculty_profiles fp ON fp.user_id=u.id
+          WHERE u.role='faculty' AND u.department=? ORDER BY u.name""",(d,)))
+        classes=rows(db.execute("""SELECT c.id,c.name,c.batch,c.semester,c.section,c.class_adviser_id,ca.name class_adviser_name
+          FROM classes c LEFT JOIN users ca ON ca.id=c.class_adviser_id
+          JOIN departments d ON d.id=c.department_id WHERE d.name=? ORDER BY c.name""",(d,)))
+        students=rows(db.execute("""SELECT s.id,s.name,s.student_id,s.email,s.batch,a.class_id,c.name assigned_class_name,
+          ca.name class_adviser_name,me.name mentor_name
+          FROM users s LEFT JOIN student_staff_assignments a ON a.student_id=s.id
+          LEFT JOIN classes c ON c.id=a.class_id LEFT JOIN users ca ON ca.id=a.class_adviser_id
+          LEFT JOIN users me ON me.id=a.mentor_id
+          WHERE s.role='student' AND s.department=? ORDER BY s.name""",(d,)))
+    return {"department":dept,"faculty":faculty,"classes":classes,"students":students}
 
 @app.get("/api/student-records/{sid}")
 def student_records_for_staff(sid:int,u=Depends(roles("faculty","hod","management"))):
@@ -566,7 +605,7 @@ def save_fee_structure(p:dict,u=Depends(roles("management","hod"))):
 def management_faculty(department:str|None=None,u=Depends(roles("management"))):
     with get_db() as db:
         q="""SELECT u.*,fp.classes_handled,fp.subjects_handled,
-          fp.is_class_adviser,fp.extra_info FROM users u
+          fp.is_class_adviser,COALESCE(fp.is_mentor,0) is_mentor,fp.extra_info FROM users u
           LEFT JOIN faculty_profiles fp ON fp.user_id=u.id
           WHERE u.role='faculty'"""
         a=[]
