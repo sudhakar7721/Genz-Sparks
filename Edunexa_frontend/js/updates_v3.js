@@ -130,19 +130,36 @@ window.renderV3AdviserTimetable=function(){
 };
 
 /* ---------- Adviser leave console uses the ONE student leave workflow ---------- */
+function v3AdviserLeaveRows(cls){
+  const seen={};
+  const rows=[];
+  (db.classLeaveRequests||[]).forEach(r=>{
+    if(r.className&&r.className!==cls)return;
+    const key=String(r.id);
+    if(!seen[key]){seen[key]=1;rows.push(r);}
+  });
+  (db.leaves||[]).forEach(r=>{
+    if(r.className&&r.className!==cls)return;
+    const key=String(r.id);
+    if(!seen[key]){seen[key]=1;rows.push(r);}
+  });
+  return rows;
+}
 window.renderV3AdviserLeaves=function(){
   const el=document.getElementById("adviserLeaveV2"); if(!el)return;
   const cls=v3ClassOf(currentUser);
-  const rows=(db.classLeaveRequests||[]).filter(r=>!r.className||r.className===cls);
+  const rows=v3AdviserLeaveRows(cls);
   el.innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Student</th><th>Class</th><th>Date</th><th>Type</th><th>Duration</th><th>Hours</th><th>Period</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody>${
     rows.slice().reverse().map(r=>`<tr><td>${esc(r.studentName||"")}</td><td>${esc(r.className||"")}</td><td>${esc(r.from||r.date||"")}${r.to&&r.to!==r.from?` → ${esc(r.to)}`:""}</td><td>${esc(r.type||"")}</td><td>${esc(r.durationType||"Full Day")}</td><td>${esc(r.hours??"")}</td><td>${esc(r.period||"—")}</td><td>${esc(r.reason||"")}</td><td><span class="badge ${r.status==="Approved"?"green":r.status==="Rejected"?"red":"yellow"}">${esc(r.status||"Pending")}</span></td><td>${r.status==="Pending"?`<button class="btn success" onclick="v3LeaveDecision('${escAttr(r.id)}','Approved')">Approve</button> <button class="btn secondary" onclick="v3LeaveDecision('${escAttr(r.id)}','Rejected')">Decline</button>`:`<button class="btn secondary" onclick="v2View('Leave Request',\`${escAttr(JSON.stringify(r))}\`)">👁 View</button>`}</td></tr>`).join("")
   }</tbody></table></div>`:`<div class="empty">No class leave requests.</div>`;
 };
 window.v3LeaveDecision=function(id,status){
-  const r=(db.classLeaveRequests||[]).find(x=>String(x.id)===String(id)); if(!r)return;
-  r.status=status;r.reviewedBy=currentUser.name;r.reviewedAt=new Date().toLocaleString();
-  const legacy=(db.leaves||[]).find(x=>String(x.id)===String(id)||String(x.id)===String(r.id));
-  if(legacy){legacy.status=status;legacy.reviewedBy=currentUser.name;legacy.reviewedAt=r.reviewedAt;}
+  let r=(db.classLeaveRequests||[]).find(x=>String(x.id)===String(id));
+  const legacy=(db.leaves||[]).find(x=>String(x.id)===String(id)||(r&&String(x.id)===String(r.id)));
+  if(!r&&!legacy)return;
+  if(r){r.status=status;r.reviewedBy=currentUser.name;r.reviewedAt=new Date().toLocaleString();}
+  if(legacy){legacy.status=status;legacy.reviewedBy=currentUser.name;legacy.reviewedAt=new Date().toLocaleString();legacy.__lastStatus=status;}
+  if(!r){r=legacy;}
   save();refreshAll();window.renderV3AdviserLeaves();toast(`Leave ${status.toLowerCase()}.`);
 };
 
@@ -189,8 +206,11 @@ window.v3SaveHod=function(e,id){
   const u=(db.users||[]).find(x=>x.role==="hod"&&(x.hodId===data.id||x.email===data.email));
   if(u) Object.assign(u,{name:data.name,email:data.email,phone:data.phone,department:data.department,designation:data.designation,qualification:data.qualification,experience:data.experience,hodId:data.id});
   else db.users.push({name:data.name,email:data.email,password:"123456",role:"hod",hodId:data.id,department:data.department,designation:data.designation,phone:data.phone,qualification:data.qualification,experience:data.experience});
-  save();renderV3ManagementHods();toast(old?"HOD details updated.":"New HOD added.");
-  document.getElementById("v3HodFormHost").innerHTML=v3HodForm({});
+  save();
+  renderV3ManagementHods();
+  toast(old?"HOD details updated.":"New HOD added.");
+  var fh=document.getElementById("v3HodFormHost");
+  if(fh) fh.innerHTML=v3HodForm({});
 };
 window.v3EditHod=function(id){const h=db.hodDetails.find(x=>x.id===id);if(h){document.getElementById("v3HodFormHost").innerHTML=v3HodForm(h);document.getElementById("v3HodFormHost").scrollIntoView({behavior:"smooth"});}};
 window.v3DeleteHod=function(id){if(!confirm("Delete this HOD information record?"))return;db.hodDetails=db.hodDetails.filter(x=>x.id!==id);save();renderV3ManagementHods();toast("HOD information removed.");};

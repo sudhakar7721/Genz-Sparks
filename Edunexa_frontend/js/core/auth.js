@@ -190,7 +190,7 @@ function register(){
 
         user.batch = "2025-2028";
 
-        user.attendance = 0;
+        user.attendance = 85;
 
         user.skills = {
 

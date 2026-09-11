@@ -777,6 +777,53 @@ function studentPages(){
     </div>
 
 
+    <!-- CLASS TIMETABLE -->
+
+    <div
+        class="page"
+        id="student-timetable"
+    >
+
+        <div class="page-title">
+
+            <h1>
+                Class Timetable 🕐
+            </h1>
+
+            <p>
+                Your class schedule from the Class Adviser Portal.
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-head">
+
+                <h3>
+                    Weekly Schedule
+                </h3>
+
+                <p>
+                    Class: ${esc(
+                        (function(){
+                            const u = currentUser;
+                            return u?.className || u?.class || u?.classesHandled?.[0] || "II B.Sc Data Analytics";
+                        })()
+                    )}
+                </p>
+
+            </div>
+
+
+            <div id="studentTimetable"></div>
+
+        </div>
+
+    </div>
+
+
     <!-- STUDENT FEEDBACK -->
     <div class="page" id="student-feedback">
         <div class="page-title">

@@ -174,6 +174,18 @@ return `
   <div class="page-title"><h1>Mark Change Request ⏳</h1><p>If the permitted mark-edit period has ended, submit the correction to HOD.</p></div>
   <div class="card"><p><b>Current mark-edit period:</b> <span id="markPeriodStatus"></span></p>
     <div id="facultyMarkRequestList"></div></div>
+  <div class="card"><div class="card-head"><div><h3>New Mark Change Request</h3><p>Select a student and enter proposed mark values to send a request to HOD.</p></div></div>
+    <form onsubmit="submitManualMarkChange(event)">
+      <div class="form-grid">
+        <div class="form-group"><label>Student</label><select id="mcrStudent" class="control" required><option value="">Select Student</option></select></div>
+        <div class="form-group"><label>Proposed CA1 (0–100)</label><input id="mcrCa1" type="number" min="0" max="100" class="control" required></div>
+        <div class="form-group"><label>Proposed CA2 (0–100)</label><input id="mcrCa2" type="number" min="0" max="100" class="control" required></div>
+        <div class="form-group"><label>Proposed Model (0–100)</label><input id="mcrModel" type="number" min="0" max="100" class="control" required></div>
+        <div class="form-group full"><label>Reason for Change</label><textarea id="mcrReason" class="control" rows="3" placeholder="Explain why the marks need correction..." required></textarea></div>
+        <div class="full"><button class="btn primary" type="submit">Send Request to HOD</button></div>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- ================= HOD ================= -->
@@ -184,6 +196,8 @@ return `
    <button class="card" onclick="go('hod-faculty')"><h3>👨‍🏫 Faculty & Subject Details</h3><p class="muted">View faculty positions, classes, subjects and adviser roles.</p></button>
    <button class="card" onclick="go('hod-mark-requests')"><h3>🎯 Mark Change Approval</h3><p class="muted">Approve or reject student mark correction requests.</p></button>
    <button class="card" onclick="go('hod-class-details')"><h3>🏫 Class & Timetable Control</h3><p class="muted">View classes, advisers and department schedules.</p></button>
+   <button class="card" onclick="go('hod-faculty-timetable')"><h3>📅 Faculty Timetable</h3><p class="muted">View faculty teaching schedules and periods.</p></button>
+   <button class="card" onclick="go('hod-faculty-attendance')"><h3>🧾 Faculty Attendance</h3><p class="muted">Track faculty attendance records and status.</p></button>
    <button class="card" onclick="go('hod-feedback')"><h3>💬 Feedback & Analytics</h3><p class="muted">Review committee feedback and department ratings.</p></button>
    <button class="card" onclick="go('hod-achievements')"><h3>📊 Department Achievements</h3><p class="muted">Track ranks, placements, certifications and research.</p></button>
   </div>
@@ -345,20 +359,55 @@ function renderStudentRecords(){
 /* ---------- Mark change period / HOD approval ---------- */
 function markPeriodExpired(){ return new Date() > new Date((db.markEditPeriodEnd||enhancementToday())+"T23:59:59"); }
 function requestMarkChange(studentId, values){
- const existing=db.markChangeRequests.find(x=>x.studentId===studentId&&x.facultyId===currentUser.facultyId&&x.status==="Pending");
+ const existing=db.markChangeRequests.find(x=>x.studentId===studentId&&(x.facultyId===currentUser.facultyId||x.facultyId===currentUser.email)&&x.status==="Pending");
  if(existing){toast("A pending request already exists.");return;}
- const r={id:"MCR-"+Date.now(),studentId,facultyId:currentUser.facultyId||currentUser.email,facultyName:currentUser.name,department:currentUser.department||"",requested:{ca1:values.ca1,ca2:values.ca2,model:values.model},requestedAt:new Date().toLocaleString(),periodEnd:db.markEditPeriodEnd,status:"Pending"};
+ const stu=students().find(s=>s.studentId===studentId);
+ const r={id:"MCR-"+Date.now(),studentId,studentName:stu?stu.name:studentId,facultyId:currentUser.facultyId||currentUser.email,facultyName:currentUser.name,department:currentUser.department||"",requested:{ca1:values.ca1,ca2:values.ca2,model:values.model},requestedAt:new Date().toLocaleString(),periodEnd:db.markEditPeriodEnd,status:"Pending",__lastStatus:"Pending"};
  db.markChangeRequests.push(r); addNotice("Mark change request",`${currentUser.name} requested mark correction for ${studentId}.`,"hod"); save(); renderFacultyMarkRequests(); toast("Request sent to HOD.");
 }
 function renderFacultyMarkRequests(){
  const e=document.getElementById("facultyMarkRequestList");if(!e)return;
  const rows=db.markChangeRequests.filter(x=>x.facultyId===currentUser.facultyId||x.facultyId===currentUser.email);
- e.innerHTML=rows.map(x=>`<div class="item"><div class="item-top"><b>${esc(x.studentId)}</b><span class="badge ${x.status==="Approved"?"green":x.status==="Rejected"?"red":"yellow"}">${esc(x.status)}</span></div><p>Requested: CA1 ${x.requested.ca1}, CA2 ${x.requested.ca2}, Model ${x.requested.model}</p><p>Period ended: ${esc(x.periodEnd)} • ${esc(x.requestedAt)}</p></div>`).join("")||`<div class="empty">No mark change requests.</div>`;
+ e.innerHTML=rows.map(x=>{
+  const stu=(db.users||[]).find(u=>u.studentId===x.studentId);
+  const displayName=x.studentName||(stu?stu.name:x.studentId);
+  return `<div class="item"><div class="item-top"><b>${esc(displayName)} (${esc(x.studentId)})</b><span class="badge ${x.status==="Approved"?"green":x.status==="Rejected"?"red":"yellow"}">${esc(x.status)}</span></div><p>Requested: CA1 ${x.requested.ca1}, CA2 ${x.requested.ca2}, Model ${x.requested.model}</p><p>Reason: ${esc(x.reason||"Not specified")}</p><p>Period ended: ${esc(x.periodEnd)} • ${esc(x.requestedAt)}</p></div>`;
+ }).join("")||`<div class="empty">No mark change requests.</div>`;
  const s=document.getElementById("markPeriodStatus");if(s)s.textContent=markPeriodExpired()?`Expired on ${db.markEditPeriodEnd} — HOD approval required.`:`Open until ${db.markEditPeriodEnd}.`;
+ const sel=document.getElementById("mcrStudent");
+ if(sel && sel.options.length<=1){
+  const stu=students();
+  sel.innerHTML=`<option value="">Select Student</option>`+stu.map(x=>`<option value="${esc(x.studentId)}">${esc(x.name)} (${esc(x.studentId)})</option>`).join("");
+ }
+}
+function submitManualMarkChange(event){
+ event.preventDefault();
+ const studentId=document.getElementById("mcrStudent").value;
+ const ca1=Number(document.getElementById("mcrCa1").value);
+ const ca2=Number(document.getElementById("mcrCa2").value);
+ const model=Number(document.getElementById("mcrModel").value);
+ const reason=(document.getElementById("mcrReason").value||"").trim();
+ if(!studentId){toast("Please select a student.");return;}
+ if([ca1,ca2,model].some(v=>isNaN(v)||v<0||v>100)){toast("Marks must be between 0 and 100.");return;}
+ const existing=db.markChangeRequests.find(x=>x.studentId===studentId&&(x.facultyId===currentUser.facultyId||x.facultyId===currentUser.email)&&x.status==="Pending");
+ if(existing){toast("A pending request already exists for this student.");return;}
+ const stu=students().find(s=>s.studentId===studentId);
+ const r={id:"MCR-"+Date.now(),studentId,studentName:stu?stu.name:studentId,facultyId:currentUser.facultyId||currentUser.email,facultyName:currentUser.name,department:currentUser.department||"",requested:{ca1,ca2,model},reason,requestedAt:new Date().toLocaleString(),periodEnd:db.markEditPeriodEnd,status:"Pending",__lastStatus:"Pending"};
+ db.markChangeRequests.push(r);
+ addNotice("Mark change request",`${currentUser.name} requested mark correction for ${studentId}. Reason: ${reason}`,"hod");
+ save(); renderFacultyMarkRequests();
+ document.getElementById("mcrStudent").value="";
+ document.getElementById("mcrCa1").value="";
+ document.getElementById("mcrCa2").value="";
+ document.getElementById("mcrModel").value="";
+ document.getElementById("mcrReason").value="";
+ toast("Request sent to HOD.");
 }
 function renderHodMarkRequests(){
  const e=document.getElementById("hodMarkRequests");if(!e)return;
- e.innerHTML=db.markChangeRequests.map(x=>`<div class="item"><div class="item-top"><b>${esc(x.studentId)} • ${esc(x.facultyName)}</b><span class="badge ${x.status==="Approved"?"green":x.status==="Rejected"?"red":"yellow"}">${esc(x.status)}</span></div><p>CA1 ${x.requested.ca1} • CA2 ${x.requested.ca2} • Model ${x.requested.model}</p><p>Period: ${esc(x.periodEnd)} • ${esc(x.requestedAt)}</p>${x.status==="Pending"?`<div class="actions"><button class="btn success" onclick="reviewMarkRequest('${esc(x.id)}','Approved')">Approve</button><button class="btn danger" onclick="reviewMarkRequest('${esc(x.id)}','Rejected')">Reject</button></div>`:""}</div>`).join("")||`<div class="empty">No requests.</div>`;
+ const dept=currentUser.department||"";
+ const filtered=db.markChangeRequests.filter(x=>!dept||x.department===dept||!x.department);
+ e.innerHTML=filtered.map(x=>`<div class="item"><div class="item-top"><b>${esc(x.studentId)} • ${esc(x.facultyName)}</b><span class="badge ${x.status==="Approved"?"green":x.status==="Rejected"?"red":"yellow"}">${esc(x.status)}</span></div><p>CA1 ${x.requested.ca1} • CA2 ${x.requested.ca2} • Model ${x.requested.model}</p><p>Reason: ${esc(x.reason||"Not specified")}</p><p>Period: ${esc(x.periodEnd)} • ${esc(x.requestedAt)}</p>${x.status==="Pending"?`<div class="actions"><button class="btn success" onclick="reviewMarkRequest('${esc(x.id)}','Approved')">Approve</button><button class="btn danger" onclick="reviewMarkRequest('${esc(x.id)}','Rejected')">Reject</button></div>`:""}</div>`).join("")||`<div class="empty">No requests.</div>`;
 }
 function reviewMarkRequest(id,status){
  const r=db.markChangeRequests.find(x=>x.id===id);if(!r)return;
@@ -408,7 +457,7 @@ function seedHodSampleData(){
   ["MCR-1004","EDU2026-1005","FAC-1005","Dr. Kishore",[95,93,96]],
   ["MCR-1005","EDU2026-1048","FAC-1001","Dr. Priya",[88,90,92]]
  ];
- reqs.forEach((a,i)=>{if(!db.markChangeRequests.some(x=>x.id===a[0]))db.markChangeRequests.push({id:a[0],studentId:a[1],facultyId:a[2],facultyName:a[3],department:"Data Analytics",requested:{ca1:a[4][0],ca2:a[4][1],model:a[4][2]},requestedAt:`2026-09-0${i+1} 10:30 AM`,periodEnd:"2026-08-31",status:i<2?"Pending":i===2?"Approved":"Rejected",reviewedBy:i<2?"":"Dr. HOD Admin",reviewedAt:i<2?"":"2026-09-02 02:00 PM"});});
+ reqs.forEach((a,i)=>{if(!db.markChangeRequests.some(x=>x.id===a[0]))db.markChangeRequests.push({id:a[0],studentId:a[1],facultyId:a[2],facultyName:a[3],department:"Data Analytics",requested:{ca1:a[4][0],ca2:a[4][1],model:a[4][2]},requestedAt:`2026-09-0${i+1} 10:30 AM`,periodEnd:"2026-08-31",status:i<2?"Pending":i===2?"Approved":"Rejected",reviewedBy:i<2?"":"Dr. HOD Admin",reviewedAt:i<2?"":"2026-09-02 02:00 PM",__synced:true,__lastStatus:i<2?"Pending":i===2?"Approved":"Rejected",__backendId:1001+i});});
 
  const fts=[
   ["Dr. Priya","Monday","09:00 - 09:50","Python","II B.Sc Data Analytics"],["Dr. Arun","Monday","09:50 - 10:40","Statistics","II B.Sc Data Analytics"],["Ms. Kavitha","Tuesday","11:00 - 11:50","Excel","II B.Sc Data Analytics"],["Ms. Nivetha","Wednesday","10:40 - 11:30","Power BI","II B.Sc Data Analytics"],["Dr. Kishore","Thursday","09:00 - 09:50","Machine Learning","II B.Sc Data Analytics"]
@@ -448,8 +497,18 @@ function renderHodData(){
  const s=document.getElementById("hodStudentList");if(s)s.innerHTML=students.map(x=>{const r=db.studentProfiles.find(y=>y.studentId===x.studentId);const m=db.marks.find(y=>y.studentId===x.studentId)||{ca1:0,ca2:0,model:0,average:0};return `<div class="item"><div class="item-top"><b>${esc(x.name)} (${esc(x.studentId)})</b><span class="badge blue">Average ${esc(m.average||0)}%</span></div><p>${esc(x.department||"-")} • ${esc(x.batch||"-")} • Attendance ${esc(x.attendance||0)}%</p><p>CA1: ${esc(m.ca1)} • CA2: ${esc(m.ca2)} • Model: ${esc(m.model)}</p>${r?`<p>Age ${esc(r.age||"-")} • ${esc(r.sex||"-")} • Blood ${esc(r.bloodGroup||"-")} • 10th ${esc(r.mark10||"-")}% • 12th ${esc(r.mark12||"-")}%</p><p>Father: ${esc(r.fatherName||"-")} • Mother: ${esc(r.motherName||"-")} • School: ${esc(r.school||"-")}</p>`:""}</div>`}).join("")||`<div class="empty">No students.</div>`;
  const c=document.getElementById("hodClassDetails");if(c)c.innerHTML=(db.departments||[]).filter(x=>!dept||x.name===dept).map(x=>`<div class="item"><b>${esc(x.name)}</b><p>HOD: ${esc(x.hod)} • Faculty: ${esc(x.facultyCount)}</p><p>Classes: ${esc(x.classes.join(", "))}</p></div>`).join("")||`<div class="empty">No class details.</div>`;
  renderTimetable("hodTimetables");
- const ft=document.getElementById("hodFacultyTimetable");if(ft)ft.innerHTML=db.facultyTimetables.map(x=>`<div class="item"><b>${esc(x.facultyName||"-")}</b><p>${esc(x.day||"-")} • ${esc(x.time||"-")} • ${esc(x.subject||"-")} • ${esc(x.className||"-")}</p></div>`).join("")||`<div class="empty">Faculty timetable not entered yet.</div>`;
- const fa=document.getElementById("hodFacultyAttendance");if(fa)fa.innerHTML=db.facultyAttendance.map(x=>`<div class="item"><b>${esc(x.facultyName||"-")}</b><p>${esc(x.date||"-")} • ${esc(x.status||"-")} • ${esc(x.remarks||"")}</p></div>`).join("")||`<div class="empty">Faculty attendance not entered yet.</div>`;
+  const ft=document.getElementById("hodFacultyTimetable");if(ft){
+    const fNames=[...new Set(db.facultyTimetables.map(x=>x.facultyName))];
+    const selVal=ft.dataset.filter||"";
+    ft.innerHTML=`<div class="form-group" style="margin-bottom:12px"><label>Filter by Faculty</label><select class="control" id="hodFtFilter" onchange="document.getElementById('hodFacultyTimetable').dataset.filter=this.value;renderHodData()"><option value="">All Faculty</option>${fNames.map(n=>`<option value="${esc(n)}" ${selVal===n?"selected":""}>${esc(n)}</option>`).join("")}</select></div>`+
+    `<div class="table-wrap"><table><thead><tr><th>Faculty</th><th>Day</th><th>Period</th><th>Subject</th><th>Class</th></tr></thead><tbody>${db.facultyTimetables.filter(x=>!selVal||x.facultyName===selVal).map(x=>`<tr><td><b>${esc(x.facultyName||"-")}</b></td><td>${esc(x.day||"-")}</td><td>${esc(x.time||"-")}</td><td>${esc(x.subject||"-")}</td><td>${esc(x.className||"-")}</td></tr>`).join("")||`<tr><td colspan="5" class="empty">Faculty timetable not entered yet.</td></tr>`}</tbody></table></div>`;
+  }
+  const fa=document.getElementById("hodFacultyAttendance");if(fa){
+    const fNames=[...new Set(db.facultyAttendance.map(x=>x.facultyName))];
+    const selVal=fa.dataset.filter||"";
+    fa.innerHTML=`<div class="form-group" style="margin-bottom:12px"><label>Filter by Faculty</label><select class="control" id="hodFaFilter" onchange="document.getElementById('hodFacultyAttendance').dataset.filter=this.value;renderHodData()"><option value="">All Faculty</option>${fNames.map(n=>`<option value="${esc(n)}" ${selVal===n?"selected":""}>${esc(n)}</option>`).join("")}</select></div>`+
+    `<div class="table-wrap"><table><thead><tr><th>Faculty</th><th>Date</th><th>Status</th><th>Remarks</th></tr></thead><tbody>${db.facultyAttendance.filter(x=>!selVal||x.facultyName===selVal).map(x=>`<tr><td><b>${esc(x.facultyName||"-")}</b></td><td>${esc(x.date||"-")}</td><td><span class="badge ${x.status==="Present"?"green":x.status==="Late"?"yellow":"red"}">${esc(x.status||"-")}</span></td><td>${esc(x.remarks||"")}</td></tr>`).join("")||`<tr><td colspan="4" class="empty">Faculty attendance not entered yet.</td></tr>`}</tbody></table></div>`;
+  }
  const he=document.getElementById("hodExtraView");if(he)he.innerHTML=(db.hodExtraSamples||[]).map(x=>`<div class="item"><b>Department Plan</b><p>${esc(x)}</p></div>`).join("");
  const ach=document.getElementById("hodAchievements");if(ach)ach.innerHTML=(db.hodAchievements||[]).map(x=>`<div class="item"><div class="item-top"><b>${esc(x.title)}</b><span class="badge blue">${esc(x.year)}</span></div><p>${esc(x.detail)}</p></div>`).join("");
  const dash=document.getElementById("hodDashboardStats");if(dash)dash.innerHTML=`${stat("Faculty",fac.length,"Department faculty")}${stat("Students",students.length,"Department students")}${stat("Pending Requests",db.markChangeRequests.filter(x=>x.status==="Pending").length,"Mark approvals")}${stat("Feedback",db.classMeetings.length,"Committee feedback")}`;

@@ -63,6 +63,7 @@
         var classes = parseList(u.classes_handled);
         var subjects = parseList(u.subjects_handled);
         var isAdviser = u.is_class_adviser ? true : !!u.is_class_adviser;
+        var isMentor = u.is_mentor ? true : !!u.is_mentor;
         return {
             id: u.id,
             name: u.name || "",
@@ -86,13 +87,16 @@
             office: u.office || "",
             position: u.designation || "Faculty",
             classAdviser: isAdviser,
-            mentor: u.role === "faculty",
+            mentor: isMentor,
             isClassAdviser: isAdviser,
             classesHandled: classes,
             basicSubjects: subjects,
             extraSubjects: subjects,
             subjectsHandled: subjects,
             extraInfo: u.extra_info || "",
+            classAdviserName: u.class_adviser_name || "",
+            mentorName: u.mentor_name || "",
+            assignedClassName: u.assigned_class_name || "",
             skills: defaultSkills()
         };
     }
@@ -161,6 +165,18 @@
                 db.users.push(mapped);
             }
         });
+    }
+
+    function refreshCurrentUserFromDb() {
+        if (!currentUser) return;
+        var fresh = (db.users || []).find(function (x) {
+            return Number(x.id) === Number(currentUser.id) ||
+                (x.email && currentUser.email && x.email.toLowerCase() === String(currentUser.email).toLowerCase());
+        });
+        if (fresh) {
+            Object.assign(currentUser, fresh);
+            try { localStorage.setItem("edunexa_session", JSON.stringify(currentUser)); } catch (e) {}
+        }
     }
 
     function mergeById(collection, items, keyFn) {
@@ -517,23 +533,98 @@
             if (rows.length) {
                 rows.forEach(function (r) {
                     var id = "MCR-" + r.id;
-                    if (db.markChangeRequests.some(function (x) { return x.id === id; })) return;
+                    var existing = db.markChangeRequests.find(function (x) { return x.id === id; });
+                    if (existing) {
+                        existing.status = normalizeStatus(r.status);
+                        existing.__synced = true;
+                        existing.__backendId = r.id;
+                        return;
+                    }
                     db.markChangeRequests.push({
                         id: id,
                         studentId: uidToStringId(r.student_id),
-                        facultyId: "",
-                        facultyName: r.student_name || "Student",
+                        facultyId: r.requested_by ? String(r.requested_by) : "",
+                        facultyName: r.faculty_name || "Faculty",
                         department: currentUser.department || "",
                         requested: { ca1: toNumber(r.old_mark, 0), ca2: toNumber(r.new_mark, 0), model: 0 },
+                        reason: r.reason || "",
                         requestedAt: r.created_at || "",
                         periodEnd: "Open",
                         status: normalizeStatus(r.status),
+                        reviewedBy: r.reviewed_by ? String(r.reviewed_by) : "",
+                        reviewedAt: r.reviewed_at || "",
                         __synced: true,
+                        __lastStatus: normalizeStatus(r.status),
                         __backendId: r.id
                     });
                 });
             }
         } catch (e) { /* keep demo */ }
+    }
+
+    async function loadHodFacultyTimetables() {
+        if (!currentUser || currentUser.role !== "hod") return;
+        try {
+            var faculty = (db.users || []).filter(function (u) { return u.role === "faculty"; });
+            var all = [];
+            for (var i = 0; i < faculty.length; i++) {
+                var fid = faculty[i].id;
+                if (!fid) continue;
+                try {
+                    var tts = await get("/timetables/faculty/" + fid);
+                    if (Array.isArray(tts) && tts.length) {
+                        for (var j = 0; j < tts.length; j++) {
+                            var t = tts[j];
+                            var timeRange = (t.start_time && t.end_time)
+                                ? t.start_time + " - " + t.end_time
+                                : (t.start_time || t.period || "");
+                            all.push({
+                                id: "FT-" + t.id,
+                                facultyName: faculty[i].name,
+                                facultyId: faculty[i].facultyId || "",
+                                day: t.day || "",
+                                time: timeRange,
+                                period: t.period || "",
+                                subject: t.subject || "",
+                                className: t.class_name || "",
+                                room: t.room || "",
+                                __synced: true
+                            });
+                        }
+                    }
+                } catch (e) { /* skip faculty without timetable */ }
+            }
+            if (all.length) {
+                db.facultyTimetables = all;
+            }
+        } catch (e) { /* keep demo data */ }
+    }
+
+    async function loadHodFacultyAttendance() {
+        if (!currentUser || currentUser.role !== "hod") return;
+        try {
+            var data = await get("/hod/faculty-attendance");
+            if (data && Array.isArray(data.attendance)) {
+                var records = data.attendance.map(function (r) {
+                    return {
+                        id: "FA-" + r.id,
+                        facultyName: r.faculty_name || r.facultyName || "Faculty",
+                        facultyId: r.faculty_id || "",
+                        date: r.date || "",
+                        status: r.status || "Present",
+                        remarks: r.remarks || "",
+                        checkIn: r.check_in_time || "",
+                        checkOut: r.check_out_time || "",
+                        __synced: true,
+                        __backendId: r.id
+                    };
+                });
+                if (records.length) db.facultyAttendance = records;
+            }
+            if (data && Array.isArray(data.faculty)) {
+                db.hodFacultyList = data.faculty;
+            }
+        } catch (e) { /* keep demo data */ }
     }
 
     async function loadAchievements() {
@@ -628,6 +719,7 @@
             var facultyList = [];
             try { facultyList = await get("/faculty"); } catch (e) {}
             mergeUsers(facultyList);
+            refreshCurrentUserFromDb();
             await Promise.all([
                 loadStudentMarks(),
                 loadFees(),
@@ -655,7 +747,9 @@
                 loadClassesAndDepartments(),
                 loadHodExtra(),
                 loadAchievements(),
-                loadPlacements()
+                loadPlacements(),
+                loadHodFacultyTimetables(),
+                loadHodFacultyAttendance()
             ]);
         } else if (currentUser.role === "management") {
             var mgmtStudents = [], mgmtFaculty = [];
@@ -1068,12 +1162,66 @@
         }
     }
 
+    async function syncMarkChangeRequests() {
+        if (!currentUser || (currentUser.role !== "faculty" && currentUser.role !== "hod")) return;
+        var list = (db.markChangeRequests || []).slice();
+        for (var i = 0; i < list.length; i++) {
+            var r = list[i];
+            if (r.__synced || r.status !== "Pending") continue;
+            try {
+                var bsid = backendStudentId(r.studentId);
+                if (!bsid) continue;
+                var marksPayload = [];
+                if (r.requested) {
+                    if (r.requested.ca1 !== undefined && r.requested.ca1 !== 0) marksPayload.push({ exam: "CA1", mark: r.requested.ca1 });
+                    if (r.requested.ca2 !== undefined && r.requested.ca2 !== 0) marksPayload.push({ exam: "CA2", mark: r.requested.ca2 });
+                    if (r.requested.model !== undefined && r.requested.model !== 0) marksPayload.push({ exam: "Model", mark: r.requested.model });
+                }
+                if (!marksPayload.length) continue;
+                var res = await API.request("/marks/change-requests", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        student_id: bsid,
+                        reason: r.reason || "Mark correction requested",
+                        marks: marksPayload
+                    })
+                });
+                if (res && res.ids && res.ids.length) {
+                    r.__backendId = res.ids[0];
+                    r.__lastStatus = r.status;
+                }
+                markSynced(r);
+            } catch (e) { /* retry later */ }
+        }
+    }
+
+    async function syncMarkReviews() {
+        if (!currentUser || currentUser.role !== "hod") return;
+        var list = (db.markChangeRequests || []).slice();
+        for (var i = 0; i < list.length; i++) {
+            var r = list[i];
+            if (!r.__backendId) continue;
+            if (r.__lastStatus === r.status) continue;
+            try {
+                var backendStatus = (r.status === "Approved") ? "approved" : "declined";
+                await API.request("/hod/mark-requests/" + r.__backendId, {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        status: backendStatus,
+                        review_note: r.reviewedBy ? "Reviewed by " + r.reviewedBy : "Reviewed by HOD"
+                    })
+                });
+                r.__lastStatus = r.status;
+            } catch (e) { /* retry later */ }
+        }
+    }
+
     async function syncAll() {
         if (!hasToken() || !currentUser) return;
         var tasks = [
             syncFeedback(), syncLeaves(), syncTestsAndAssignments(),
             syncSubmissions(), syncStudentRecords(), syncMarks(),
-            syncPlacementsAndAchievements()
+            syncPlacementsAndAchievements(), syncMarkChangeRequests(), syncMarkReviews()
         ];
         try {
             await Promise.all(tasks);

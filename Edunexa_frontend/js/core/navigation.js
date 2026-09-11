@@ -18,6 +18,11 @@ function defaultPage(){
 
     if(currentUser.role === "hod"){
 
+        // Department Hierarchy is available to HOD for the current department.
+        addSection("Department", [["department-hierarchy","🏛️","Department Hierarchy"]]);
+
+        
+
         return "hod-dashboard";
 
     }
@@ -85,16 +90,17 @@ function buildNav(){
 
                 ["student-fees","💳","Fees"],
 
-                ["student-leave","🗓️","Leave"],
+                ["student-leave","🗓️","Leave & Class Adviser"],
 
                 ["student-skills","🧠","Skill Dashboard"],
 
                 ["student-feedback","💬","Feedback"],
+
                 ["student-professional","🎓","Certificates & Career"],
+
                 ["student-timetable","🕐","Class Timetable"],
+
                 ["student-committee","👥","Class Committee"],
-                ["student-leave-requests","📋","My Leave Requests"],
-                ["student-class-leave-v2","🗓️","Class Adviser Leave"],
 
                 ["notifications","🔔","Notifications"]
 
@@ -118,7 +124,8 @@ function buildNav(){
 
                 ["faculty-attendance","📅","Attendance"],
 
-                ["faculty-marks","🎯","Marks & Results"]
+                ["faculty-marks","🎯","Marks & Results"],
+                ["department-hierarchy","🏛️","Department Hierarchy"]
 
             ]
         );
@@ -389,3 +396,10 @@ function stat(title,number,change=""){
 }
 
 
+
+
+(function(){
+  document.addEventListener("click",function(){
+    setTimeout(function(){ if(typeof loadDepartmentHierarchyPage==="function" && document.getElementById("department-hierarchy") && document.getElementById("department-hierarchy").classList.contains("active")) loadDepartmentHierarchyPage(); },50);
+  });
+})();

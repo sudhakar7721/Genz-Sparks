@@ -129,7 +129,7 @@ function mentorOverviewHTML(){
 
     const weak =
         ranked.filter(
-            item => item.avg < 60
+            item => item.avg < (db.mentorThreshold || 60)
         );
 
 
@@ -180,8 +180,36 @@ function mentorOverviewHTML(){
             ${stat(
                 "Needs Attention",
                 weak.length,
-                "Below 60% average"
+                "Below " + (db.mentorThreshold || 60) + "% average"
             )}
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-head">
+
+                <div>
+
+                    <h3>
+                        Attention Threshold Setting
+                    </h3>
+
+                    <p>
+                        Students below this average skill score are flagged as "Needs Attention".
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0">
+                <label style="margin:0"><b>Threshold:</b></label>
+                <input id="mentorThresholdInput" type="number" min="0" max="100" class="control" style="width:80px" value="${db.mentorThreshold || 60}">
+                <span>%</span>
+                <button class="btn primary" onclick="updateMentorThreshold()">Update Threshold</button>
+            </div>
 
         </div>
 
@@ -308,9 +336,14 @@ function mentorOverviewHTML(){
 
 
 
-/* =========================================================
-   MENTOR
-========================================================= */
+function updateMentorThreshold(){
+    const val=Number(document.getElementById("mentorThresholdInput")?.value);
+    if(isNaN(val)||val<0||val>100){toast("Threshold must be between 0 and 100.");return;}
+    db.mentorThreshold=val;
+    save();
+    toast("Threshold updated to "+val+"%. Re-rendering dashboard...");
+    renderEnhancementPage("mentor-skills");
+}
 
 function mentorView(studentId){
 

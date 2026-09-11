@@ -48,7 +48,12 @@ function facultyPages(){
 
             ${stat(
                 "Average Attendance",
-                "84%",
+                (function(){
+                    const stu=students();
+                    if(!stu.length) return "0%";
+                    const avg=Math.round(stu.reduce((s,x)=>s+Number(x.attendance||0),0)/stu.length);
+                    return avg+"%";
+                })(),
                 "Department"
             )}
 
@@ -738,7 +743,11 @@ function facultyPages(){
                         ${
                             students()
                             .map(
-                                student => `
+                                student => {
+
+                                    const m = (db.marks || []).find(x => x.studentId === student.studentId) || {ca1:0, ca2:0, model:0, average:0};
+
+                                    return `
 
                                 <tr>
 
@@ -755,7 +764,7 @@ function facultyPages(){
                                         <input
                                             class="control"
                                             id="m1-${esc(student.studentId)}"
-                                            value="82"
+                                            value="${m.ca1 || 0}"
                                             style="width:70px"
                                         >
 
@@ -766,7 +775,7 @@ function facultyPages(){
                                         <input
                                             class="control"
                                             id="m2-${esc(student.studentId)}"
-                                            value="86"
+                                            value="${m.ca2 || 0}"
                                             style="width:70px"
                                         >
 
@@ -777,14 +786,14 @@ function facultyPages(){
                                         <input
                                             class="control"
                                             id="m3-${esc(student.studentId)}"
-                                            value="90"
+                                            value="${m.model || 0}"
                                             style="width:70px"
                                         >
 
                                     </td>
 
                                     <td>
-                                        86%
+                                        ${m.average || 0}%
                                     </td>
 
                                     <td>
@@ -801,6 +810,7 @@ function facultyPages(){
                                 </tr>
 
                             `
+                            }
                             )
                             .join("")
                         }
@@ -1327,3 +1337,9 @@ function facultyPages(){
 }
 
 
+
+
+/* Department hierarchy page */
+function departmentHierarchyPage(){
+    return `<div class="page" id="department-hierarchy"><div class="card"><p>Loading department hierarchy…</p></div></div>`;
+}

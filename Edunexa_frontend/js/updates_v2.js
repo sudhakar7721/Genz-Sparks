@@ -62,13 +62,20 @@ function renderV2AdviserTimetable(){
 function renderV2AdviserLeaves(){
  const el=document.getElementById("adviserLeaveV2"); if(!el)return;
  const cls=v2ClassOfUser(currentUser);
- const rows=db.classLeaveRequests.filter(r=>r.className===cls || !r.className);
+ const seen={},rows=[];
+ (db.classLeaveRequests||[]).forEach(r=>{ if(r.className&&r.className!==cls)return; if(!seen[String(r.id)]){seen[String(r.id)]=1;rows.push(r);} });
+ (db.leaves||[]).forEach(r=>{ if(r.className&&r.className!==cls)return; if(!seen[String(r.id)]){seen[String(r.id)]=1;rows.push(r);} });
  el.innerHTML=rows.length?v2Table(["Student","Date","Type","Period","Hours","Reason","Status","Action"],
- rows.map(r=>`<tr><td>${esc(r.studentName||"")}</td><td>${esc(r.date||"")}</td><td>${esc(r.type||"")}</td><td>${esc(r.period||"")}</td><td>${esc(r.hours??"")}</td><td>${esc(r.reason||"")}</td><td>${esc(r.status||"Pending")}</td><td>${r.status==="Pending"?`<button class="btn success" onclick="v2LeaveDecision('${escAttr(r.id)}','Approved')">Approve</button> <button class="btn secondary" onclick="v2LeaveDecision('${escAttr(r.id)}','Rejected')">Decline</button>`:`<button class="btn secondary" onclick="v2View('Leave Request',\`${escAttr(JSON.stringify(r))}\`)">View</button>`}</td></tr>`)).join(""):`<div class="empty">No class leave requests.</div>`;
+ rows.map(r=>`<tr><td>${esc(r.studentName||"")}</td><td>${esc(r.date||r.from||"")}</td><td>${esc(r.type||"")}</td><td>${esc(r.period||"")}</td><td>${esc(r.hours??"")}</td><td>${esc(r.reason||"")}</td><td>${esc(r.status||"Pending")}</td><td>${r.status==="Pending"?`<button class="btn success" onclick="v2LeaveDecision('${escAttr(r.id)}','Approved')">Approve</button> <button class="btn secondary" onclick="v2LeaveDecision('${escAttr(r.id)}','Rejected')">Decline</button>`:`<button class="btn secondary" onclick="v2View('Leave Request',\`${escAttr(JSON.stringify(r))}\`)">View</button>`}</td></tr>`)):`<div class="empty">No class leave requests.</div>`;
 }
 window.v2LeaveDecision=function(id,status){
- const r=db.classLeaveRequests.find(x=>String(x.id)===String(id)); if(!r)return;
- r.status=status;r.reviewedBy=currentUser.name;r.reviewedAt=new Date().toLocaleString();save();renderV2AdviserLeaves();toast(`Leave ${status.toLowerCase()}.`);
+ let r=(db.classLeaveRequests||[]).find(x=>String(x.id)===String(id));
+ const legacy=(db.leaves||[]).find(x=>String(x.id)===String(id)||(r&&String(x.id)===String(r.id)));
+ if(!r&&!legacy)return;
+ if(r){r.status=status;r.reviewedBy=currentUser.name;r.reviewedAt=new Date().toLocaleString();}
+ if(legacy){legacy.status=status;legacy.reviewedBy=currentUser.name;legacy.reviewedAt=new Date().toLocaleString();legacy.__lastStatus=status;}
+ if(!r)r=legacy;
+ save();renderV2AdviserLeaves();toast(`Leave ${status.toLowerCase()}.`);
 };
 
 /* ---------- View option for all feedback / committee feedback ---------- */
