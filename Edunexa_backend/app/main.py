@@ -130,7 +130,17 @@ def class_tt(class_name:str|None=None,u=Depends(current_user)):
   return rows(db.execute(q+' ORDER BY day,period',a))
 @app.post('/api/timetables/class')
 def add_class_tt(x:Timetable,u=Depends(roles('faculty','hod','management'))):
- with get_db() as db: db.execute("INSERT INTO class_timetables(class_name,day,period,start_time,end_time,subject,faculty_name,room,created_by) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(class_name,day,period) DO UPDATE SET start_time=excluded.start_time,end_time=excluded.end_time,subject=excluded.subject,faculty_name=excluded.faculty_name,room=excluded.room",(x.class_name,x.day,x.period,x.start_time,x.end_time,x.subject,x.faculty_name,x.room,u['id']))
+ with get_db() as db:
+  # A faculty member can maintain a timetable when they are the
+  # registered Class Adviser for that class. HOD/Management retain control.
+  if u['role']=='faculty':
+   fp=row(db.execute('SELECT is_class_adviser FROM faculty_profiles WHERE user_id=?',(u['id'],)))
+   c=row(db.execute("SELECT c.class_adviser_id FROM classes c JOIN departments d ON d.id=c.department_id WHERE c.name=? AND d.name=?",(x.class_name,u.get('department'))))
+   if c and c['class_adviser_id'] and int(c['class_adviser_id'])!=int(u['id']):
+    raise HTTPException(403,'Only the Class Adviser can edit this class timetable')
+   if (not c or not c['class_adviser_id']) and not (fp and fp['is_class_adviser']):
+    raise HTTPException(403,'Only a Class Adviser can edit a class timetable')
+  db.execute("INSERT INTO class_timetables(class_name,day,period,start_time,end_time,subject,faculty_name,room,created_by) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(class_name,day,period) DO UPDATE SET start_time=excluded.start_time,end_time=excluded.end_time,subject=excluded.subject,faculty_name=excluded.faculty_name,room=excluded.room",(x.class_name,x.day,x.period,x.start_time,x.end_time,x.subject,x.faculty_name,x.room,u['id']))
  return {'message':'Class timetable saved'}
 @app.get('/api/timetables/faculty/{fid}')
 def faculty_tt(fid:int,u=Depends(current_user)):

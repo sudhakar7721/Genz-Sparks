@@ -25,3 +25,11 @@
 
 ## Persistence
 The existing EduNexa localStorage database remains unchanged. Logout removes only the active session, so stored application records remain available on the next login in the same browser profile.
+
+## Backend integration fix
+- Class Details now loads `/api/timetables/class` from FastAPI/SQLite.
+- Class Adviser timetable Add/Edit uses the backend upsert endpoint.
+- Students in the same class receive the same saved timetable.
+- Login no longer clears the local application database before backend synchronization.
+- New students receive a default attendance value of 85% when no real attendance records exist.
+- Added 25 initial timetable rows (5 per department) so the Class Details screen is populated on the supplied database.

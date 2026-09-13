@@ -360,8 +360,8 @@ function eduStudentClass(){
     const className=u?.className||u?.class||u?.classesHandled?.[0]||"II B.Sc Data Analytics";
     const rows=(db.classTimetables||[]).filter(x=>x.className===className);
     const year=(u?.batch||u?.academicYear||"2025-2028");
-    const adviser=u?.classAdviser||u?.adviserName||"Assigned Class Adviser";
-    const mentor=u?.mentorName||u?.mentor||"Assigned Mentor";
+    const adviser=u?.classAdviserName||u?.adviserName||"Assigned Class Adviser";
+    const mentor=u?.mentorName||"Assigned Mentor";
     const faculties=[...new Set(rows.map(x=>x.faculty).filter(Boolean))];
     return {className,year,adviser,mentor,faculties,rows};
 }
@@ -404,6 +404,8 @@ function eduRenderStudentClassDetails(){
 function eduEnhanceAdviserTimetable(){
     const page=document.getElementById("adviser-timetable"); if(!page||!eduUser())return;
     const form=page.querySelector("form[onsubmit*='saveClassTimetable']");
+    const cls=document.getElementById("ttClass");
+    if(cls && eduUser().classesHandled?.[0]) cls.value=eduUser().classesHandled[0];
     if(form && !form.querySelector("#eduTtId")){
         const hidden=document.createElement("input");
         hidden.type="hidden"; hidden.id="eduTtId"; form.appendChild(hidden);
@@ -419,47 +421,68 @@ function eduRenderAdviserRows(){
     const rows=(db.classTimetables||[]).filter(x=>!className||x.className===className);
     e.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Day</th><th>Period</th><th>Time</th><th>Subject</th><th>Faculty</th><th>Action</th></tr></thead><tbody>
       ${rows.map(x=>`<tr><td>${eduEsc(x.day)}</td><td>${eduEsc(x.period)}</td><td>${eduEsc(x.time)}</td><td>${eduEsc(x.subject)}</td><td>${eduEsc(x.faculty)}</td>
-      <td><button class="btn secondary" type="button" onclick="editClassTimetable('${String(x.id||"").replace(/'/g,"\\'")}')">Edit</button>
-      <button class="btn danger" type="button" onclick="deleteClassTimetable('${String(x.id||"").replace(/'/g,"\\'")}')">Delete</button></td></tr>`).join("")||`<tr><td colspan="6" class="empty">No timetable entries.</td></tr>`}
+      <td><button class="btn secondary" type="button" onclick="editClassTimetable('${String(x.id||"").replace(/'/g,"\\'")}')">Edit</button></td></tr>`).join("")||`<tr><td colspan="6" class="empty">No timetable entries.</td></tr>`}
     </tbody></table></div>`;
 }
-window.saveClassTimetable=function(event){
+window.saveClassTimetable=async function(event){
     event.preventDefault();
     const className=document.getElementById("ttClass")?.value.trim();
-    const row={
-      className, day:document.getElementById("ttDay")?.value,
-      period:document.getElementById("ttPeriod")?.value.trim(),
-      time:document.getElementById("ttTime")?.value.trim(),
-      subject:document.getElementById("ttSubject")?.value.trim(),
-      faculty:document.getElementById("ttFaculty")?.value.trim()
-    };
-    if(!row.className||!row.day||!row.period||!row.time||!row.subject||!row.faculty){toast("Complete all timetable fields.");return;}
-    const id=document.getElementById("eduTtId")?.value;
-    if(id){
-        const i=db.classTimetables.findIndex(x=>String(x.id)===String(id));
-        if(i>=0) db.classTimetables[i]={...db.classTimetables[i],...row};
-    }else{
-        db.classTimetables.push({id:"TT-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),...row});
+    const day=document.getElementById("ttDay")?.value;
+    const period=document.getElementById("ttPeriod")?.value.trim();
+    const rawTime=document.getElementById("ttTime")?.value.trim() || "";
+    const parts=rawTime.split(/\s*-\s*/);
+    const startTime=parts[0]||"";
+    const endTime=parts.length>1?parts[1]:"";
+    const subject=document.getElementById("ttSubject")?.value.trim();
+    const facultyName=document.getElementById("ttFaculty")?.value.trim();
+    if(!className||!day||!period||!rawTime||!subject||!facultyName){toast("Complete all timetable fields.");return;}
+    try{
+        const API=window.EduNexaAPI;
+        if(!API || !localStorage.getItem("edunexa_token")) throw new Error("Backend login session is not available.");
+        await API.request("/timetables/class",{
+            method:"POST",
+            body:JSON.stringify({class_name:className,day:day,period:period,start_time:startTime,end_time:endTime,subject:subject,faculty_name:facultyName,room:null})
+        });
+        await loadClassTimetablesFromEnhancement(className);
+        event.target.reset();
+        const b=document.getElementById("eduTtSubmit"); if(b)b.textContent="Add Timetable Period";
+        const h=document.getElementById("eduTtId"); if(h)h.value="";
+        if(typeof window.refreshAll==="function") window.refreshAll();
+        eduRenderAdviserRows();
+        toast("Class timetable saved to SQLite. All students in this class can see the update.");
+    }catch(e){
+        console.error("Class timetable save error",e);
+        toast(e?.message||"Unable to save class timetable.");
     }
-    save();
-    event.target.reset();
-    if(document.getElementById("eduTtId")) document.getElementById("eduTtId").value="";
-    const b=document.getElementById("eduTtSubmit"); if(b)b.textContent="Add Timetable Period";
-    eduRenderAdviserRows();
-    toast(id?"Class timetable updated.":"Class timetable period added. All students in this class can see the update.");
 };
+
+async function loadClassTimetablesFromEnhancement(className){
+    const API=window.EduNexaAPI; if(!API)return;
+    try{
+        const rows=await API.request("/timetables/class?class_name="+encodeURIComponent(className));
+        db.classTimetables=(rows||[]).map(r=>({
+            id:"TT-"+Number(r.id),backendId:Number(r.id),className:r.class_name||className,day:r.day||"",period:String(r.period||""),
+            startTime:r.start_time||"",endTime:r.end_time||"",time:(r.start_time&&r.end_time)?r.start_time+" - "+r.end_time:(r.start_time||r.end_time||""),
+            subject:r.subject||"",faculty:r.faculty_name||"",facultyName:r.faculty_name||"",room:r.room||"",__synced:true,__backendId:Number(r.id)
+        }));
+        if(typeof save==="function")save();
+    }catch(e){console.warn("Timetable refresh failed",e);}
+}
+
 window.editClassTimetable=function(id){
     const x=(db.classTimetables||[]).find(r=>String(r.id)===String(id));
     if(!x)return;
-    ["ttClass","ttDay","ttPeriod","ttTime","ttSubject","ttFaculty"].forEach(k=>{const e=document.getElementById(k);if(e)e.value=x[{ttClass:"className",ttDay:"day",ttPeriod:"period",ttTime:"time",ttSubject:"subject",ttFaculty:"faculty"}[k]]||"";});
+    const map={ttClass:"className",ttDay:"day",ttPeriod:"period",ttSubject:"subject",ttFaculty:"faculty"};
+    Object.keys(map).forEach(k=>{const e=document.getElementById(k);if(e)e.value=x[map[k]]||"";});
+    const time=document.getElementById("ttTime"); if(time) time.value=x.time||((x.startTime||"")+(x.endTime?" - "+x.endTime:""));
     const h=document.getElementById("eduTtId");if(h)h.value=x.id;
     const b=document.getElementById("eduTtSubmit");if(b)b.textContent="Update Timetable Period";
     window.scrollTo({top:0,behavior:"smooth"});
 };
-window.deleteClassTimetable=function(id){
-    if(!confirm("Delete this timetable period?"))return;
-    const i=db.classTimetables.findIndex(x=>String(x.id)===String(id));
-    if(i>=0){db.classTimetables.splice(i,1);save();eduRenderAdviserRows();toast("Timetable period deleted.");}
+
+/* Timetable updates are persisted through the backend upsert endpoint. */
+window.deleteClassTimetable=async function(id){
+    toast("Timetable periods are edited through the Class Adviser form.");
 };
 
 /* ---------------------------------------------------------

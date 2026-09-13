@@ -76,7 +76,10 @@
             adminId: u.role === "management" ? "ADM-" + u.id : "",
             department: u.department || "Data Analytics",
             batch: u.batch || "",
-            attendance: toNumber(u.attendance, 0),
+            className: u.assigned_class_name || u.class_name || "",
+            classAdviserName: u.class_adviser_name || "",
+            mentorName: u.mentor_name || "",
+            attendance: toNumber(u.attendance, 85) || 85,
             phone: u.phone || "",
             parentName: u.parent_name || "",
             parentPhone: u.parent_phone || "",
@@ -94,8 +97,6 @@
             extraSubjects: subjects,
             subjectsHandled: subjects,
             extraInfo: u.extra_info || "",
-            classAdviserName: u.class_adviser_name || "",
-            mentorName: u.mentor_name || "",
             assignedClassName: u.assigned_class_name || "",
             skills: defaultSkills()
         };
@@ -485,6 +486,39 @@
         } catch (e) {/* keep demo */}
     }
 
+    async function loadClassTimetables() {
+        if (!currentUser) return;
+        try {
+            var className = currentUser.className || currentUser.assignedClassName || "";
+            if (!className && currentUser.role === "faculty") {
+                var handled = currentUser.classesHandled || [];
+                if (handled.length) className = handled[0];
+            }
+            var endpoint = "/timetables/class" + (className ? "?class_name=" + encodeURIComponent(className) : "");
+            var rows = await get(endpoint);
+            var items = (rows || []).map(function (r) {
+                return {
+                    id: "TT-" + Number(r.id),
+                    backendId: Number(r.id),
+                    className: r.class_name || className,
+                    day: r.day || "",
+                    period: String(r.period || ""),
+                    startTime: r.start_time || "",
+                    endTime: r.end_time || "",
+                    time: (r.start_time && r.end_time) ? (r.start_time + " - " + r.end_time) : (r.start_time || r.end_time || ""),
+                    subject: r.subject || "",
+                    faculty: r.faculty_name || "",
+                    facultyName: r.faculty_name || "",
+                    room: r.room || "",
+                    __synced: true,
+                    __backendId: Number(r.id)
+                };
+            });
+            db.classTimetables = items;
+            if (typeof originalSave === "function") originalSave();
+        } catch (e) { console.warn("Class timetable sync skipped:", e); }
+    }
+
     async function loadClassesAndDepartments() {
         try {
             var depts = await get("/departments");
@@ -694,6 +728,24 @@
         } catch (e) { /* keep demo */ }
     }
 
+    async function loadStudentRecords() {
+        if (!currentUser || currentUser.role !== "student") return;
+        try {
+            var data = await get("/student-records");
+            var sid = currentUser.studentId || String(currentUser.id);
+            db.certificates = (data.certificates || []).map(function (r) {
+                return { id: "CERT-B-" + r.id, studentId: sid, name: r.title || "Certificate", organization: r.issuer || "", date: r.completion_date || "", fileId: r.file_id || null, fileName: r.original_name || "", __synced: true, __backendId: Number(r.id) };
+            });
+            db.completedCourses = (data.courses || []).map(function (r) {
+                return { id: "COURSE-B-" + r.id, studentId: sid, name: r.title || "Course", provider: r.provider || "", date: r.completion_date || "", fileId: r.certificate_file_id || null, __synced: true, __backendId: Number(r.id) };
+            });
+            db.internships = (data.internships || []).map(function (r) {
+                return { id: "INT-B-" + r.id, studentId: sid, company: r.company || "", role: r.role || "", start: r.start_date || "", end: r.end_date || "", description: r.description || "", fileId: r.file_id || null, fileName: r.original_name || "", __synced: true, __backendId: Number(r.id) };
+            });
+            if (typeof originalSave === "function") originalSave();
+        } catch (e) { console.warn("Student records sync skipped:", e); }
+    }
+
     /* ---------------------------------------------------------
        Aggregate loader, dispatched by role
        --------------------------------------------------------- */
@@ -710,7 +762,9 @@
                 loadTestsAndAssignments(),
                 loadSubmissions(),
                 loadNotifications(),
-                loadClassesAndDepartments()
+                loadClassesAndDepartments(),
+                loadClassTimetables(),
+                loadStudentRecords()
             ]);
         } else if (currentUser.role === "faculty") {
             var studentsList = [];
@@ -728,7 +782,8 @@
                 loadTestsAndAssignments(),
                 loadSubmissions(),
                 loadNotifications(),
-                loadClassesAndDepartments()
+                loadClassesAndDepartments(),
+                loadClassTimetables()
             ]);
         } else if (currentUser.role === "hod") {
             var hodStudents = [], hodFaculty = [];
@@ -779,24 +834,15 @@
        AUTH OVERRIDES
        --------------------------------------------------------- */
     function resetDbForNewUser() {
-        try { localStorage.removeItem(DB_KEY); } catch (e) {}
-        if (typeof createDefaultDatabase === "function") db = createDefaultDatabase();
-        db.feedbacks = Array.isArray(db.feedbacks) ? db.feedbacks : [];
-        db.studentProfiles = [];
-        db.certificates = [];
-        db.completedCourses = [];
-        db.internships = [];
-        db.classTimetables = [];
-        db.classMeetings = [];
-        db.markChangeRequests = [];
-        db.facultyTimetables = [];
-        db.facultyAttendance = [];
-        db.hodDetails = [];
-        db.departments = [];
-        db.achievements = [];
-        db.placementCompanies = [];
-        db.placements = [];
-        if (typeof seedDatabase === "function") seedDatabase();
+        /* Do NOT delete the application database on login/logout.
+           Backend is authoritative; existing local records are retained as a
+           fallback and are overlaid with the logged-in user's server data. */
+        if (!db || typeof db !== "object") {
+            if (typeof createDefaultDatabase === "function") db = createDefaultDatabase();
+        }
+        var collections = ["users","tests","assignments","submissions","marks","fees","feedbacks","leaves","notifications","certificates","completedCourses","internships","classTimetables","classMeetings","facultyTimetables","facultyAttendance","departments","hodDetails","achievements","placementCompanies","placements"];
+        collections.forEach(function(k){ if(!Array.isArray(db[k])) db[k]=[]; });
+        if (typeof save === "function") save();
     }
 
     function resolveEmail(identifier) {
