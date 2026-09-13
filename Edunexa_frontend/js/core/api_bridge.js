@@ -908,7 +908,8 @@
         }
     };
 
-    window.logout = function logout() {
+    window.logout = async function logout() {
+        try { await syncAll(); } catch (e) {}
         currentUser = null;
         try { API.logout(); } catch (e) {}
         try { localStorage.removeItem("edunexa_session"); } catch (e) {}

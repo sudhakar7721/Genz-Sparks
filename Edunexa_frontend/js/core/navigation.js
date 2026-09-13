@@ -98,7 +98,7 @@ function buildNav(){
 
                 ["student-professional","🎓","Certificates & Career"],
 
-                ["student-timetable","🕐","Class Timetable"],
+                ["student-timetable","🕐","Class Details"],
 
                 ["student-committee","👥","Class Committee"],
 
