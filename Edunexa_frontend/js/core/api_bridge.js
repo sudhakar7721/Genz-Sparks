@@ -412,10 +412,10 @@
                     start: (r.due_date || "").slice(0, 10),
                     due: (r.due_date || "").slice(0, 10),
                     description: r.description || "",
-                    questions: [],
+                    questions: (function(){ try { var j=JSON.parse(r.description||"{}"); return Array.isArray(j.questions)?j.questions:[]; } catch(e){ return []; } })(),
+                    start: (function(){ try { var j=JSON.parse(r.description||"{}"); return j.start || (r.due_date||"").slice(0,10); } catch(e){ return (r.due_date||"").slice(0,10); } })(),
                     __synced: true,
-                    __backendId: Number(r.id),
-                    __noQuestions: true
+                    __backendId: Number(r.id)
                 };
             });
             var aItems = (assignments || []).map(function (r) {

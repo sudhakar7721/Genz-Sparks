@@ -23,6 +23,14 @@ def ensure_column(c, table, column, definition):
         c.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 def migrate(c):
+    c.execute("""CREATE TABLE IF NOT EXISTS assessment_views(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        item_type TEXT NOT NULL CHECK(item_type IN('test','assignment')),
+        item_id INTEGER NOT NULL,
+        viewed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(student_id,item_type,item_id))""")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_assessment_views_item ON assessment_views(item_type,item_id)")
     ensure_column(c, "classes", "section", "TEXT")
     ensure_column(c, "classes", "class_adviser_id", "INTEGER")
     ensure_column(c, "faculty_profiles", "is_mentor", "INTEGER DEFAULT 0")
@@ -49,19 +57,6 @@ def migrate(c):
         marked_by INTEGER,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(faculty_id, date))""")
-
-def migrate_demo_extensions(c):
-    # Assessment detail/history/view tracking
-    ensure_column(c, "tests", "questions_json", "TEXT DEFAULT '[]'")
-    ensure_column(c, "tests", "created_at", "TEXT")
-    ensure_column(c, "tests", "updated_at", "TEXT")
-    ensure_column(c, "assignments", "created_at", "TEXT")
-    ensure_column(c, "assignments", "updated_at", "TEXT")
-    c.execute("""CREATE TABLE IF NOT EXISTS assessment_views(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        item_type TEXT NOT NULL, item_id INTEGER NOT NULL, student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        viewed_at TEXT DEFAULT CURRENT_TIMESTAMP, UNIQUE(item_type,item_id,student_id))""")
-    c.execute("CREATE INDEX IF NOT EXISTS idx_assessment_views_item ON assessment_views(item_type,item_id)")
 
 def load_accounts():
     if not ACCOUNTS_FILE.exists():
@@ -264,7 +259,6 @@ def seed():
     c.execute("PRAGMA foreign_keys=ON")
     c.executescript(SCHEMA)
     migrate(c)
-    migrate_demo_extensions(c)
 
     accounts = load_accounts()
     upsert_accounts(c, accounts)
