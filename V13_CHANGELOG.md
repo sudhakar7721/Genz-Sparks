@@ -23,3 +23,10 @@ This version adds the requested Faculty and Student enhancements without intenti
 
 ### Existing behavior
 The original localStorage/offline fallback and existing backend bridge are retained. The new feature pack is loaded after the existing scripts so older modules remain available.
+
+## V13.1 — Student Timetable Matrix UI
+- Updated only the Student Class Timetable presentation to a day × period matrix matching the requested reference style.
+- Shows Monday–Friday, with Saturday retained automatically when Saturday timetable data exists.
+- Shows Period 1–7 with time ranges in each period header.
+- Shows subject name and subject faculty inside each timetable cell; room remains available when present.
+- Keeps existing backend `/api/student/class-details`, database timetable data, navigation, login, attendance, leave, tests, assignments, and all other modules unchanged.
