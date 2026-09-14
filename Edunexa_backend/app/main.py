@@ -216,7 +216,9 @@ def file_download(fid:int,u=Depends(current_user)):
 @app.post('/api/academics/tests')
 def create_test(title:str=Form(...),description:str=Form(''),subject:str=Form(''),class_name:str=Form(...),due_date:str=Form(''),max_mark:float=Form(100),file:UploadFile|None=File(None),u=Depends(roles('faculty','hod'))):
  fid=save_file(file,u['id'],'test') if file else None
- with get_db() as db: cur=db.execute('INSERT INTO tests(title,description,subject,class_name,faculty_id,due_date,max_mark,file_id) VALUES(?,?,?,?,?,?,?,?)',(title,description,subject,class_name,u['id'],due_date,max_mark,fid))
+ with get_db() as db:
+  cur=db.execute('INSERT INTO tests(title,description,subject,class_name,faculty_id,due_date,max_mark,file_id) VALUES(?,?,?,?,?,?,?,?)',(title,description,subject,class_name,u['id'],due_date,max_mark,fid))
+  _notify_class(db,class_name,u['department'],'New test published',f'{title} is available for {class_name}. Due: {due_date}')
  return {'id':cur.lastrowid}
 @app.get('/api/academics/tests')
 def tests(class_name:str|None=None,u=Depends(current_user)):
@@ -230,7 +232,9 @@ def tests(class_name:str|None=None,u=Depends(current_user)):
 @app.post('/api/academics/assignments')
 def create_assignment(title:str=Form(...),description:str=Form(''),subject:str=Form(''),class_name:str=Form(...),due_date:str=Form(''),max_mark:float=Form(100),file:UploadFile|None=File(None),u=Depends(roles('faculty','hod'))):
  fid=save_file(file,u['id'],'assignment') if file else None
- with get_db() as db: cur=db.execute('INSERT INTO assignments(title,description,subject,class_name,faculty_id,due_date,max_mark,file_id) VALUES(?,?,?,?,?,?,?,?)',(title,description,subject,class_name,u['id'],due_date,max_mark,fid))
+ with get_db() as db:
+  cur=db.execute('INSERT INTO assignments(title,description,subject,class_name,faculty_id,due_date,max_mark,file_id) VALUES(?,?,?,?,?,?,?,?)',(title,description,subject,class_name,u['id'],due_date,max_mark,fid))
+  _notify_class(db,class_name,u['department'],'New assignment published',f'{title} is available for {class_name}. Due: {due_date}')
  return {'id':cur.lastrowid}
 @app.get('/api/academics/assignments')
 def assignments(class_name:str|None=None,u=Depends(current_user)):
@@ -315,6 +319,111 @@ def hod_timetable(class_name:str|None=None,u=Depends(roles('hod'))): return clas
 def hod_faculty_timetable(fid:int,u=Depends(roles('hod'))): return faculty_tt(fid,u)
 @app.get('/api/hod/all')
 def hod_all(u=Depends(roles('hod'))): return {'dashboard':hod_dashboard(u),'students':hod_students(u),'faculty':hod_faculty(u),'mark_requests':requests(u),'feedback_analytics':feedback_analytics(u),'achievements':achievements(u)}
+
+# === Enhanced Faculty/Student prototype API ===
+def _target_student_ids(db, class_name, department):
+    q = "SELECT DISTINCT u.id FROM users u LEFT JOIN student_staff_assignments a ON a.student_id=u.id LEFT JOIN classes c ON c.id=a.class_id WHERE u.role='student' AND u.department=? AND (c.name=? OR u.batch=?)"
+    return [r[0] for r in db.execute(q,(department,class_name,class_name)).fetchall()]
+
+def _notify_class(db, class_name, department, title, message):
+    ids=_target_student_ids(db,class_name,department)
+    for sid in ids: db.execute('INSERT INTO notifications(user_id,title,message) VALUES(?,?,?)',(sid,title,message))
+    return len(ids)
+
+def _assessment_table(item_type):
+    if item_type not in ('test','assignment'): raise HTTPException(400,'Invalid assessment type')
+    return 'tests' if item_type=='test' else 'assignments'
+
+@app.get('/api/faculty/assessments/{item_type}')
+def faculty_assessments(item_type:str,history:bool=False,u=Depends(roles('faculty','hod'))):
+    table=_assessment_table(item_type)
+    with get_db() as db:
+        q=(f"SELECT a.*,u.name faculty_name,(SELECT COUNT(*) FROM assessment_views v WHERE v.item_type=? AND v.item_id=a.id) seen_count,"
+           f"(SELECT COUNT(*) FROM submissions s WHERE s.item_type=? AND s.item_id=a.id) completed_count FROM {table} a LEFT JOIN users u ON u.id=a.faculty_id WHERE a.faculty_id=? ORDER BY a.id DESC")
+        data=rows(db.execute(q,(item_type,item_type,u['id'])))
+    return data if history else data[:3]
+
+@app.get('/api/faculty/assessments/{item_type}/{item_id}')
+def faculty_assessment_detail(item_type:str,item_id:int,u=Depends(roles('faculty','hod'))):
+    table=_assessment_table(item_type)
+    with get_db() as db:
+        r=row(db.execute(f"SELECT a.*,u.name faculty_name FROM {table} a LEFT JOIN users u ON u.id=a.faculty_id WHERE a.id=?",(item_id,)))
+        if not r: raise HTTPException(404,'Assessment not found')
+        if u['role']=='faculty' and r.get('faculty_id')!=u['id']: raise HTTPException(403,'Access denied')
+        r['seen_count']=db.execute('SELECT COUNT(*) FROM assessment_views WHERE item_type=? AND item_id=?',(item_type,item_id)).fetchone()[0]
+        r['completed_count']=db.execute('SELECT COUNT(*) FROM submissions WHERE item_type=? AND item_id=?',(item_type,item_id)).fetchone()[0]
+        r['submissions']=rows(db.execute('SELECT s.id,s.student_id,u.name student_name,u.student_id student_code,s.status,s.mark,s.submitted_at,s.text_answer FROM submissions s JOIN users u ON u.id=s.student_id WHERE s.item_type=? AND s.item_id=? ORDER BY s.submitted_at DESC',(item_type,item_id)))
+    return r
+
+@app.put('/api/faculty/assessments/{item_type}/{item_id}')
+def faculty_assessment_edit(item_type:str,item_id:int,p:dict,u=Depends(roles('faculty','hod'))):
+    table=_assessment_table(item_type); allowed={'title','description','subject','class_name','due_date','max_mark'}
+    vals={k:p[k] for k in p if k in allowed}
+    if not vals: raise HTTPException(400,'No editable fields supplied')
+    with get_db() as db:
+        old=row(db.execute(f'SELECT * FROM {table} WHERE id=?',(item_id,)))
+        if not old: raise HTTPException(404,'Assessment not found')
+        if u['role']=='faculty' and old.get('faculty_id')!=u['id']: raise HTTPException(403,'Only the publishing faculty can edit')
+        db.execute('UPDATE '+table+' SET '+','.join(k+'=?' for k in vals)+' WHERE id=?',(*vals.values(),item_id))
+    return {'message':'Assessment updated'}
+
+@app.post('/api/faculty/assessments/{item_type}')
+def faculty_create_assessment(item_type:str,p:dict,u=Depends(roles('faculty','hod'))):
+    table=_assessment_table(item_type)
+    if any(not str(p.get(k,'')).strip() for k in ('title','subject','class_name')): raise HTTPException(400,'Title, subject and target class are required')
+    with get_db() as db:
+        if item_type=='test':
+            cur=db.execute('INSERT INTO tests(title,description,subject,class_name,faculty_id,due_date,max_mark,questions_json) VALUES(?,?,?,?,?,?,?,?)',(p['title'],p.get('description',''),p['subject'],p['class_name'],u['id'],p.get('due_date',''),float(p.get('max_mark',100)),json.dumps(p.get('questions') or [])))
+        else:
+            cur=db.execute('INSERT INTO assignments(title,description,subject,class_name,faculty_id,due_date,max_mark) VALUES(?,?,?,?,?,?,?)',(p['title'],p.get('description',''),p['subject'],p['class_name'],u['id'],p.get('due_date',''),float(p.get('max_mark',100))))
+        n=_notify_class(db,p['class_name'],u['department'],'New '+item_type+' published',f"{p['title']} is available for {p['class_name']}. Due: {p.get('due_date','')}")
+    return {'id':cur.lastrowid,'notified_students':n}
+
+@app.post('/api/assessments/{item_type}/{item_id}/view')
+def assessment_view(item_type:str,item_id:int,u=Depends(roles('student'))):
+    table=_assessment_table(item_type)
+    with get_db() as db:
+        r=row(db.execute(f'SELECT class_name FROM {table} WHERE id=?',(item_id,)))
+        if not r: raise HTTPException(404,'Assessment not found')
+        db.execute('INSERT OR IGNORE INTO assessment_views(item_type,item_id,student_id) VALUES(?,?,?)',(item_type,item_id,u['id']))
+    return {'message':'View recorded'}
+
+@app.get('/api/faculty/attendance/overview')
+def faculty_attendance_overview(u=Depends(roles('faculty','hod'))):
+    with get_db() as db:
+        classes=rows(db.execute('SELECT c.id,c.name,c.batch,c.semester,c.section,d.name department,ca.name class_adviser_name FROM classes c JOIN departments d ON d.id=c.department_id LEFT JOIN users ca ON ca.id=c.class_adviser_id WHERE d.name=? ORDER BY c.name',(u['department'],)))
+        for c in classes:
+            c['students']=rows(db.execute('''SELECT u.id,u.name,u.student_id,COUNT(att.id) total_days,COALESCE(SUM(CASE WHEN LOWER(att.status) IN ('present','p') THEN 1 ELSE 0 END),0) present_days,CASE WHEN COUNT(att.id)>0 THEN ROUND(100.0*SUM(CASE WHEN LOWER(att.status) IN ('present','p') THEN 1 ELSE 0 END)/COUNT(att.id),2) ELSE ROUND(COALESCE(u.attendance,0),2) END attendance_percentage FROM users u LEFT JOIN student_staff_assignments a ON a.student_id=u.id LEFT JOIN attendance att ON att.student_id=u.id WHERE u.role='student' AND u.department=? AND (a.class_id=? OR u.batch=?) GROUP BY u.id ORDER BY u.name''',(u['department'],c['id'],c['name'])))
+    return {'classes':classes}
+
+@app.get('/api/faculty/attendance/student/{sid}')
+def faculty_attendance_student(sid:int,u=Depends(roles('faculty','hod'))):
+    with get_db() as db:
+        st=row(db.execute("SELECT id,name,student_id,department,batch,attendance FROM users WHERE id=? AND role='student'",(sid,)))
+        if not st or st['department']!=u['department']: raise HTTPException(404,'Student not found')
+        rec=rows(db.execute('SELECT a.date,a.subject,a.status,a.marked_by,fu.name faculty_name FROM attendance a LEFT JOIN users fu ON fu.id=a.marked_by WHERE a.student_id=? ORDER BY a.date DESC,a.subject',(sid,)))
+        total=len(rec); present=sum(1 for x in rec if str(x['status']).lower() in ('present','p'))
+        st['attendance_percentage']=round(100*present/total,2) if total else round(float(st['attendance'] or 0),2); st['records']=rec
+    return st
+
+@app.get('/api/faculty/leaves/all')
+def faculty_all_leaves(student_name:str|None=None,status:str|None=None,month:str|None=None,date:str|None=None,u=Depends(roles('faculty','hod'))):
+    with get_db() as db:
+        q='SELECT l.*,u.name student_name,u.student_id student_code,u.department FROM leaves l JOIN users u ON u.id=l.student_id WHERE u.department=?'; a=[u['department']]
+        if student_name: q+=' AND u.name LIKE ?'; a.append('%'+student_name+'%')
+        if status: q+=' AND LOWER(l.status)=LOWER(?)'; a.append(status)
+        if month: q+=' AND substr(l.from_date,1,7)=?'; a.append(month)
+        if date: q+=' AND (date(l.from_date)=date(?) OR date(l.to_date)=date(?))'; a += [date,date]
+        return rows(db.execute(q+' ORDER BY l.created_at DESC,l.id DESC',a))
+
+@app.get('/api/student/class-details')
+def student_class_details(u=Depends(roles('student'))):
+    with get_db() as db:
+        r=row(db.execute('''SELECT c.id,c.name class_name,c.batch,c.semester,c.section,d.name department_name,ca.name class_adviser_name,me.name mentor_name,hd.name hod_name FROM student_staff_assignments a JOIN classes c ON c.id=a.class_id JOIN departments d ON d.id=c.department_id LEFT JOIN users ca ON ca.id=a.class_adviser_id LEFT JOIN users me ON me.id=a.mentor_id LEFT JOIN users hd ON hd.id=d.hod_user_id WHERE a.student_id=?''',(u['id'],)))
+        if not r: r={'class_name':u.get('batch') or 'Assigned Class','batch':u.get('batch') or '','department_name':u.get('department') or ''}
+        r['subject_faculty']=rows(db.execute('SELECT day,period,start_time,end_time,subject,faculty_name,room FROM class_timetables WHERE class_name=? ORDER BY id',(r.get('class_name'),)))
+    return r
+
 @app.get('/api/notifications')
 def notifications(u=Depends(current_user)):
  with get_db() as db: return rows(db.execute('SELECT * FROM notifications WHERE user_id=? ORDER BY created_at DESC',(u['id'],)))
