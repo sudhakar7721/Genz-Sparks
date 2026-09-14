@@ -58,3 +58,6 @@ CREATE INDEX IF NOT EXISTS idx_marks_student ON marks(student_id);
 CREATE INDEX IF NOT EXISTS idx_leaves_student ON leaves(student_id,status);
 CREATE INDEX IF NOT EXISTS idx_feedback_student ON feedbacks(student_id,status);
 CREATE INDEX IF NOT EXISTS idx_placements_student ON placements(student_id);
+
+CREATE TABLE IF NOT EXISTS assessment_views(id INTEGER PRIMARY KEY AUTOINCREMENT,item_type TEXT NOT NULL,item_id INTEGER NOT NULL,student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,viewed_at TEXT DEFAULT CURRENT_TIMESTAMP,UNIQUE(item_type,item_id,student_id));
+CREATE INDEX IF NOT EXISTS idx_assessment_views_item ON assessment_views(item_type,item_id);
