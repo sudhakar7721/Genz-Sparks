@@ -23,6 +23,14 @@ def ensure_column(c, table, column, definition):
         c.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 def migrate(c):
+    c.execute("""CREATE TABLE IF NOT EXISTS assessment_views(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        item_type TEXT NOT NULL CHECK(item_type IN('test','assignment')),
+        item_id INTEGER NOT NULL,
+        viewed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(student_id,item_type,item_id))""")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_assessment_views_item ON assessment_views(item_type,item_id)")
     ensure_column(c, "classes", "section", "TEXT")
     ensure_column(c, "classes", "class_adviser_id", "INTEGER")
     ensure_column(c, "faculty_profiles", "is_mentor", "INTEGER DEFAULT 0")
@@ -184,6 +192,64 @@ def seed_demo_data(c):
         (department,class_name,tuition,bus,hostel,placement)
         VALUES(?,?,?,?,?,?)""",
         ("Data Analytics","II B.Sc Data Analytics",75000,15000,0,5000))
+
+    # Default attendance for demo/initial students. Once real attendance
+    # records exist for a student, their stored percentage is not reset.
+    c.execute("""UPDATE users SET attendance=85
+        WHERE role='student' AND (attendance IS NULL OR attendance=0)
+        AND NOT EXISTS (SELECT 1 FROM attendance a WHERE a.student_id=users.id)""")
+
+    # Useful initial timetable rows so Class Details is not blank on a fresh
+    # install. Class Adviser edits are persisted through /api/timetables/class.
+    timetable_seed = {
+        "Data Analytics": [
+            ("Monday","1","09:00","09:50","Python","Dr. Priya"),
+            ("Monday","2","10:00","10:50","SQL","Meena Krishnan"),
+            ("Tuesday","1","09:00","09:50","Power BI","Dr. Priya"),
+            ("Wednesday","3","11:00","11:50","Data Analytics","Arun Prakash"),
+            ("Thursday","2","10:00","10:50","Excel","Anitha R")
+        ],
+        "Computer Science": [
+            ("Monday","1","09:00","09:50","Python Programming","Meena Krishnan"),
+            ("Tuesday","2","10:00","10:50","Database Systems","Arun Prakash"),
+            ("Wednesday","1","09:00","09:50","Web Technology","Meena Krishnan"),
+            ("Thursday","3","11:00","11:50","Data Structures","Arun Prakash"),
+            ("Friday","2","10:00","10:50","Computer Networks","Swetha K")
+        ],
+        "Commerce": [
+            ("Monday","1","09:00","09:50","Financial Accounting","Naveen Kumar"),
+            ("Tuesday","2","10:00","10:50","Business Analytics","Anitha R"),
+            ("Wednesday","1","09:00","09:50","Corporate Accounting","Naveen Kumar"),
+            ("Thursday","3","11:00","11:50","Marketing Management","Anitha R"),
+            ("Friday","2","10:00","10:50","Business Law","Naveen Kumar")
+        ],
+        "Artificial Intelligence": [
+            ("Monday","1","09:00","09:50","Machine Learning","Vignesh R"),
+            ("Tuesday","2","10:00","10:50","Python AI","Swetha K"),
+            ("Wednesday","1","09:00","09:50","Deep Learning","Vignesh R"),
+            ("Thursday","3","11:00","11:50","Data Mining","Swetha K"),
+            ("Friday","2","10:00","10:50","AI Fundamentals","Vignesh R")
+        ],
+        "Information Technology": [
+            ("Monday","1","09:00","09:50","Web Development","Dinesh Kumar"),
+            ("Tuesday","2","10:00","10:50","Database Management","Pavithra S"),
+            ("Wednesday","1","09:00","09:50","Cloud Computing","Dinesh Kumar"),
+            ("Thursday","3","11:00","11:50","Software Engineering","Pavithra S"),
+            ("Friday","2","10:00","10:50","Cyber Security","Dinesh Kumar")
+        ]
+    }
+    for dept_name, entries in timetable_seed.items():
+        class_row=c.execute("SELECT name FROM classes WHERE name=?",(f"II B.Sc {dept_name}",)).fetchone()
+        if not class_row:
+            continue
+        class_name=class_row[0]
+        adviser_row=c.execute("SELECT class_adviser_id FROM classes WHERE name=?",(class_name,)).fetchone()
+        created_by=adviser_row[0] if adviser_row else None
+        for day,period,start_time,end_time,subject,faculty_name in entries:
+            c.execute("""INSERT OR IGNORE INTO class_timetables
+                (class_name,day,period,start_time,end_time,subject,faculty_name,room,created_by)
+                VALUES(?,?,?,?,?,?,?,?,?)""",
+                (class_name,day,period,start_time,end_time,subject,faculty_name,"",created_by))
 
 def seed():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)

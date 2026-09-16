@@ -1,1 +1,27 @@
 .v3-timetable{min-width:900px}.v3-timetable th,.v3-timetable td{vertical-align:top;text-align:center;min-width:130px}.v3-timetable td{line-height:1.5}.v3-timetable td small{display:block;margin-top:3px}.v3-timetable tbody th{white-space:nowrap}.v3-timetable .empty{padding:18px}.form-grid .full{grid-column:1/-1}
+/* EduNexa V13 additive UI */
+#v13Overlay{position:fixed;inset:0;z-index:9999}.v13-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px}.v13-modal{background:var(--card,#fff);color:inherit;border-radius:18px;padding:24px;max-width:1000px;width:min(100%,1000px);max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}.v13-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}.v13-stat-grid>div{padding:14px;border:1px solid rgba(127,127,127,.2);border-radius:12px}.v13-stat-grid b{display:block;font-size:24px}.v13-stat-grid small{opacity:.75}.v13-filters{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:8px;margin:12px 0 18px}.v13-modal .actions{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:800px){.v13-filters{grid-template-columns:1fr 1fr}.v13-stat-grid{grid-template-columns:1fr}}
+
+
+/* V13 Student timetable — day x period matrix, matching the Class Timetable card style. */
+.v13-timetable-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:2px}
+.v13-student-timetable{width:100%;min-width:1180px;border-collapse:separate;border-spacing:0;background:#fff;table-layout:fixed}
+.v13-student-timetable th,.v13-student-timetable td{border-right:1px solid #e3e7ef;border-bottom:1px solid #dfe4ec;text-align:center;vertical-align:middle}
+.v13-student-timetable thead th{height:56px;background:#f5f7fb;color:#71809a;font-size:15px;font-weight:700;letter-spacing:.2px;padding:10px 8px}
+.v13-student-timetable thead th:first-child{border-top-left-radius:2px}
+.v13-student-timetable thead th:last-child{border-top-right-radius:2px;border-right:0}
+.v13-student-timetable tbody th.v13-tt-day-name{width:150px;background:#f5f7fb;color:#71809a;font-size:15px;font-weight:700;padding:16px 10px}
+.v13-student-timetable tbody td{height:116px;padding:13px 8px;color:#202b40;background:#fff;font-size:15px;line-height:1.35}
+.v13-student-timetable tbody tr:last-child th,.v13-student-timetable tbody tr:last-child td{border-bottom:0}
+.v13-student-timetable td:last-child,.v13-student-timetable th:last-child{border-right:0}
+.v13-tt-period{min-width:145px}
+.v13-tt-period small{display:block;margin-top:5px;color:#8a95a8;font-size:11px;font-weight:500;line-height:1.25;white-space:nowrap}
+.v13-tt-subject{font-weight:500;font-size:16px;line-height:1.45}
+.v13-tt-faculty{margin-top:7px;color:#33405a;font-size:14px;line-height:1.35}
+.v13-tt-room{display:block;margin-top:5px;color:#8b95a6;font-size:11px}
+.v13-tt-empty{color:#69758a;font-size:18px}
+.v13-tt-note{padding:9px 2px 0;color:#7a8598;font-size:12px}
+@media (max-width:900px){
+  .v13-student-timetable{min-width:1100px}
+  .v13-student-timetable tbody td{height:105px}
+}

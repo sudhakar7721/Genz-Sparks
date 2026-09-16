@@ -1,0 +1,38 @@
+
+/* =========================================================
+   EduNexa Student Enhancement UI
+========================================================= */
+.edu-interactive-stats .stat{min-height:150px}
+.edu-ring{
+ width:78px;height:78px;border-radius:50%;
+ display:grid;place-items:center;margin:0 auto 10px;
+ background:conic-gradient(var(--primary) var(--attendance),rgba(255,255,255,.10) 0);
+ position:relative;
+}
+.edu-ring:after{
+ content:"";position:absolute;inset:9px;border-radius:50%;
+ background:var(--card-bg,#111827);
+}
+.edu-ring span{position:relative;z-index:1;font-weight:800}
+.edu-interactive-dashboard{margin:18px 0}
+.edu-dashboard-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.edu-mini{padding:15px;border:1px solid rgba(127,127,127,.18);border-radius:16px;background:rgba(127,127,127,.05)}
+.edu-mini-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:9px}
+.edu-bar{height:8px;border-radius:99px;background:rgba(127,127,127,.16);overflow:hidden}
+.edu-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--primary),#7dd3fc)}
+.edu-mini small{display:block;margin-top:8px;opacity:.72}
+.edu-role-recommend{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.edu-role-main{display:flex;gap:13px;padding:16px;border-radius:16px;border:1px solid rgba(127,127,127,.18)}
+.edu-role-icon{font-size:28px}
+.edu-role-main p{margin:6px 0 10px;opacity:.78}
+.edu-role-list{display:grid;gap:9px}
+.edu-role-list>div{display:flex;justify-content:space-between;padding:12px;border-radius:12px;background:rgba(127,127,127,.06)}
+.edu-resume-card{margin-top:16px}
+.edu-record-item{margin-top:10px}
+@media(max-width:900px){
+ .edu-dashboard-grid{grid-template-columns:repeat(2,1fr)}
+ .edu-role-recommend{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+ .edu-dashboard-grid{grid-template-columns:1fr}
+}

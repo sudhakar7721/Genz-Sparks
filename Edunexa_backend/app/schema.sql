@@ -1,5 +1,5 @@
 PRAGMA foreign_keys=ON;
-CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,email TEXT UNIQUE COLLATE NOCASE NOT NULL,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN('student','faculty','hod','management')),student_id TEXT UNIQUE,faculty_id TEXT UNIQUE,hod_id TEXT UNIQUE,department TEXT DEFAULT 'Data Analytics',batch TEXT,designation TEXT,phone TEXT,qualification TEXT,experience TEXT,specialization TEXT,office TEXT,parent_name TEXT,parent_phone TEXT,attendance REAL DEFAULT 0,is_active INTEGER DEFAULT 1,created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,email TEXT UNIQUE COLLATE NOCASE NOT NULL,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN('student','faculty','hod','management')),student_id TEXT UNIQUE,faculty_id TEXT UNIQUE,hod_id TEXT UNIQUE,department TEXT DEFAULT 'Data Analytics',batch TEXT,designation TEXT,phone TEXT,qualification TEXT,experience TEXT,specialization TEXT,office TEXT,parent_name TEXT,parent_phone TEXT,attendance REAL DEFAULT 85,is_active INTEGER DEFAULT 1,created_at TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS student_profiles(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,age INTEGER,sex TEXT,caste TEXT,region TEXT,address TEXT,parent_name TEXT,parent_phone TEXT,blood_group TEXT,school_name TEXT,tenth_mark REAL,twelfth_mark REAL,additional_details TEXT);
 CREATE TABLE IF NOT EXISTS faculty_profiles(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,classes_handled TEXT DEFAULT '[]',subjects_handled TEXT DEFAULT '[]',is_class_adviser INTEGER DEFAULT 0,is_mentor INTEGER DEFAULT 0,extra_info TEXT);
 CREATE TABLE IF NOT EXISTS departments(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT UNIQUE NOT NULL,hod_user_id INTEGER REFERENCES users(id),description TEXT);
@@ -58,3 +58,13 @@ CREATE INDEX IF NOT EXISTS idx_marks_student ON marks(student_id);
 CREATE INDEX IF NOT EXISTS idx_leaves_student ON leaves(student_id,status);
 CREATE INDEX IF NOT EXISTS idx_feedback_student ON feedbacks(student_id,status);
 CREATE INDEX IF NOT EXISTS idx_placements_student ON placements(student_id);
+
+CREATE TABLE IF NOT EXISTS assessment_views(
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ item_type TEXT NOT NULL CHECK(item_type IN('test','assignment')),
+ item_id INTEGER NOT NULL,
+ viewed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE(student_id,item_type,item_id)
+);
+CREATE INDEX IF NOT EXISTS idx_assessment_views_item ON assessment_views(item_type,item_id);
